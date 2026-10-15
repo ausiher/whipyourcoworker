@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>OpenWhip AR - 3D Anime Arcade Filter</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=3">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
 </head>
 <body>
@@ -68,11 +68,12 @@
       <div class="modal-card">
         <h2 class="modal-title">🎬 Whip Clip Recorded!</h2>
         <div class="preview-video-container">
-          <video id="preview-video" controls playsinline></video>
+          <video id="preview-video" controls playsinline autoplay loop></video>
         </div>
         <div class="modal-actions">
+          <button id="btn-replay-video" class="modal-btn replay-btn">🔁 Replay Video</button>
           <button id="btn-download-video" class="modal-btn">💾 Save Video</button>
-          <button id="btn-share-video" class="modal-btn share-btn hidden">📲 Share Clip</button>
+          <button id="btn-share-video" class="modal-btn share-btn">📲 Share Clip</button>
           <button id="btn-close-preview" class="modal-btn secondary">Done</button>
         </div>
       </div>
@@ -93,7 +94,7 @@
   <!-- Three.js 3D Library & GLTF Loader -->
   <script src="libs/three.min.js"></script>
   <script src="libs/GLTFLoader.js"></script>
-  <script src="whip-engine.js?v=5"></script>
+  <script src="whip-engine.js?v=6"></script>
 
   <script>
     const container = document.getElementById('app-container');
@@ -114,6 +115,7 @@
 
     const previewModal = document.getElementById('preview-modal');
     const previewVideo = document.getElementById('preview-video');
+    const btnReplayVideo = document.getElementById('btn-replay-video');
     const btnDownloadVideo = document.getElementById('btn-download-video');
     const btnShareVideo = document.getElementById('btn-share-video');
     const btnClosePreview = document.getElementById('btn-close-preview');
@@ -322,7 +324,13 @@
       }
       requestAnimationFrame(recordFrame);
 
-      const stream = recordCanvas.captureStream(30);
+      const videoStream = recordCanvas.captureStream(30);
+      const audioStream = engine.getAudioStream ? engine.getAudioStream() : null;
+      const combinedTracks = [...videoStream.getVideoTracks()];
+      if (audioStream && audioStream.getAudioTracks().length > 0) {
+        combinedTracks.push(...audioStream.getAudioTracks());
+      }
+      const stream = new MediaStream(combinedTracks);
 
       // Support mobile mp4 or webm
       let options = { mimeType: 'video/webm;codecs=vp9' };
@@ -361,12 +369,8 @@
         previewModal.classList.remove('hidden');
         previewVideo.play().catch(() => {});
 
-        // Show native share button if mobile supports navigator.share
-        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([recordedBlob], 'openwhip.webm', { type: recordedBlob.type })] })) {
-          btnShareVideo.classList.remove('hidden');
-        } else {
-          btnShareVideo.classList.add('hidden');
-        }
+        // Keep share button accessible (handles file share or link share)
+        btnShareVideo.classList.remove('hidden');
       };
 
       mediaRecorder.start(100);
@@ -396,27 +400,58 @@
     }
 
     // Modal Action Buttons
+    btnReplayVideo.addEventListener('click', () => {
+      previewVideo.currentTime = 0;
+      previewVideo.play().catch(() => {});
+    });
+
     btnDownloadVideo.addEventListener('click', () => {
       if (!recordedBlob) return;
       const a = document.createElement('a');
       a.href = recordedUrl;
-      a.download = `openwhip-strike-${Date.now()}.${recordedBlob.type.includes('mp4') ? 'mp4' : 'webm'}`;
+      const isMp4 = recordedBlob.type.includes('mp4');
+      a.download = `openwhip-strike-${Date.now()}.${isMp4 ? 'mp4' : 'webm'}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
     });
 
     btnShareVideo.addEventListener('click', async () => {
-      if (!recordedBlob || !navigator.share) return;
-      const file = new File([recordedBlob], 'openwhip-strike.webm', { type: recordedBlob.type });
-      try {
-        await navigator.share({
-          title: 'OpenWhip Strike! ⚡',
-          text: 'Check out my OpenWhip AR strike!',
-          files: [file],
-        });
-      } catch (err) {
-        console.log('Share canceled or failed:', err);
+      if (!recordedBlob) return;
+      const isMp4 = recordedBlob.type.includes('mp4');
+      const filename = `openwhip-strike-${Date.now()}.${isMp4 ? 'mp4' : 'webm'}`;
+      const file = new File([recordedBlob], filename, { type: recordedBlob.type });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            title: 'Whip Your Coworker! ⚡',
+            text: 'I just disciplined my coworker with OpenWhip AR! ⚡',
+            files: [file],
+          });
+          return;
+        } catch (err) {
+          if (err.name !== 'AbortError') console.warn('File share failed, falling back:', err);
+        }
+      }
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Whip Your Coworker! ⚡',
+            text: 'Discipline your coworkers with OpenWhip AR! ⚡ Try it here:',
+            url: window.location.href,
+          });
+          return;
+        } catch (err) {
+          if (err.name !== 'AbortError') console.warn('Share canceled/failed:', err);
+        }
+      }
+
+      // Fallback: Copy link and prompt to download
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(window.location.href);
+        alert('App link copied to clipboard! You can also click "Save Video" to download your clip.');
       }
     });
 

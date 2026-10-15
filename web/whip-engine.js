@@ -52,11 +52,13 @@ class WhipEngine {
     this.floatingTexts = [];
     this.screenShake = 0;
 
-    // ── Device Motion / Physical Swing Activation ────────────────────────────
+    // ── Device Motion & 3D Gyro Parallax ──────────────────────────────────────
     this.lastSwingTime = 0;
+    this.lastAcc = { x: 0, y: 0, z: 0 };
+    this.gyroTilt = { x: 0, y: 0, z: 0 };
     this.motionListening = false;
     this.onSwingDetected = null;
-    this.initMotionSensor();
+    this.initSensors();
 
     // Callbacks
     this.onWhipHit = null;
@@ -67,14 +69,19 @@ class WhipEngine {
     requestAnimationFrame(this.loop);
   }
 
-  // ── Mobile Device Motion & Swing Sensor ───────────────────────────────────
-  initMotionSensor() {
+  // ── Mobile Device Sensors: Gyro 3D Tilt & Physical Swing ──────────────────
+  initSensors() {
     this.handleDeviceMotion = this.handleDeviceMotion.bind(this);
-    if (typeof window !== 'undefined' && 'DeviceMotionEvent' in window) {
-      // Android / Standard Browsers: attach immediately
-      if (typeof DeviceMotionEvent.requestPermission !== 'function') {
+    this.handleDeviceOrientation = this.handleDeviceOrientation.bind(this);
+
+    if (typeof window !== 'undefined') {
+      // 1. Android & Modern Browsers: Attach directly if permission not required
+      if ('DeviceMotionEvent' in window && typeof DeviceMotionEvent.requestPermission !== 'function') {
         window.addEventListener('devicemotion', this.handleDeviceMotion, true);
         this.motionListening = true;
+      }
+      if ('DeviceOrientationEvent' in window && typeof DeviceOrientationEvent.requestPermission !== 'function') {
+        window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
       }
     }
   }
@@ -88,28 +95,61 @@ class WhipEngine {
         }
       }).catch(() => {});
     }
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission().then(res => {
+        if (res === 'granted') {
+          window.addEventListener('deviceorientation', this.handleDeviceOrientation, true);
+        }
+      }).catch(() => {});
+    }
+  }
+
+  handleDeviceOrientation(event) {
+    if (event.gamma === null || event.beta === null) return;
+    // Map phone tilt into subtle 3D weapon rotation parallax
+    const pitch = THREE.MathUtils.clamp(event.beta - 45, -35, 35) * 0.012;
+    const yaw = THREE.MathUtils.clamp(event.gamma, -35, 35) * 0.014;
+    const roll = THREE.MathUtils.clamp(event.gamma, -25, 25) * -0.010;
+
+    this.gyroTilt.x += (pitch - this.gyroTilt.x) * 0.25;
+    this.gyroTilt.y += (yaw - this.gyroTilt.y) * 0.25;
+    this.gyroTilt.z += (roll - this.gyroTilt.z) * 0.25;
   }
 
   handleDeviceMotion(event) {
     const now = performance.now();
-    if (now - this.lastSwingTime < 320) return; // Prevent double-triggering in single wrist arc
+    if (now - this.lastSwingTime < 280) return; // Prevent double-triggering in single wrist arc
 
-    // Read linear acceleration (excluding gravity if available)
-    const acc = event.acceleration || event.accelerationIncludingGravity;
-    if (!acc) return;
+    // Support devices where event.acceleration properties may be null
+    let ax = 0, ay = 0, az = 0;
+    if (event.acceleration && event.acceleration.x !== null) {
+      ax = event.acceleration.x || 0;
+      ay = event.acceleration.y || 0;
+      az = event.acceleration.z || 0;
+    } else if (event.accelerationIncludingGravity && event.accelerationIncludingGravity.x !== null) {
+      ax = event.accelerationIncludingGravity.x || 0;
+      ay = event.accelerationIncludingGravity.y || 0;
+      az = event.accelerationIncludingGravity.z || 0;
+    } else {
+      return;
+    }
 
-    const ax = acc.x || 0;
-    const ay = acc.y || 0;
-    const az = acc.z || 0;
+    // Delta acceleration cancels static 9.8m/s^2 gravity perfectly on any orientation
+    const dx = ax - this.lastAcc.x;
+    const dy = ay - this.lastAcc.y;
+    const dz = az - this.lastAcc.z;
+    this.lastAcc = { x: ax, y: ay, z: az };
+
+    const deltaMag = Math.hypot(dx, dy, dz);
     const totalMag = Math.hypot(ax, ay, az);
 
-    // High-impact physical swing snap threshold: >= 20.0 m/s^2
-    if (totalMag >= 20.0) {
+    // High impact flick threshold: deltaMag >= 13 m/s² OR totalMag >= 20 m/s²
+    if (deltaMag >= 13.0 || totalMag >= 20.0) {
       this.lastSwingTime = now;
 
       // Haptic feedback vibration
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
-        try { navigator.vibrate([45, 30, 90]); } catch {}
+        try { navigator.vibrate([40, 25, 80]); } catch {}
       }
 
       // Strike directly at center of screen (crosshair)
@@ -118,7 +158,7 @@ class WhipEngine {
       this.strikeAt(targetX, targetY);
 
       if (this.onSwingDetected) {
-        this.onSwingDetected(totalMag);
+        this.onSwingDetected(deltaMag || totalMag);
       }
     }
   }
@@ -138,7 +178,7 @@ class WhipEngine {
   }
 
   initAudio() {
-    const soundFiles = [
+    this.soundFiles = [
       'sounds/A.mp3',
       'sounds/B.mp3',
       'sounds/C.mp3',
@@ -146,14 +186,46 @@ class WhipEngine {
       'sounds/E.mp3',
     ];
 
-    soundFiles.forEach(src => {
+    // HTML5 Audio fallback
+    this.audioPool = [];
+    this.soundFiles.forEach(src => {
       const a = new Audio(src);
       a.volume = 0.95;
       this.audioPool.push(a);
     });
+
+    // Web Audio Engine for zero-latency + video stream audio injection
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtx) {
+      try {
+        this.audioCtx = new AudioCtx();
+        this.audioDest = this.audioCtx.createMediaStreamDestination();
+        this.audioBuffers = [];
+        this.loadAudioBuffers();
+      } catch (e) {
+        console.warn('Web Audio init note:', e);
+      }
+    }
+  }
+
+  async loadAudioBuffers() {
+    if (!this.audioCtx) return;
+    for (const src of this.soundFiles) {
+      try {
+        const resp = await fetch(src);
+        const arrayBuffer = await resp.arrayBuffer();
+        const decoded = await this.audioCtx.decodeAudioData(arrayBuffer);
+        this.audioBuffers.push(decoded);
+      } catch (e) {
+        // Fallback to HTML5 audio pool
+      }
+    }
   }
 
   unlockAudio() {
+    if (this.audioCtx && this.audioCtx.state === 'suspended') {
+      this.audioCtx.resume().catch(() => {});
+    }
     if (this.audioUnlocked) return;
     this.audioUnlocked = true;
     try {
@@ -168,13 +240,51 @@ class WhipEngine {
   }
 
   playCrackSound() {
-    if (this.isMuted || !this.audioPool.length) return;
+    if (this.isMuted) return;
+    this.unlockAudio();
+
+    const pitchRate = Math.min(1.58, 0.95 + (this.frenzy - 1.0) * 0.18);
+
+    // 1. Web Audio (Zero-latency + Mixed into video recording stream)
+    if (this.audioCtx && this.audioBuffers && this.audioBuffers.length > 0) {
+      try {
+        if (this.audioCtx.state === 'suspended') {
+          this.audioCtx.resume();
+        }
+        const buffer = this.audioBuffers[Math.floor(Math.random() * this.audioBuffers.length)];
+        const source = this.audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.playbackRate.value = pitchRate;
+
+        const gainNode = this.audioCtx.createGain();
+        gainNode.gain.value = 0.95;
+
+        source.connect(gainNode);
+        gainNode.connect(this.audioCtx.destination); // to User Speakers
+
+        if (this.audioDest) {
+          gainNode.connect(this.audioDest); // to Video Recorder MediaStream!
+        }
+        source.start(0);
+        return;
+      } catch (e) {
+        // Fallback to HTML5 Audio below
+      }
+    }
+
+    // 2. Fallback HTML5 Audio
     try {
-      const a = this.audioPool[Math.floor(Math.random() * this.audioPool.length)];
-      a.currentTime = 0;
-      a.playbackRate = Math.min(1.55, 0.95 + (this.frenzy - 1.0) * 0.16);
-      a.play().catch(() => {});
+      if (this.audioPool && this.audioPool.length > 0) {
+        const a = this.audioPool[Math.floor(Math.random() * this.audioPool.length)];
+        a.currentTime = 0;
+        a.playbackRate = pitchRate;
+        a.play().catch(() => {});
+      }
     } catch {}
+  }
+
+  getAudioStream() {
+    return this.audioDest ? this.audioDest.stream : null;
   }
 
   initWhipPoints() {
@@ -239,12 +349,27 @@ class WhipEngine {
     const visibleHeight = 2 * Math.tan(vFOV / 2) * dist;
     const visibleWidth = visibleHeight * this.camera.aspect;
 
-    // Prominent FPS weapon position in lower-right corner
-    this.armBasePos = new THREE.Vector3(
-      Math.min(visibleWidth * 0.28, 1.15),
-      -visibleHeight * 0.32,
-      -dist
-    );
+    const isPortrait = this.camera.aspect < 1.0;
+
+    if (isPortrait) {
+      // Mobile Portrait (e.g. 9:16 or 9:19.5):
+      // Push arm comfortably into lower-right corner leaving center open
+      this.armBasePos = new THREE.Vector3(
+        visibleWidth * 0.38,
+        -visibleHeight * 0.36,
+        -dist
+      );
+      this.armRoot.scale.set(0.85, 0.85, 0.85);
+    } else {
+      // Desktop / Landscape:
+      this.armBasePos = new THREE.Vector3(
+        Math.min(visibleWidth * 0.28, 1.15),
+        -visibleHeight * 0.32,
+        -dist
+      );
+      this.armRoot.scale.set(1.0, 1.0, 1.0);
+    }
+
     this.armRoot.position.copy(this.armBasePos);
   }
 
@@ -417,15 +542,16 @@ class WhipEngine {
       this.energyMat.color.setHex(energyHex);
     }
 
-    // 1. Three.js 3D Arm Motion & Weapon Sway
+    // 1. Three.js 3D Arm Motion, Weapon Sway & 3D Gyro Tilt Reaction
     const idleSwayX = Math.cos(this.time * 2.2) * 0.02;
     const idleSwayY = Math.sin(this.time * 3.0) * 0.015;
     const idleRotZ = Math.sin(this.time * 1.8) * 0.012;
 
     let armTargetX = this.armBasePos ? this.armBasePos.x + idleSwayX : 1.1;
     let armTargetY = this.armBasePos ? this.armBasePos.y + idleSwayY : -0.7;
-    let armRotX = 0;
-    let armRotZ = idleRotZ;
+    let armRotX = this.gyroTilt.x;
+    let armRotY = this.gyroTilt.y;
+    let armRotZ = idleRotZ + this.gyroTilt.z;
 
     let tipTarget = null;
     let strikeWavePhase = 0;
@@ -478,10 +604,11 @@ class WhipEngine {
       }
     }
 
-    // Apply transforms to 3D Arm Root
+    // Apply transforms to 3D Arm Root (including 3D gyro tilt)
     this.armRoot.position.x += (armTargetX - this.armRoot.position.x) * 0.45;
     this.armRoot.position.y += (armTargetY - this.armRoot.position.y) * 0.45;
     this.armRoot.rotation.x += (armRotX - this.armRoot.rotation.x) * 0.45;
+    this.armRoot.rotation.y += (armRotY - this.armRoot.rotation.y) * 0.45;
     this.armRoot.rotation.z += (armRotZ - this.armRoot.rotation.z) * 0.45;
 
     // Get 3D Emitter screen coordinates

@@ -377,6 +377,11 @@ html, body {
   box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4);
 }
 
+.modal-btn.replay-btn {
+  background: #34c759;
+  box-shadow: 0 4px 15px rgba(52, 199, 89, 0.4);
+}
+
 .modal-btn.secondary {
   background: rgba(255, 255, 255, 0.1);
   box-shadow: none;

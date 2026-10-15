@@ -1,0 +1,12 @@
+/*
+  Permissions-Policy: camera=(self), accelerometer=(self), gyroscope=(self), magnetometer=(self)
+  Access-Control-Allow-Origin: *
+
+/models/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/sounds/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/libs/*
+  Cache-Control: public, max-age=31536000, immutable
