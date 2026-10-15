@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>OpenWhip AR - 3D Anime Arcade Filter</title>
-  <link rel="stylesheet" href="style.css?v=3">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+  <title>OpenWhip™ Corporate AR | Work Productivity Maxx</title>
+  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a66c2'/><text x='50' y='68' font-size='56' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>in</text></svg>">
 </head>
 <body>
   <div id="app-container">
@@ -18,16 +18,68 @@
     <!-- 2D Overlay: Whip physics, shockwaves, sparks & comic text -->
     <canvas id="whip-canvas"></canvas>
 
-    <!-- Top HUD Bar (No top-left brand badge for clean view) -->
-    <div class="top-hud">
-      <!-- Frenzy Speed Multiplier Gauge -->
-      <div id="frenzy-badge" class="frenzy-badge">
-        <span>⚡ 1.0x SPEED</span>
+    <!-- ── LinkedIn Corporate Top Navigation Bar ─────────────────────────────── -->
+    <header class="linkedin-header">
+      <div class="linkedin-brand">
+        <div class="linkedin-logo-badge">in</div>
+        <div class="linkedin-brand-text">
+          <div class="brand-title">WorkforceSynergy™</div>
+          <div class="brand-subtitle">OpenWhip Executive AR</div>
+        </div>
       </div>
 
-      <!-- Strike Counter -->
-      <div id="counter-badge" class="counter-badge">
-        0 WHIPS
+      <div class="linkedin-status-group">
+        <div class="status-pill open-to-whip">
+          <span class="pulse-dot"></span>
+          <span>OPEN TO WHIP</span>
+        </div>
+        <div class="status-pill top-voice">
+          <span>🗣️ Top Voice</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Work Productivity Maxx Meter ──────────────────────────────────────── -->
+    <div class="productivity-meter-container">
+      <div class="meter-card">
+        <div class="meter-header">
+          <div class="meter-title">
+            <span class="meter-icon">📈</span>
+            <span class="meter-label">WORK PRODUCTIVITY MAXX</span>
+          </div>
+          <div id="productivity-rank-badge" class="rank-badge intern">
+            UNPAID INTERN (1.0x)
+          </div>
+        </div>
+
+        <!-- Gauge Bar with Milestones -->
+        <div class="meter-track-container">
+          <div class="meter-milestones">
+            <span class="milestone-label">1.0x Base</span>
+            <span class="milestone-label">2.0x Overtime</span>
+            <span class="milestone-label">3.0x Synergy</span>
+            <span class="milestone-label">4.0x MAXX ⚡</span>
+          </div>
+          <div class="meter-track">
+            <div id="meter-fill" class="meter-fill" style="width: 0%;"></div>
+            <div id="meter-pip" class="meter-pip" style="left: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Multiplier Stats Footer -->
+        <div class="meter-stats-row">
+          <div class="stat-group">
+            <span class="stat-small">MULTIPLIER</span>
+            <span id="meter-multiplier-val" class="stat-highlight">1.0x</span>
+          </div>
+          <div id="combo-pill" class="combo-pill hidden">
+            🔥 <span id="combo-count">1</span> COMBO
+          </div>
+          <div class="stat-group right">
+            <span class="stat-small">DISCIPLINE ACTIONS</span>
+            <span id="counter-val" class="stat-highlight">0 DELIVERED</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -35,57 +87,186 @@
     <div id="record-timer" class="record-timer hidden">
       <div class="record-dot"></div>
       <span id="record-time-text">REC 00:00</span>
+      <span class="mic-status-pill">🎙️ MIC ON</span>
     </div>
 
-    <!-- Floating Action Controls -->
+    <!-- ── Floating Corporate Action Controls ────────────────────────────────── -->
     <div class="controls-container">
-      <!-- Record Video Button -->
+      <!-- Executive Wardrobe Selection Button -->
+      <button id="btn-wardrobe" class="btn-control" title="Executive Wardrobe & Whip" aria-label="Executive Wardrobe">👔</button>
+
+      <!-- Broadcast / Record Video Button -->
       <button id="btn-record" class="btn-control record-btn" title="Record Video" aria-label="Record Video">🔴</button>
 
       <!-- Switch Camera Button -->
-      <button id="btn-flip" class="btn-control" title="Switch Camera" aria-label="Switch Camera">🔄</button>
+      <button id="btn-flip" class="btn-control" title="Switch Perspective" aria-label="Switch Perspective">🔄</button>
 
-      <!-- Sound Toggle Button -->
-      <button id="btn-sound" class="btn-control" title="Toggle Sound" aria-label="Toggle Sound">🔊</button>
+      <!-- Corporate Audio Policy Toggle -->
+      <button id="btn-sound" class="btn-control" title="Corporate Audio Policy" aria-label="Toggle Sound">🔊</button>
 
-      <!-- Fullscreen Toggle Button -->
-      <button id="btn-fullscreen" class="btn-control" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">⛶</button>
+      <!-- Presentation Mode / Fullscreen -->
+      <button id="btn-fullscreen" class="btn-control" title="Presentation Mode" aria-label="Toggle Fullscreen">⛶</button>
     </div>
 
-    <!-- Center Tactical AR Targeting Reticle -->
+    <!-- ── Corporate Tactical AR Reticle ─────────────────────────────────────── -->
     <div id="target-crosshair" class="target-crosshair">
+      <div class="reticle-bracket tl"></div>
+      <div class="reticle-bracket tr"></div>
+      <div class="reticle-bracket bl"></div>
+      <div class="reticle-bracket br"></div>
       <div class="crosshair-ring"></div>
       <div class="crosshair-dot"></div>
+      <div class="reticle-label">PERFORMANCE AUDIT</div>
     </div>
 
     <!-- Tap / Swing Hint Banner -->
     <div id="tap-hint" class="tap-hint">
-      👆 Tap or 📱 Swing phone to whip!
+      💼 Tap or 📱 Swing to align workplace synergy!
     </div>
 
-    <!-- Video Preview Modal (When recording finishes) -->
+    <!-- ── Executive Wardrobe Modal ──────────────────────────────────────────── -->
+    <div id="wardrobe-modal" class="modal-overlay hidden">
+      <div class="modal-card wardrobe-card">
+        <div class="modal-header">
+          <div class="modal-badge-row">
+            <span class="linkedin-mini-badge">in</span>
+            <span class="modal-subtitle">EXECUTIVE APPARATUS</span>
+          </div>
+          <h2 class="modal-title">Executive Wardrobe & Whip</h2>
+          <p class="modal-desc">Select your corporate attire to optimize discipline delivery.</p>
+        </div>
+
+        <div class="wardrobe-grid">
+          <!-- Option 1: C-Suite -->
+          <div class="wardrobe-option active" data-style="csuite">
+            <div class="option-icon">👔</div>
+            <div class="option-info">
+              <div class="option-title">The C-Suite Executive</div>
+              <div class="option-meta">Navy Tailored Wool • Rolex Gold Watch • Italian Walnut Whip</div>
+              <div class="option-perk">+50% Executive Presence</div>
+            </div>
+            <div class="option-check">✓</div>
+          </div>
+
+          <!-- Option 2: Silicon Valley -->
+          <div class="wardrobe-option" data-style="silicon">
+            <div class="option-icon">💻</div>
+            <div class="option-info">
+              <div class="option-title">Silicon Valley 10x Hustler</div>
+              <div class="option-meta">Patagonia Tech Fleece • Apple Watch Ultra • Carbon Whip</div>
+              <div class="option-perk">+100% Disruptive Velocity</div>
+            </div>
+            <div class="option-check">✓</div>
+          </div>
+
+          <!-- Option 3: Wall Street Titan -->
+          <div class="wardrobe-option" data-style="wallstreet">
+            <div class="option-icon">🪙</div>
+            <div class="option-info">
+              <div class="option-title">Wall Street Titan</div>
+              <div class="option-meta">Midnight Wool • 24K Solid Gold Gauntlet • Bullion Whip</div>
+              <div class="option-perk">+200% Golden Parachute Bonus</div>
+            </div>
+            <div class="option-check">✓</div>
+          </div>
+
+          <!-- Option 4: Cyber Director 2077 -->
+          <div class="wardrobe-option" data-style="cyber">
+            <div class="option-icon">🦾</div>
+            <div class="option-info">
+              <div class="option-title">Cyber Director 2077</div>
+              <div class="option-meta">Exoskeleton Bracer • Chrome Prosthetic • Plasma Whip</div>
+              <div class="option-perk">+300% Overclock Yield</div>
+            </div>
+            <div class="option-check">✓</div>
+          </div>
+        </div>
+
+        <button id="btn-close-wardrobe" class="modal-btn linkedin-primary">Equip Attire</button>
+      </div>
+    </div>
+
+    <!-- ── Video Preview & Share Modal ───────────────────────────────────────── -->
     <div id="preview-modal" class="modal-overlay hidden">
       <div class="modal-card">
-        <h2 class="modal-title">🎬 Whip Clip Recorded!</h2>
+        <div class="modal-header">
+          <div class="modal-badge-row">
+            <span class="linkedin-mini-badge">in</span>
+            <span class="modal-subtitle">PERFORMANCE REVIEW LOGGED</span>
+          </div>
+          <h2 class="modal-title">📢 Review Broadcast Ready!</h2>
+          <p class="modal-desc">Clip recorded with microphone audio, sound effects & productivity metrics.</p>
+        </div>
+
         <div class="preview-video-container">
           <video id="preview-video" controls playsinline autoplay loop></video>
         </div>
+
+        <!-- Metric highlights -->
+        <div class="preview-metric-pills">
+          <div class="metric-pill">
+            <span class="metric-label">PEAK MAXX</span>
+            <span id="preview-peak-mult" class="metric-value">3.8x</span>
+          </div>
+          <div class="metric-pill">
+            <span class="metric-label">ACTIONS</span>
+            <span id="preview-actions" class="metric-value">18 Hits</span>
+          </div>
+          <div class="metric-pill">
+            <span class="metric-label">ATTIRE</span>
+            <span id="preview-style" class="metric-value">C-Suite</span>
+          </div>
+          <div class="metric-pill">
+            <span class="metric-label">AUDIO MIX</span>
+            <span id="preview-audio" class="metric-value">🎙️ Mic + SFX</span>
+          </div>
+        </div>
+
         <div class="modal-actions">
-          <button id="btn-replay-video" class="modal-btn replay-btn">🔁 Replay Video</button>
-          <button id="btn-download-video" class="modal-btn">💾 Save Video</button>
-          <button id="btn-share-video" class="modal-btn share-btn">📲 Share Clip</button>
-          <button id="btn-close-preview" class="modal-btn secondary">Done</button>
+          <!-- Primary Share to Messaging Channel (WhatsApp, Slack, LinkedIn, etc.) -->
+          <button id="btn-share-video" class="modal-btn share-btn">
+            📲 Share Clip to Messaging Apps (WhatsApp / Slack / LinkedIn)
+          </button>
+
+          <!-- Direct Messaging Channels Row -->
+          <div class="share-shortcuts-row">
+            <button id="btn-share-whatsapp" class="modal-btn shortcut-btn whatsapp" title="Share via WhatsApp">
+              💬 WhatsApp
+            </button>
+            <button id="btn-share-linkedin" class="modal-btn shortcut-btn linkedin" title="Post to LinkedIn">
+              💼 LinkedIn
+            </button>
+            <button id="btn-download-video" class="modal-btn shortcut-btn download" title="Save Video File (.mp4)">
+              💾 Save .MP4
+            </button>
+          </div>
+
+          <!-- Copy Viral Post Text -->
+          <button id="btn-copy-post" class="modal-btn secondary">
+            📋 Copy Corporate Announcement
+          </button>
+          <!-- Replay Button -->
+          <button id="btn-replay-video" class="modal-btn secondary">
+            🔁 Replay Video with Audio
+          </button>
+          <!-- Done Button -->
+          <button id="btn-close-preview" class="modal-btn tertiary">
+            Dismiss
+          </button>
         </div>
       </div>
     </div>
+
+    <!-- Corporate Toast Notification -->
+    <div id="corporate-toast" class="corporate-toast hidden"></div>
 
     <!-- Camera Permission / Info Modal -->
     <div id="camera-modal" class="modal-overlay hidden">
       <div class="modal-card">
         <div class="modal-icon">📷</div>
-        <h2 class="modal-title">Camera Access Needed</h2>
-        <p class="modal-desc">OpenWhip AR needs camera access to point your 3D gauntlet and whip at targets.</p>
-        <button id="btn-enable-camera" class="modal-btn">Enable Camera</button>
+        <h2 class="modal-title">Camera Permission Needed</h2>
+        <p class="modal-desc">OpenWhip AR requires camera access to project your executive whip onto workplace targets.</p>
+        <button id="btn-enable-camera" class="modal-btn linkedin-primary">Enable Camera Access</button>
         <button id="btn-mock-camera" class="modal-btn secondary">Try Demo (No Camera)</button>
       </div>
     </div>
@@ -94,7 +275,7 @@
   <!-- Three.js 3D Library & GLTF Loader -->
   <script src="libs/three.min.js"></script>
   <script src="libs/GLTFLoader.js"></script>
-  <script src="whip-engine.js?v=6"></script>
+  <script src="whip-engine.js?v=7"></script>
 
   <script>
     const container = document.getElementById('app-container');
@@ -102,37 +283,114 @@
     const threeCanvas = document.getElementById('three-canvas');
     const canvas = document.getElementById('whip-canvas');
     const crosshair = document.getElementById('target-crosshair');
-    const frenzyBadge = document.getElementById('frenzy-badge');
-    const counterBadge = document.getElementById('counter-badge');
     const tapHint = document.getElementById('tap-hint');
     const recordTimer = document.getElementById('record-timer');
     const recordTimeText = document.getElementById('record-time-text');
 
+    // Productivity Maxx Meter Elements
+    const rankBadge = document.getElementById('productivity-rank-badge');
+    const meterFill = document.getElementById('meter-fill');
+    const meterPip = document.getElementById('meter-pip');
+    const multiplierVal = document.getElementById('meter-multiplier-val');
+    const comboPill = document.getElementById('combo-pill');
+    const comboCount = document.getElementById('combo-count');
+    const counterVal = document.getElementById('counter-val');
+
+    // Controls
+    const btnWardrobe = document.getElementById('btn-wardrobe');
     const btnRecord = document.getElementById('btn-record');
     const btnFlip = document.getElementById('btn-flip');
     const btnSound = document.getElementById('btn-sound');
     const btnFullscreen = document.getElementById('btn-fullscreen');
 
+    // Wardrobe Modal
+    const wardrobeModal = document.getElementById('wardrobe-modal');
+    const btnCloseWardrobe = document.getElementById('btn-close-wardrobe');
+    const wardrobeOptions = document.querySelectorAll('.wardrobe-option');
+
+    // Preview Modal
     const previewModal = document.getElementById('preview-modal');
     const previewVideo = document.getElementById('preview-video');
     const btnReplayVideo = document.getElementById('btn-replay-video');
     const btnDownloadVideo = document.getElementById('btn-download-video');
     const btnShareVideo = document.getElementById('btn-share-video');
+    const btnShareWhatsapp = document.getElementById('btn-share-whatsapp');
+    const btnShareLinkedin = document.getElementById('btn-share-linkedin');
+    const btnCopyPost = document.getElementById('btn-copy-post');
     const btnClosePreview = document.getElementById('btn-close-preview');
+
+    const previewPeakMult = document.getElementById('preview-peak-mult');
+    const previewActions = document.getElementById('preview-actions');
+    const previewStyle = document.getElementById('preview-style');
+    const previewAudio = document.getElementById('preview-audio');
+    const corporateToast = document.getElementById('corporate-toast');
+
+    function showToast(message) {
+      if (!corporateToast) return;
+      corporateToast.textContent = message;
+      corporateToast.classList.remove('hidden');
+      corporateToast.classList.add('visible');
+      clearTimeout(corporateToast._timer);
+      corporateToast._timer = setTimeout(() => {
+        corporateToast.classList.remove('visible');
+        setTimeout(() => corporateToast.classList.add('hidden'), 300);
+      }, 2800);
+    }
 
     const cameraModal = document.getElementById('camera-modal');
     const btnEnableCamera = document.getElementById('btn-enable-camera');
     const btnMockCamera = document.getElementById('btn-mock-camera');
 
-    // Initialize 3D Gauntlet & Whip Engine
+    // Initialize 3D Engine
     const engine = new WhipEngine(canvas, threeCanvas);
     window.engine = engine;
 
-    // Strike counter update
+    let peakMultiplierDuringRecording = 1.0;
+
+    // ── Update Productivity Maxx Meter HUD ──────────────────────────────────
+    function updateProductivityHUD(frenzy, combo) {
+      const info = engine.getProductivityInfo();
+      multiplierVal.textContent = info.formattedMultiplier;
+      rankBadge.textContent = info.tierName;
+
+      // Update Meter Fill & Pip
+      const pct = Math.max(0, Math.min(100, info.progress * 100));
+      meterFill.style.width = pct + '%';
+      meterPip.style.left = pct + '%';
+
+      // Update Color Class
+      rankBadge.className = 'rank-badge';
+      if (frenzy >= 3.8) {
+        rankBadge.classList.add('unicorn');
+        meterFill.style.background = 'linear-gradient(90deg, #0a66c2 0%, #10b981 35%, #f59e0b 70%, #ec4899 100%)';
+      } else if (frenzy >= 2.8) {
+        rankBadge.classList.add('synergy');
+        meterFill.style.background = 'linear-gradient(90deg, #0a66c2 0%, #10b981 50%, #f59e0b 100%)';
+      } else if (frenzy >= 1.8) {
+        rankBadge.classList.add('overtime');
+        meterFill.style.background = 'linear-gradient(90deg, #0a66c2 0%, #10b981 100%)';
+      } else {
+        rankBadge.classList.add('intern');
+        meterFill.style.background = '#0a66c2';
+      }
+
+      // Combo Pill
+      if (combo > 1) {
+        comboPill.classList.remove('hidden');
+        comboCount.textContent = combo;
+      } else {
+        comboPill.classList.add('hidden');
+      }
+
+      if (frenzy > peakMultiplierDuringRecording) {
+        peakMultiplierDuringRecording = frenzy;
+      }
+    }
+
     engine.onWhipHit = (count, combo) => {
-      counterBadge.textContent = `${count} ${count === 1 ? 'WHIP' : 'WHIPS'}`;
-      counterBadge.classList.add('bump');
-      setTimeout(() => counterBadge.classList.remove('bump'), 160);
+      counterVal.textContent = `${count} DELIVERED`;
+      counterVal.classList.add('bump');
+      setTimeout(() => counterVal.classList.remove('bump'), 160);
 
       if (crosshair) {
         crosshair.classList.add('active');
@@ -144,26 +402,14 @@
       }
     };
 
-    // Device Swing Feedback
+    engine.onFrenzyChange = (frenzy, combo) => {
+      updateProductivityHUD(frenzy, combo);
+    };
+
     engine.onSwingDetected = (mag) => {
       if (crosshair) {
         crosshair.classList.add('active');
         setTimeout(() => crosshair.classList.remove('active'), 240);
-      }
-    };
-
-    // Frenzy Speed Multiplier HUD update
-    engine.onFrenzyChange = (frenzy, combo) => {
-      const formatted = frenzy.toFixed(1);
-      if (frenzy >= 2.8) {
-        frenzyBadge.innerHTML = `<span>🔥 FRENZY ${formatted}x SPEED</span>`;
-        frenzyBadge.classList.add('blazing');
-      } else if (frenzy >= 1.8) {
-        frenzyBadge.innerHTML = `<span>⚡ ${formatted}x SPEED (${combo} COMBO)</span>`;
-        frenzyBadge.classList.remove('blazing');
-      } else {
-        frenzyBadge.innerHTML = `<span>⚡ ${formatted}x SPEED</span>`;
-        frenzyBadge.classList.remove('blazing');
       }
     };
 
@@ -172,15 +418,34 @@
       engine.resize();
     });
 
-    // ── Tap & Swing Activation Handling ─────────────────────────────────────
+    // ── Tap & Swing Handling ────────────────────────────────────────────────
     container.addEventListener('pointerdown', (e) => {
       engine.unlockAudio();
       engine.requestMotionPermission();
 
-      if (e.target.closest('.btn-control') || e.target.closest('.modal-card')) {
+      if (e.target.closest('.btn-control') || e.target.closest('.modal-card') || e.target.closest('.productivity-meter-container')) {
         return;
       }
       engine.strikeAt(e.clientX, e.clientY);
+    });
+
+    // ── Executive Wardrobe Drawer ───────────────────────────────────────────
+    btnWardrobe.addEventListener('click', (e) => {
+      e.stopPropagation();
+      wardrobeModal.classList.remove('hidden');
+    });
+
+    wardrobeOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        wardrobeOptions.forEach(o => o.classList.remove('active'));
+        opt.classList.add('active');
+        const styleKey = opt.getAttribute('data-style');
+        engine.setExecutiveStyle(styleKey);
+      });
+    });
+
+    btnCloseWardrobe.addEventListener('click', () => {
+      wardrobeModal.classList.add('hidden');
     });
 
     // ── Camera Streaming ────────────────────────────────────────────────────
@@ -242,7 +507,7 @@
       isMockMode = true;
       video.pause();
       video.srcObject = null;
-      video.style.background = 'radial-gradient(ellipse at center, #232738 0%, #0d0f17 100%)';
+      video.style.background = 'radial-gradient(ellipse at center, #1b2635 0%, #0d131c 100%)';
     });
 
     btnFlip.addEventListener('click', (e) => {
@@ -267,20 +532,137 @@
       }
     });
 
-    // ── Video Recording Engine (Camera + 3D Arm + Whip + Audio) ─────────────
+    // ── Watermark Function for Recording ("Include multiplier, but NOT the UI") ───
+    function drawRecordingWatermark(ctx, W, H, eng) {
+      const info = eng.getProductivityInfo();
+
+      ctx.save();
+
+      // Top-Left Broadcast-Style Corporate Watermark Card
+      const cardW = Math.min(360, W * 0.82);
+      const cardH = 78;
+      const cardX = 20;
+      const cardY = 24;
+      const r = 14;
+
+      // Card Background (LinkedIn Corporate Dark Navy Glassmorphism)
+      ctx.fillStyle = 'rgba(11, 19, 36, 0.90)';
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, r);
+      ctx.fill();
+
+      // Card Glowing Border
+      ctx.strokeStyle = info.tierColor || '#0a66c2';
+      ctx.lineWidth = 2.0;
+      ctx.shadowColor = info.tierColor || '#0a66c2';
+      ctx.shadowBlur = 8;
+      ctx.stroke();
+      ctx.shadowBlur = 0; // reset shadow
+
+      // Mini 'in' logo badge
+      ctx.fillStyle = '#0a66c2';
+      ctx.beginPath();
+      ctx.roundRect(cardX + 12, cardY + 12, 24, 24, 5);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('in', cardX + 24, cardY + 29);
+
+      // Corporate Label
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '800 10px -apple-system, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('WORK PRODUCTIVITY MAXX™', cardX + 44, cardY + 21);
+
+      // Multiplier Readout
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 20px -apple-system, sans-serif';
+      ctx.fillText(`⚡ ${info.formattedMultiplier}`, cardX + 44, cardY + 43);
+
+      // Tier Pill Badge
+      const pillX = cardX + 128;
+      const pillY = cardY + 29;
+      const pillW = cardW - 142;
+      const pillH = 18;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.beginPath();
+      ctx.roundRect(pillX, pillY, pillW, pillH, 9);
+      ctx.fill();
+
+      ctx.fillStyle = info.tierColor;
+      ctx.font = '800 10px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(info.tierName, pillX + pillW * 0.5, pillY + 13);
+
+      // Segmented Tachometer LED Power Gauge (14 Segments)
+      const barX = cardX + 12;
+      const barY = cardY + 58;
+      const barW = cardW - 24;
+      const barH = 8;
+      const segments = 14;
+      const gap = 3;
+      const segW = (barW - (segments - 1) * gap) / segments;
+      const activeSegs = Math.round(info.progress * segments);
+
+      for (let s = 0; s < segments; s++) {
+        const sx = barX + s * (segW + gap);
+        ctx.beginPath();
+        ctx.roundRect(sx, barY, segW, barH, 2);
+        if (s <= activeSegs && activeSegs > 0) {
+          ctx.fillStyle = info.tierColor;
+          ctx.fill();
+        } else {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+          ctx.fill();
+        }
+      }
+
+      // Combo Pill (If combo > 1)
+      if (info.combo > 1) {
+        const comboText = `🔥 ${info.combo}x COMBO`;
+        ctx.font = '800 11px -apple-system, sans-serif';
+        const cWidth = ctx.measureText(comboText).width + 16;
+        const cX = cardX + cardW - cWidth;
+        const cY = cardY - 14;
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.95)';
+        ctx.beginPath();
+        ctx.roundRect(cX, cY, cWidth, 20, 10);
+        ctx.fill();
+        ctx.fillStyle = '#111827';
+        ctx.textAlign = 'center';
+        ctx.fillText(comboText, cX + cWidth * 0.5, cY + 14);
+      }
+
+      // Bottom Right Watermark Stamp (Excludes any button UI)
+      const stampText = `OpenWhip™ Corporate AR • ${info.whipCount} AUDITS DELIVERED`;
+      ctx.font = '700 12px -apple-system, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.fillText(stampText, W - 19, H - 21);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.fillText(stampText, W - 20, H - 22);
+
+      ctx.restore();
+    }
+
+    // ── Video Recording Engine (Video + Microphone Audio + Whip SFX) ─────────
     let mediaRecorder = null;
     let recordedChunks = [];
     let recordInterval = null;
     let recordStartTime = 0;
     let recordedBlob = null;
     let recordedUrl = null;
+    let currentVideoStream = null;
+    let isMp4Recording = false;
 
-    // Composite recording canvas that merges camera video and whip overlay
     const recordCanvas = document.createElement('canvas');
     const recordCtx = recordCanvas.getContext('2d');
 
     btnRecord.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (btnRecord.disabled) return;
       if (mediaRecorder && mediaRecorder.state === 'recording') {
         stopRecording();
       } else {
@@ -288,12 +670,24 @@
       }
     });
 
-    function startRecording() {
+    async function startRecording() {
+      if (mediaRecorder && mediaRecorder.state === 'recording') return;
+      btnRecord.disabled = true;
+
       recordedChunks = [];
+      peakMultiplierDuringRecording = engine.frenzy;
       recordCanvas.width = canvas.width;
       recordCanvas.height = canvas.height;
 
-      // Render composite frame at 30fps
+      // Start Audio Mixing: Combine Live Microphone + Web Audio whip crack effects
+      let audioStream = null;
+      try {
+        audioStream = await engine.startRecordingAudio();
+      } catch (err) {
+        console.warn('Audio mixing init note:', err);
+        audioStream = engine.getAudioStream();
+      }
+
       let recordingActive = true;
       function recordFrame() {
         if (!recordingActive) return;
@@ -302,7 +696,7 @@
 
         recordCtx.clearRect(0, 0, W, H);
 
-        // 1. Draw Camera Video (with mirror if selfie camera)
+        // 1. Draw Camera Video (mirrored if front camera)
         if (video.readyState >= 2) {
           recordCtx.save();
           if (facingMode === 'user') {
@@ -312,43 +706,60 @@
           recordCtx.drawImage(video, 0, 0, W, H);
           recordCtx.restore();
         } else {
-          recordCtx.fillStyle = '#11131a';
+          recordCtx.fillStyle = '#0f172a';
           recordCtx.fillRect(0, 0, W, H);
         }
 
-        // 2. Draw 3D Arm/Gauntlet and 2D Whip & FX
+        // 2. Draw 3D Arm/Gauntlet
         recordCtx.drawImage(threeCanvas, 0, 0, W, H);
+
+        // 3. Draw 2D Whip Physics, Shockwaves, Sparks & Corporate Buzzwords
         recordCtx.drawImage(canvas, 0, 0, W, H);
+
+        // 4. Draw Productivity Multiplier Overlay (NO app UI buttons included!)
+        drawRecordingWatermark(recordCtx, W, H, engine);
 
         requestAnimationFrame(recordFrame);
       }
       requestAnimationFrame(recordFrame);
 
-      const videoStream = recordCanvas.captureStream(30);
-      const audioStream = engine.getAudioStream ? engine.getAudioStream() : null;
-      const combinedTracks = [...videoStream.getVideoTracks()];
+      currentVideoStream = recordCanvas.captureStream(30);
+      const combinedTracks = [...currentVideoStream.getVideoTracks()];
+
       if (audioStream && audioStream.getAudioTracks().length > 0) {
         combinedTracks.push(...audioStream.getAudioTracks());
       }
+
       const stream = new MediaStream(combinedTracks);
 
-      // Support mobile mp4 or webm
-      let options = { mimeType: 'video/webm;codecs=vp9' };
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-        options = { mimeType: 'video/webm' };
-        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-          options = { mimeType: 'video/mp4' };
-          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-            options = {};
-          }
+      // Prioritize MP4 formats (H.264 + AAC) so downloaded video has universal native audio on Windows/iOS/Android/Slack/WhatsApp
+      const candidateTypes = [
+        'video/mp4;codecs=avc1,mp4a.40.2',
+        'video/mp4;codecs=avc1',
+        'video/mp4',
+        'video/webm;codecs=h264,opus',
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=vp8,opus',
+        'video/webm'
+      ];
+
+      let options = {};
+      for (const t of candidateTypes) {
+        if (MediaRecorder.isTypeSupported(t)) {
+          options = { mimeType: t };
+          break;
         }
       }
+
+      isMp4Recording = (options.mimeType && options.mimeType.includes('mp4')) || false;
 
       try {
         mediaRecorder = new MediaRecorder(stream, options);
       } catch (err) {
         console.error('MediaRecorder init failed:', err);
-        alert('Video recording not supported on this browser.');
+        showToast('⚠️ Video recording not supported on this browser.');
+        recordingActive = false;
+        btnRecord.disabled = false;
         return;
       }
 
@@ -360,25 +771,59 @@
 
       mediaRecorder.onstop = () => {
         recordingActive = false;
-        recordedBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+        engine.stopRecordingAudio();
+
+        if (currentVideoStream) {
+          currentVideoStream.getTracks().forEach(t => t.stop());
+          currentVideoStream = null;
+        }
+
+        recordedBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || (isMp4Recording ? 'video/mp4' : 'video/webm') });
         if (recordedUrl) URL.revokeObjectURL(recordedUrl);
         recordedUrl = URL.createObjectURL(recordedBlob);
 
-        // Open preview modal
+        // Populate Preview Modal with recorded clip
         previewVideo.src = recordedUrl;
-        previewModal.classList.remove('hidden');
-        previewVideo.play().catch(() => {});
+        previewVideo.muted = false;
+        previewVideo.volume = 1.0;
+        previewVideo.currentTime = 0;
 
-        // Keep share button accessible (handles file share or link share)
-        btnShareVideo.classList.remove('hidden');
+        const info = engine.getProductivityInfo();
+        previewPeakMult.textContent = `${peakMultiplierDuringRecording.toFixed(1)}x`;
+        previewActions.textContent = `${info.whipCount} Hits`;
+        previewStyle.textContent = info.styleName;
+        previewAudio.textContent = engine.isMicrophoneActive() ? '🎙️ Mic + SFX' : '🔊 SFX Only';
+
+        previewModal.classList.remove('hidden');
+
+        // Autoplay with sound (or fall back to muted if blocked)
+        previewVideo.play().catch(() => {
+          previewVideo.muted = true;
+          previewVideo.play().catch(() => {});
+        });
+
+        btnRecord.disabled = false;
       };
 
       mediaRecorder.start(100);
 
-      // UI state updates
+      // UI state
+      btnRecord.disabled = false;
       btnRecord.classList.add('recording');
       btnRecord.textContent = '⏹️';
       recordTimer.classList.remove('hidden');
+
+      // Update mic status pill
+      const micPill = recordTimer.querySelector('.mic-status-pill');
+      if (micPill) {
+        if (engine.isMicrophoneActive()) {
+          micPill.textContent = '🎙️ MIC + SFX ON';
+          micPill.className = 'mic-status-pill mic-active';
+        } else {
+          micPill.textContent = '🔇 SFX ONLY (Mic Off)';
+          micPill.className = 'mic-status-pill mic-disabled';
+        }
+      }
 
       recordStartTime = performance.now();
       recordInterval = setInterval(() => {
@@ -399,59 +844,92 @@
       if (recordInterval) clearInterval(recordInterval);
     }
 
-    // Modal Action Buttons
+    // ── Preview Modal Actions ───────────────────────────────────────────────
     btnReplayVideo.addEventListener('click', () => {
       previewVideo.currentTime = 0;
+      previewVideo.muted = false;
+      previewVideo.volume = 1.0;
       previewVideo.play().catch(() => {});
+      showToast('🔁 Replaying clip with audio...');
     });
 
     btnDownloadVideo.addEventListener('click', () => {
       if (!recordedBlob) return;
+      const isMp4 = isMp4Recording || recordedBlob.type.includes('mp4');
+      const ext = isMp4 ? 'mp4' : 'webm';
+      const filename = `OpenWhip-ProductivityMaxx-${Date.now()}.${ext}`;
+
       const a = document.createElement('a');
       a.href = recordedUrl;
-      const isMp4 = recordedBlob.type.includes('mp4');
-      a.download = `openwhip-strike-${Date.now()}.${isMp4 ? 'mp4' : 'webm'}`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+      showToast('💾 Video saved to downloads!');
     });
 
+    // Share Video File to messaging channels (WhatsApp, Slack, LinkedIn, etc.)
     btnShareVideo.addEventListener('click', async () => {
       if (!recordedBlob) return;
-      const isMp4 = recordedBlob.type.includes('mp4');
-      const filename = `openwhip-strike-${Date.now()}.${isMp4 ? 'mp4' : 'webm'}`;
+      const isMp4 = isMp4Recording || recordedBlob.type.includes('mp4');
+      const ext = isMp4 ? 'mp4' : 'webm';
+      const filename = `OpenWhip-ProductivityMaxx-${Date.now()}.${ext}`;
       const file = new File([recordedBlob], filename, { type: recordedBlob.type });
 
+      const shareText = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity Maxx to my coworkers with OpenWhip! 💼⚡`;
+
+      // 1. Try Native File Share API (Supported on iOS Safari, Android Chrome, macOS Safari)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
-            title: 'Whip Your Coworker! ⚡',
-            text: 'I just disciplined my coworker with OpenWhip AR! ⚡',
+            title: 'OpenWhip Corporate Performance Review ⚡',
+            text: shareText,
             files: [file],
           });
+          showToast('✅ Clip shared successfully!');
           return;
         } catch (err) {
-          if (err.name !== 'AbortError') console.warn('File share failed, falling back:', err);
+          if (err.name !== 'AbortError') console.warn('Native file share error:', err);
         }
       }
 
-      if (navigator.share) {
-        try {
-          await navigator.share({
-            title: 'Whip Your Coworker! ⚡',
-            text: 'Discipline your coworkers with OpenWhip AR! ⚡ Try it here:',
-            url: window.location.href,
-          });
-          return;
-        } catch (err) {
-          if (err.name !== 'AbortError') console.warn('Share canceled/failed:', err);
-        }
-      }
+      // 2. Fallback for Desktop: Auto-download & copy announcement text
+      const a = document.createElement('a');
+      a.href = recordedUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
-      // Fallback: Copy link and prompt to download
+      const postCopy = `${shareText} Disciplining workplace inefficiency at ${window.location.href}`;
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(window.location.href);
-        alert('App link copied to clipboard! You can also click "Save Video" to download your clip.');
+        navigator.clipboard.writeText(postCopy);
+      }
+      showToast('✅ Clip downloaded & corporate announcement copied! Paste into Slack or WhatsApp.');
+    });
+
+    // WhatsApp Shortcut
+    if (btnShareWhatsapp) {
+      btnShareWhatsapp.addEventListener('click', () => {
+        const text = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity Maxx with OpenWhip! 💼⚡ Check it out: ${window.location.href}`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+      });
+    }
+
+    // LinkedIn Shortcut
+    if (btnShareLinkedin) {
+      btnShareLinkedin.addEventListener('click', () => {
+        const text = `Thrilled to announce that I just delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity Maxx to my team! 💼⚡ Disciplining workplace inefficiency with @OpenWhip. #WorkplaceSynergy #OpenWhip #Productivity #Hustle`;
+        window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`, '_blank');
+      });
+    }
+
+    // Copy Corporate Post Text
+    btnCopyPost.addEventListener('click', () => {
+      const postText = `Thrilled to announce that I just delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity Maxx to my team! 💼⚡ Disciplining workplace inefficiency with @OpenWhip. #WorkplaceSynergy #OpenWhip #Productivity #Hustle`;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(postText);
+        showToast('📋 Corporate announcement copied to clipboard!');
       }
     });
 
@@ -461,7 +939,7 @@
       previewVideo.src = '';
     });
 
-    // Start camera automatically on load
+    // Start camera
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       startCamera(facingMode);
     } else {

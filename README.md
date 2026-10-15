@@ -1,23 +1,26 @@
-# ⚡ Whip Your Coworker (OpenWhip AR)
+# ⚡ OpenWhip™ Corporate AR — Work Productivity Maxx™
 
-An Augmented Reality (AR) camera weapon filter & desktop utility to crack the whip and keep your coworkers productive!
+An Augmented Reality (AR) corporate performance weapon & desktop utility to align workplace synergy and keep your coworkers productive!
 
-Hold your phone, see an authentic **3D Cybernetic Anime Gauntlet** held in your right hand, and **physically swing your phone** (or tap the screen) to unleash a high-speed whip crack right into your coworker's face!
+Hold your phone, see an authentic **Executive 3D Fist & Luxury Watch** gripping a tactical bullwhip, and **physically swing your phone** (or tap the screen) to deliver high-speed performance reviews directly to your coworkers!
 
 ---
 
 ## 🌟 Key Features
 
-- 📱 **Physical Device Swing & 3D Gyroscope**: Whip cracks instantly when you physically flick or swing your phone downward. Tilting your device rotates the 3D anime gauntlet in real-time with responsive 3D gyro parallax.
-- 📐 **Phone Aspect Ratio Optimized**: Auto-scales and hugs the bottom-right corner in portrait view without obstructing the center crosshair.
-- 🤖 **3D Rigged Anime Gauntlet**: High-poly rigged hand with metallic armor plating, gold knuckle carapace, glowing neon cyber conduits, and a tactical bullwhip handle.
-- 🎯 **Tactical AR Crosshair**: Precision center reticle so you know exactly where your swing gesture will land.
-- ⚡ **Pure Speed Frenzy Multiplier (1.0x – 4.0x)**: Rapid-fire whipping escalates your Frenzy meter, accelerating strikes from 210ms down to 60ms, pitching audio up, and shifting energy conduit colors from **Electric Gold** ➔ **Neon Cyan** ➔ **Blazing Plasma Magenta**.
-- 🎬 **Video Recording with Sound & Sharing**: Tap `🔴 REC` to capture composite video (Camera + 3D Gauntlet + Whip + Comic Starbursts + **Whip Crack Audio**) at 30fps with:
-  - 🔁 **Instant Replay**: Re-watch strikes directly in the app.
-  - 💾 **Save Video**: Download MP4/WebM to device storage.
-  - 📲 **Share Sheet**: Native mobile sharing to WhatsApp, Instagram, Telegram, TikTok, Discord, or clipboard.
-- 🔄 **Front/Back Camera Switch**: Seamlessly flip between rear camera (point at coworkers) and selfie camera.
+- 💼 **LinkedIn Executive Corporate Theme**: Complete corporate satire UI with `WorkforceSynergy™`, `OPEN TO WHIP` status, `🗣️ Top Voice`, and corporate performance review badges.
+- 👔 **Executive Wardrobe Choices**: 4 distinct corporate personas with custom 3D sleeve cuffs, materials, and luxury wristwatches:
+  1. **The C-Suite Executive**: Tailored navy wool suit, Rolex Gold Oyster Perpetual with emerald bezel, and Italian walnut whip (+50% Executive Presence).
+  2. **Silicon Valley 10x Hustler**: Patagonia tech fleece, Apple Watch Ultra with activity rings, and matte carbon whip (+100% Disruptive Velocity).
+  3. **Wall Street Titan**: Midnight wool, 24K solid gold gauntlet, diamond chronometer with ruby dial, and bullion whip (+200% Golden Parachute Bonus).
+  4. **Cyber Director 2077**: Exoskeleton bracer, chrome prosthetic, holographic watch, and plasma whip (+300% Overclock Yield).
+- 📈 **Work Productivity Maxx™ Tachometer Gauge**: Dynamic 14-segment LED tachometer power gauge and progress track with corporate milestones (`1.0x Base` ➔ `2.0x Overtime` ➔ `3.0x Synergy` ➔ `4.0x MAXX ⚡`) and corporate rank tiers (`UNPAID INTERN` ➔ `OVERTIME SPECIALIST` ➔ `VP OF SYNERGY` ➔ `10X UNICORN MAXX`).
+- 🎙️ **Live Microphone Audio + Whip SFX Recording**: Mixed directly into the recording stream without feedback loops, capturing both your live voice commentary and thunderous whip cracks.
+- 📼 **Universal .MP4 Export (H.264 + AAC)**: Prioritizes H.264 video with AAC audio so downloaded recordings play sound natively across Windows Media Player, QuickTime, iOS Photos, Android Gallery, Slack, and WhatsApp.
+- 📺 **Broadcast Watermark (No App UI in Video)**: Recorded video embeds a broadcast-style corporate scorecard with the live multiplier, 14-segment gauge, combo pill, and audit stamp without recording any DOM button UI.
+- 📲 **Direct Messaging App Sharing**: Native mobile file sharing to WhatsApp, Slack, LinkedIn, Instagram, TikTok, and Discord, plus instant deep-link shortcuts (`💬 WhatsApp`, `💼 LinkedIn`, `💾 Save .MP4`, `📋 Copy Announcement`).
+- 📱 **Physical Device Swing & 3D Gyroscope**: Whip cracks on physical downward flick with haptic feedback; tilting the phone tilts the 3D fist with responsive gyro parallax.
+- 🔄 **Front/Back Camera Switch**: Seamlessly flip between rear camera (audit coworkers) and selfie camera.
 - 🖥️ **Desktop Screen Overlay**: Whip buttons and Claude Code directly on your desktop screen with global hotkey `Ctrl + Shift + W`.
 
 ---
