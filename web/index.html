@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>OpenWhip AR - 3D Anime Arcade Filter</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+  <div id="app-container">
+    <!-- Camera Video Source -->
+    <video id="camera-video" autoplay playsinline muted></video>
+
+    <!-- 3D WebGL Gauntlet Layer -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- 2D Overlay: Whip physics, shockwaves, sparks & comic text -->
+    <canvas id="whip-canvas"></canvas>
+
+    <!-- Top HUD Bar (No top-left brand badge for clean view) -->
+    <div class="top-hud">
+      <!-- Frenzy Speed Multiplier Gauge -->
+      <div id="frenzy-badge" class="frenzy-badge">
+        <span>⚡ 1.0x SPEED</span>
+      </div>
+
+      <!-- Strike Counter -->
+      <div id="counter-badge" class="counter-badge">
+        0 WHIPS
+      </div>
+    </div>
+
+    <!-- Recording Timer Indicator -->
+    <div id="record-timer" class="record-timer hidden">
+      <div class="record-dot"></div>
+      <span id="record-time-text">REC 00:00</span>
+    </div>
+
+    <!-- Floating Action Controls -->
+    <div class="controls-container">
+      <!-- Record Video Button -->
+      <button id="btn-record" class="btn-control record-btn" title="Record Video" aria-label="Record Video">🔴</button>
+
+      <!-- Switch Camera Button -->
+      <button id="btn-flip" class="btn-control" title="Switch Camera" aria-label="Switch Camera">🔄</button>
+
+      <!-- Sound Toggle Button -->
+      <button id="btn-sound" class="btn-control" title="Toggle Sound" aria-label="Toggle Sound">🔊</button>
+
+      <!-- Fullscreen Toggle Button -->
+      <button id="btn-fullscreen" class="btn-control" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">⛶</button>
+    </div>
+
+    <!-- Center Tactical AR Targeting Reticle -->
+    <div id="target-crosshair" class="target-crosshair">
+      <div class="crosshair-ring"></div>
+      <div class="crosshair-dot"></div>
+    </div>
+
+    <!-- Tap / Swing Hint Banner -->
+    <div id="tap-hint" class="tap-hint">
+      👆 Tap or 📱 Swing phone to whip!
+    </div>
+
+    <!-- Video Preview Modal (When recording finishes) -->
+    <div id="preview-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <h2 class="modal-title">🎬 Whip Clip Recorded!</h2>
+        <div class="preview-video-container">
+          <video id="preview-video" controls playsinline></video>
+        </div>
+        <div class="modal-actions">
+          <button id="btn-download-video" class="modal-btn">💾 Save Video</button>
+          <button id="btn-share-video" class="modal-btn share-btn hidden">📲 Share Clip</button>
+          <button id="btn-close-preview" class="modal-btn secondary">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Camera Permission / Info Modal -->
+    <div id="camera-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-icon">📷</div>
+        <h2 class="modal-title">Camera Access Needed</h2>
+        <p class="modal-desc">OpenWhip AR needs camera access to point your 3D gauntlet and whip at targets.</p>
+        <button id="btn-enable-camera" class="modal-btn">Enable Camera</button>
+        <button id="btn-mock-camera" class="modal-btn secondary">Try Demo (No Camera)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js 3D Library & GLTF Loader -->
+  <script src="libs/three.min.js"></script>
+  <script src="libs/GLTFLoader.js"></script>
+  <script src="whip-engine.js?v=5"></script>
+
+  <script>
+    const container = document.getElementById('app-container');
+    const video = document.getElementById('camera-video');
+    const threeCanvas = document.getElementById('three-canvas');
+    const canvas = document.getElementById('whip-canvas');
+    const crosshair = document.getElementById('target-crosshair');
+    const frenzyBadge = document.getElementById('frenzy-badge');
+    const counterBadge = document.getElementById('counter-badge');
+    const tapHint = document.getElementById('tap-hint');
+    const recordTimer = document.getElementById('record-timer');
+    const recordTimeText = document.getElementById('record-time-text');
+
+    const btnRecord = document.getElementById('btn-record');
+    const btnFlip = document.getElementById('btn-flip');
+    const btnSound = document.getElementById('btn-sound');
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+
+    const previewModal = document.getElementById('preview-modal');
+    const previewVideo = document.getElementById('preview-video');
+    const btnDownloadVideo = document.getElementById('btn-download-video');
+    const btnShareVideo = document.getElementById('btn-share-video');
+    const btnClosePreview = document.getElementById('btn-close-preview');
+
+    const cameraModal = document.getElementById('camera-modal');
+    const btnEnableCamera = document.getElementById('btn-enable-camera');
+    const btnMockCamera = document.getElementById('btn-mock-camera');
+
+    // Initialize 3D Gauntlet & Whip Engine
+    const engine = new WhipEngine(canvas, threeCanvas);
+    window.engine = engine;
+
+    // Strike counter update
+    engine.onWhipHit = (count, combo) => {
+      counterBadge.textContent = `${count} ${count === 1 ? 'WHIP' : 'WHIPS'}`;
+      counterBadge.classList.add('bump');
+      setTimeout(() => counterBadge.classList.remove('bump'), 160);
+
+      if (crosshair) {
+        crosshair.classList.add('active');
+        setTimeout(() => crosshair.classList.remove('active'), 200);
+      }
+
+      if (!tapHint.classList.contains('hidden')) {
+        tapHint.classList.add('hidden');
+      }
+    };
+
+    // Device Swing Feedback
+    engine.onSwingDetected = (mag) => {
+      if (crosshair) {
+        crosshair.classList.add('active');
+        setTimeout(() => crosshair.classList.remove('active'), 240);
+      }
+    };
+
+    // Frenzy Speed Multiplier HUD update
+    engine.onFrenzyChange = (frenzy, combo) => {
+      const formatted = frenzy.toFixed(1);
+      if (frenzy >= 2.8) {
+        frenzyBadge.innerHTML = `<span>🔥 FRENZY ${formatted}x SPEED</span>`;
+        frenzyBadge.classList.add('blazing');
+      } else if (frenzy >= 1.8) {
+        frenzyBadge.innerHTML = `<span>⚡ ${formatted}x SPEED (${combo} COMBO)</span>`;
+        frenzyBadge.classList.remove('blazing');
+      } else {
+        frenzyBadge.innerHTML = `<span>⚡ ${formatted}x SPEED</span>`;
+        frenzyBadge.classList.remove('blazing');
+      }
+    };
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+      engine.resize();
+    });
+
+    // ── Tap & Swing Activation Handling ─────────────────────────────────────
+    container.addEventListener('pointerdown', (e) => {
+      engine.unlockAudio();
+      engine.requestMotionPermission();
+
+      if (e.target.closest('.btn-control') || e.target.closest('.modal-card')) {
+        return;
+      }
+      engine.strikeAt(e.clientX, e.clientY);
+    });
+
+    // ── Camera Streaming ────────────────────────────────────────────────────
+    let currentStream = null;
+    let facingMode = 'environment';
+    let isMockMode = false;
+
+    async function startCamera(mode) {
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+        currentStream = null;
+      }
+
+      try {
+        const constraints = {
+          video: {
+            facingMode: mode,
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          },
+          audio: false
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        currentStream = stream;
+        video.srcObject = stream;
+        await video.play();
+
+        if (mode === 'user') {
+          video.classList.add('mirrored');
+        } else {
+          video.classList.remove('mirrored');
+        }
+
+        cameraModal.classList.add('hidden');
+        isMockMode = false;
+      } catch (err) {
+        console.warn('Camera stream error:', err);
+        if (mode === 'environment') {
+          try {
+            return await startCamera('user');
+          } catch (e2) {}
+        }
+        showCameraModal();
+      }
+    }
+
+    function showCameraModal() {
+      cameraModal.classList.remove('hidden');
+    }
+
+    btnEnableCamera.addEventListener('click', () => {
+      cameraModal.classList.add('hidden');
+      startCamera(facingMode);
+    });
+
+    btnMockCamera.addEventListener('click', () => {
+      cameraModal.classList.add('hidden');
+      isMockMode = true;
+      video.pause();
+      video.srcObject = null;
+      video.style.background = 'radial-gradient(ellipse at center, #232738 0%, #0d0f17 100%)';
+    });
+
+    btnFlip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      facingMode = (facingMode === 'environment') ? 'user' : 'environment';
+      startCamera(facingMode);
+    });
+
+    btnSound.addEventListener('click', (e) => {
+      e.stopPropagation();
+      engine.unlockAudio();
+      engine.isMuted = !engine.isMuted;
+      btnSound.textContent = engine.isMuted ? '🔇' : '🔊';
+    });
+
+    btnFullscreen.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    // ── Video Recording Engine (Camera + 3D Arm + Whip + Audio) ─────────────
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let recordInterval = null;
+    let recordStartTime = 0;
+    let recordedBlob = null;
+    let recordedUrl = null;
+
+    // Composite recording canvas that merges camera video and whip overlay
+    const recordCanvas = document.createElement('canvas');
+    const recordCtx = recordCanvas.getContext('2d');
+
+    btnRecord.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        stopRecording();
+      } else {
+        startRecording();
+      }
+    });
+
+    function startRecording() {
+      recordedChunks = [];
+      recordCanvas.width = canvas.width;
+      recordCanvas.height = canvas.height;
+
+      // Render composite frame at 30fps
+      let recordingActive = true;
+      function recordFrame() {
+        if (!recordingActive) return;
+        const W = recordCanvas.width;
+        const H = recordCanvas.height;
+
+        recordCtx.clearRect(0, 0, W, H);
+
+        // 1. Draw Camera Video (with mirror if selfie camera)
+        if (video.readyState >= 2) {
+          recordCtx.save();
+          if (facingMode === 'user') {
+            recordCtx.translate(W, 0);
+            recordCtx.scale(-1, 1);
+          }
+          recordCtx.drawImage(video, 0, 0, W, H);
+          recordCtx.restore();
+        } else {
+          recordCtx.fillStyle = '#11131a';
+          recordCtx.fillRect(0, 0, W, H);
+        }
+
+        // 2. Draw 3D Arm/Gauntlet and 2D Whip & FX
+        recordCtx.drawImage(threeCanvas, 0, 0, W, H);
+        recordCtx.drawImage(canvas, 0, 0, W, H);
+
+        requestAnimationFrame(recordFrame);
+      }
+      requestAnimationFrame(recordFrame);
+
+      const stream = recordCanvas.captureStream(30);
+
+      // Support mobile mp4 or webm
+      let options = { mimeType: 'video/webm;codecs=vp9' };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'video/webm' };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: 'video/mp4' };
+          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            options = {};
+          }
+        }
+      }
+
+      try {
+        mediaRecorder = new MediaRecorder(stream, options);
+      } catch (err) {
+        console.error('MediaRecorder init failed:', err);
+        alert('Video recording not supported on this browser.');
+        return;
+      }
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          recordedChunks.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        recordingActive = false;
+        recordedBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+        if (recordedUrl) URL.revokeObjectURL(recordedUrl);
+        recordedUrl = URL.createObjectURL(recordedBlob);
+
+        // Open preview modal
+        previewVideo.src = recordedUrl;
+        previewModal.classList.remove('hidden');
+        previewVideo.play().catch(() => {});
+
+        // Show native share button if mobile supports navigator.share
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([recordedBlob], 'openwhip.webm', { type: recordedBlob.type })] })) {
+          btnShareVideo.classList.remove('hidden');
+        } else {
+          btnShareVideo.classList.add('hidden');
+        }
+      };
+
+      mediaRecorder.start(100);
+
+      // UI state updates
+      btnRecord.classList.add('recording');
+      btnRecord.textContent = '⏹️';
+      recordTimer.classList.remove('hidden');
+
+      recordStartTime = performance.now();
+      recordInterval = setInterval(() => {
+        const sec = Math.floor((performance.now() - recordStartTime) / 1000);
+        const m = String(Math.floor(sec / 60)).padStart(2, '0');
+        const s = String(sec % 60).padStart(2, '0');
+        recordTimeText.textContent = `REC ${m}:${s}`;
+      }, 500);
+    }
+
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+      }
+      btnRecord.classList.remove('recording');
+      btnRecord.textContent = '🔴';
+      recordTimer.classList.add('hidden');
+      if (recordInterval) clearInterval(recordInterval);
+    }
+
+    // Modal Action Buttons
+    btnDownloadVideo.addEventListener('click', () => {
+      if (!recordedBlob) return;
+      const a = document.createElement('a');
+      a.href = recordedUrl;
+      a.download = `openwhip-strike-${Date.now()}.${recordedBlob.type.includes('mp4') ? 'mp4' : 'webm'}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+
+    btnShareVideo.addEventListener('click', async () => {
+      if (!recordedBlob || !navigator.share) return;
+      const file = new File([recordedBlob], 'openwhip-strike.webm', { type: recordedBlob.type });
+      try {
+        await navigator.share({
+          title: 'OpenWhip Strike! ⚡',
+          text: 'Check out my OpenWhip AR strike!',
+          files: [file],
+        });
+      } catch (err) {
+        console.log('Share canceled or failed:', err);
+      }
+    });
+
+    btnClosePreview.addEventListener('click', () => {
+      previewModal.classList.add('hidden');
+      previewVideo.pause();
+      previewVideo.src = '';
+    });
+
+    // Start camera automatically on load
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      startCamera(facingMode);
+    } else {
+      showCameraModal();
+    }
+  </script>
+</body>
+</html>

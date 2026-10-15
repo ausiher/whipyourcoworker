@@ -1,8 +1,8 @@
-const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, screen } = require('electron');
+const { app, BrowserWindow, Tray, Menu, ipcMain, nativeImage, screen, globalShortcut, Notification } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const { execFile } = require('child_process');
+const { spawn, execFile } = require('child_process');
 
 // ── Win32 FFI (Windows only) ────────────────────────────────────────────────
 let keybd_event, VkKeyScanA;
@@ -21,111 +21,116 @@ if (process.platform === 'win32') {
 let tray, overlay;
 let overlayReady = false;
 let spawnQueued = false;
+let detectorProcess = null;
+let pendingRequests = [];
 
-const VK_CONTROL = 0x11;
 const VK_RETURN  = 0x0D;
-const VK_C       = 0x43;
-const VK_MENU    = 0x12; // Alt
-const VK_TAB     = 0x09;
 const KEYUP      = 0x0002;
 
-/** One Alt+Tab / Cmd+Tab so focus returns to the previously active app after tray click. */
-function refocusPreviousApp() {
-  const delayMs = 80;
-  const run = () => {
-    if (process.platform === 'win32') {
-      if (!keybd_event) return;
-      keybd_event(VK_MENU, 0, 0, 0);
-      keybd_event(VK_TAB, 0, 0, 0);
-      keybd_event(VK_TAB, 0, KEYUP, 0);
-      keybd_event(VK_MENU, 0, KEYUP, 0);
-    } else if (process.platform === 'darwin') {
-      const script = [
-        'tell application "System Events"',
-        '  key down command',
-        '  key code 48', // Tab
-        '  key up command',
-        'end tell',
-      ].join('\n');
-      execFile('osascript', ['-e', script], err => {
-        if (err) {
-          console.warn('refocus previous app (Cmd+Tab) failed:', err.message);
+// ── Button Detector Process ─────────────────────────────────────────────────
+function initButtonDetector() {
+  if (process.platform !== 'win32') return;
+  const exePath = path.join(__dirname, 'bin', 'ButtonDetector.exe');
+  if (!fs.existsSync(exePath)) return;
+
+  try {
+    detectorProcess = spawn(exePath, [], {
+      stdio: ['pipe', 'pipe', 'ignore'],
+      windowsHide: true,
+    });
+
+    let buffer = '';
+    detectorProcess.stdout.on('data', chunk => {
+      buffer += chunk.toString();
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed === 'READY') continue;
+        const res = pendingRequests.shift();
+        if (!res) continue;
+
+        if (trimmed.startsWith('FOUND ')) {
+          const parts = trimmed.split(' ');
+          res({
+            found: true,
+            x: parseFloat(parts[1]),
+            y: parseFloat(parts[2]),
+            width: parseFloat(parts[3]),
+            height: parseFloat(parts[4]),
+            name: parts[5] || 'button',
+          });
+        } else {
+          res({ found: false });
         }
-      });
-    } else if (process.platform === 'linux') {
-      execFile('xdotool', ['key', '--clearmodifiers', 'alt+Tab'], err => {
-        if (err) {
-          console.warn('refocus previous app (Alt+Tab) failed. Install xdotool:', err.message);
-        }
-      });
-    }
-  };
-  setTimeout(run, delayMs);
+      }
+    });
+
+    detectorProcess.on('error', () => { detectorProcess = null; });
+    detectorProcess.on('exit', () => { detectorProcess = null; });
+  } catch (e) {
+    console.warn('Failed to start ButtonDetector process:', e.message);
+  }
 }
 
-function createTrayIconFallback() {
-  const p = path.join(__dirname, 'icon', 'Template.png');
-  if (fs.existsSync(p)) {
-    const img = nativeImage.createFromPath(p);
-    if (!img.isEmpty()) {
-      if (process.platform === 'darwin') img.setTemplateImage(true);
-      return img;
+function findNearestButton(x, y) {
+  return new Promise(resolve => {
+    if (!detectorProcess || !detectorProcess.stdin.writable) {
+      return resolve({ found: false });
+    }
+
+    const timer = setTimeout(() => {
+      const idx = pendingRequests.indexOf(resolve);
+      if (idx !== -1) pendingRequests.splice(idx, 1);
+      resolve({ found: false });
+    }, 80);
+
+    pendingRequests.push(result => {
+      clearTimeout(timer);
+      resolve(result);
+    });
+
+    try {
+      detectorProcess.stdin.write(`${x} ${y}\n`);
+    } catch {
+      resolve({ found: false });
+    }
+  });
+}
+
+// ── Tray Icon with DPI Scaling ──────────────────────────────────────────────
+function getTrayIcon() {
+  const iconDir = path.join(__dirname, 'icon');
+  const icoPath = path.join(iconDir, 'icon.ico');
+  const pngPath = path.join(iconDir, 'Template.png');
+
+  let img = null;
+  if (process.platform === 'win32' && fs.existsSync(icoPath)) {
+    img = nativeImage.createFromPath(icoPath);
+  }
+  if (!img || img.isEmpty()) {
+    if (fs.existsSync(pngPath)) {
+      img = nativeImage.createFromPath(pngPath);
     }
   }
-  console.warn('openwhip: icon/Template.png missing or invalid');
+
+  if (img && !img.isEmpty()) {
+    // Windows Tray requires 16x16 / 32x32 size, otherwise Windows hides or corrupts it
+    return img.resize({ width: 24, height: 24 });
+  }
+
   return nativeImage.createEmpty();
 }
 
-async function tryIcnsTrayImage(icnsPath) {
-  const size = { width: 64, height: 64 };
-  const thumb = await nativeImage.createThumbnailFromPath(icnsPath, size);
-  if (!thumb.isEmpty()) return thumb;
-  return null;
-}
-
-// macOS: createFromPath does not decode .icns (Electron only loads PNG/JPEG there, ICO on Windows).
-// Quick Look thumbnails handle .icns; copy to temp if the file is inside ASAR (QL needs a real path).
-async function getTrayIcon() {
-  const iconDir = path.join(__dirname, 'icon');
-  if (process.platform === 'win32') {
-    const file = path.join(iconDir, 'icon.ico');
-    if (fs.existsSync(file)) {
-      const img = nativeImage.createFromPath(file);
-      if (!img.isEmpty()) return img;
-    }
-    return createTrayIconFallback();
-  }
-  if (process.platform === 'darwin') {
-    const file = path.join(iconDir, 'AppIcon.icns');
-    if (fs.existsSync(file)) {
-      const fromPath = nativeImage.createFromPath(file);
-      if (!fromPath.isEmpty()) return fromPath;
-      try {
-        const t = await tryIcnsTrayImage(file);
-        if (t) return t;
-      } catch (e) {
-        console.warn('AppIcon.icns Quick Look thumbnail failed:', e?.message || e);
-      }
-      const tmp = path.join(os.tmpdir(), 'openwhip-tray.icns');
-      try {
-        fs.copyFileSync(file, tmp);
-        const t = await tryIcnsTrayImage(tmp);
-        if (t) return t;
-      } catch (e) {
-        console.warn('AppIcon.icns temp copy + thumbnail failed:', e?.message || e);
-      }
-    }
-    return createTrayIconFallback();
-  }
-  return createTrayIconFallback();
-}
-
-// ── Overlay window ──────────────────────────────────────────────────────────
+// ── Overlay Window ──────────────────────────────────────────────────────────
 function createOverlay() {
   const { bounds } = screen.getPrimaryDisplay();
   overlay = new BrowserWindow({
-    x: bounds.x, y: bounds.y,
-    width: bounds.width, height: bounds.height,
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
     transparent: true,
     frame: false,
     alwaysOnTop: true,
@@ -137,17 +142,19 @@ function createOverlay() {
       preload: path.join(__dirname, 'preload.js'),
     },
   });
-  overlay.setAlwaysOnTop(true, 'screen-saver');
+
+  overlay.setAlwaysOnTop(true, 'status');
   overlayReady = false;
   overlay.loadFile('overlay.html');
+
   overlay.webContents.on('did-finish-load', () => {
     overlayReady = true;
     if (spawnQueued && overlay && overlay.isVisible()) {
       spawnQueued = false;
       overlay.webContents.send('spawn-whip');
-      refocusPreviousApp();
     }
   });
+
   overlay.on('closed', () => {
     overlay = null;
     overlayReady = false;
@@ -155,37 +162,45 @@ function createOverlay() {
   });
 }
 
-function toggleOverlay() {
-  if (overlay && overlay.isVisible()) {
-    overlay.webContents.send('drop-whip');
-    return;
-  }
+function showWhip() {
   if (!overlay) createOverlay();
-  overlay.show();
+  overlay.showInactive();
   if (overlayReady) {
     overlay.webContents.send('spawn-whip');
-    refocusPreviousApp();
   } else {
     spawnQueued = true;
   }
 }
 
+function toggleOverlay() {
+  if (overlay && overlay.isVisible()) {
+    overlay.webContents.send('drop-whip');
+    return;
+  }
+  showWhip();
+}
+
 // ── IPC ─────────────────────────────────────────────────────────────────────
-ipcMain.on('whip-crack', () => {
+ipcMain.handle('find-nearest-button', async (event, coords) => {
+  if (!coords || typeof coords.x !== 'number') return { found: false };
+  return await findNearestButton(coords.x, coords.y);
+});
+
+ipcMain.on('whip-crack', (event, target) => {
   try {
-    sendMacro();
+    sendMacro(target);
   } catch (err) {
     console.warn('sendMacro failed:', err?.message || err);
   }
 });
-ipcMain.on('hide-overlay', () => { if (overlay) overlay.hide(); });
 
-// ── Macro: immediate Ctrl+C, type "Go FASER", Enter ───────────────────────
-function sendMacro() {
-  // Pick a random phrase from a list of similar phrases and type it out
+ipcMain.on('hide-overlay', () => {
+  if (overlay) overlay.hide();
+});
+
+// ── Macro Execution ─────────────────────────────────────────────────────────
+function sendMacro(target) {
   const phrases = [
-    'FASTER',
-    'FASTER',
     'FASTER',
     'GO FASTER',
     'Faster CLANKER',
@@ -219,11 +234,6 @@ function sendMacroWindows(text) {
     if (shiftState & 1) keybd_event(0x10, 0, KEYUP, 0); // Shift up
   };
 
-  // Ctrl+C (interrupt)
-  keybd_event(VK_CONTROL, 0, 0, 0);
-  keybd_event(VK_C, 0, 0, 0);
-  keybd_event(VK_C, 0, KEYUP, 0);
-  keybd_event(VK_CONTROL, 0, KEYUP, 0);
   for (const ch of text) tapChar(ch);
   keybd_event(VK_RETURN, 0, 0, 0);
   keybd_event(VK_RETURN, 0, KEYUP, 0);
@@ -231,60 +241,72 @@ function sendMacroWindows(text) {
 
 function sendMacroMac(text) {
   const escaped = text.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-  const interruptScript = [
-    'tell application "System Events"',
-    '  key code 8 using {control down}', // Ctrl+C interrupt
-    'end tell'
-  ].join('\n');
-  const typeAndEnterScript = [
+  const typeScript = [
     'tell application "System Events"',
     `  keystroke "${escaped}"`,
-    '  key code 36', // Enter
+    '  key code 36',
     'end tell'
   ].join('\n');
-
-  execFile('osascript', ['-e', interruptScript], err => {
-    if (err) {
-      console.warn('mac macro failed (enable Accessibility for terminal/app):', err.message);
-      return;
-    }
-
-    setTimeout(() => {
-      execFile('osascript', ['-e', typeAndEnterScript], err2 => {
-        if (err2) {
-          console.warn('mac macro failed (enable Accessibility for terminal/app):', err2.message);
-        }
-      });
-    }, 300);
-  });
+  execFile('osascript', ['-e', typeScript], () => {});
 }
 
 function sendMacroLinux(text) {
-  execFile(
-    'xdotool',
-    [
-      'key', '--clearmodifiers', 'ctrl+c',
-      'type', '--delay', '1', '--clearmodifiers', '--', text,
-      'key', 'Return',
-    ],
-    err => {
-      if (err) {
-        console.warn('linux macro failed. Install xdotool:', err.message);
-      }
-    }
-  );
+  execFile('xdotool', ['type', '--delay', '1', '--clearmodifiers', '--', text, 'key', 'Return'], () => {});
 }
 
 // ── App lifecycle ───────────────────────────────────────────────────────────
 app.whenReady().then(async () => {
-  tray = new Tray(await getTrayIcon());
-  tray.setToolTip('OpenWhip - click for whip');
+  initButtonDetector();
+
+  const trayIcon = getTrayIcon();
+  tray = new Tray(trayIcon);
+  tray.setToolTip('OpenWhip (Left-Click to whip buttons, Right-Click to dismiss, Ctrl+Shift+W to toggle)');
   tray.setContextMenu(
     Menu.buildFromTemplate([
-      { label: 'Quit', click: () => app.quit() },
+      { label: 'Spawn Whip (Ctrl+Shift+W)', click: showWhip },
+      { type: 'separator' },
+      { label: 'Quit', click: () => {
+        if (detectorProcess) {
+          try { detectorProcess.stdin.write('EXIT\n'); } catch {}
+          detectorProcess.kill();
+        }
+        app.quit();
+      }},
     ])
   );
   tray.on('click', toggleOverlay);
+
+  // Register Global Shortcuts so the user doesn't have to search for the tray icon!
+  try {
+    globalShortcut.register('CommandOrControl+Shift+W', toggleOverlay);
+    globalShortcut.register('Alt+W', toggleOverlay);
+  } catch (e) {
+    console.warn('Failed to register global hotkey:', e);
+  }
+
+  // Auto-spawn the whip immediately on launch so it appears on screen right away!
+  createOverlay();
+  setTimeout(() => {
+    showWhip();
+  }, 300);
+
+  // Show balloon / notification on Windows to show where OpenWhip is
+  try {
+    if (process.platform === 'win32' && tray) {
+      tray.displayBalloon({
+        title: 'OpenWhip is Active! ⚡',
+        content: 'Whip spawned on screen!\n• Left-Click: Whip nearest button\n• Right-Click: Dismiss\n• Shortcut: Ctrl+Shift+W or Alt+W',
+      });
+    }
+  } catch {}
 });
 
-app.on('window-all-closed', e => e.preventDefault()); // keep alive in tray
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
+  if (detectorProcess) {
+    try { detectorProcess.stdin.write('EXIT\n'); } catch {}
+    detectorProcess.kill();
+  }
+});
+
+app.on('window-all-closed', e => e.preventDefault());
