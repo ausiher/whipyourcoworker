@@ -3,112 +3,162 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>OpenWhip™ Corporate AR | Work Productivity Maxx</title>
-  <link rel="stylesheet" href="style.css?v=4">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a66c2'/><text x='50' y='68' font-size='56' font-family='sans-serif' font-weight='bold' fill='white' text-anchor='middle'>in</text></svg>">
+  <title>Whip Your Coworker™ | Corporate Productivity AR</title>
+  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
 </head>
 <body>
   <div id="app-container">
     <!-- Camera Video Source -->
     <video id="camera-video" autoplay playsinline muted></video>
 
-    <!-- 3D WebGL Gauntlet Layer -->
+    <!-- 3D WebGL Tactical Arm & Weapon Layer -->
     <canvas id="three-canvas"></canvas>
 
-    <!-- 2D Overlay: Whip physics, shockwaves, sparks & comic text -->
+    <!-- 2D Cyber-Spine Whip, Sparks, Lightning & Comic Callouts Layer -->
     <canvas id="whip-canvas"></canvas>
 
-    <!-- ── LinkedIn Corporate Top Navigation Bar ─────────────────────────────── -->
-    <header class="linkedin-header">
-      <div class="linkedin-brand">
-        <div class="linkedin-logo-badge">in</div>
-        <div class="linkedin-brand-text">
-          <div class="brand-title">WorkforceSynergy™</div>
-          <div class="brand-subtitle">OpenWhip Executive AR</div>
+    <!-- ── Top HUD Bar: Dynamic Logo & LIVE Badge ────────────────────────────── -->
+    <header class="top-hud-bar">
+      <!-- Top-Left: Stylized Brush Calligraphy "👑 WHIP YOUR COWORKER" -->
+      <div class="top-branding">
+        <div class="brand-crown-row">
+          <svg class="brand-crown-svg" viewBox="0 0 32 24" width="30" height="22">
+            <path d="M3 21L6 6L12 13L16 4L20 13L26 6L29 21H3Z" fill="#F59E0B" stroke="#FDE047" stroke-width="1.8" stroke-linejoin="round"/>
+            <circle cx="6" cy="6" r="2.2" fill="#FEF08A"/>
+            <circle cx="16" cy="4" r="2.2" fill="#FEF08A"/>
+            <circle cx="26" cy="6" r="2.2" fill="#FEF08A"/>
+            <circle cx="16" cy="15" r="1.8" fill="#FDE047"/>
+          </svg>
         </div>
-      </div>
-
-      <div class="linkedin-status-group">
-        <div class="status-pill open-to-whip">
-          <span class="pulse-dot"></span>
-          <span>OPEN TO WHIP</span>
-        </div>
-        <div class="status-pill top-voice">
-          <span>🗣️ Top Voice</span>
+        <div class="brand-text-block">
+          <div class="brand-line-1">
+            <span class="brand-slash-left">—</span>
+            <span class="brand-text-whip">WHIP YOUR</span>
+            <span class="brand-slash-right">/</span>
+          </div>
+          <div class="brand-line-2">
+            <span class="brand-slashes-left">///</span>
+            <span class="brand-text-coworker">COWORKER</span>
+            <span class="brand-slashes-right">//</span>
+            <svg class="brand-brush-svg" viewBox="0 0 160 14" preserveAspectRatio="none">
+              <path d="M2 4 C40 10, 110 11, 158 5 C120 12, 50 11, 2 4 Z" fill="#ffffff"/>
+              <path d="M12 9 C45 13, 95 13, 140 8 C100 14, 40 14, 12 9 Z" fill="#ffffff" opacity="0.85"/>
+            </svg>
+          </div>
         </div>
       </div>
     </header>
 
-    <!-- ── Work Productivity Maxx Meter ──────────────────────────────────────── -->
-    <div class="productivity-meter-container">
-      <div class="meter-card">
-        <div class="meter-header">
-          <div class="meter-title">
-            <span class="meter-icon">📈</span>
-            <span class="meter-label">WORK PRODUCTIVITY MAXX</span>
-          </div>
-          <div id="productivity-rank-badge" class="rank-badge intern">
-            UNPAID INTERN (1.0x)
+    <!-- Top-Right: Cyber "🔴 LIVE" Pill & Subtitle -->
+    <aside class="top-live-group" aria-label="Live Status">
+      <div id="live-pill-toggle" class="live-pill" role="button" tabindex="0" title="Click to Record / Stop Live Video">
+        <span class="live-dot"></span>
+        <span class="live-text">LIVE</span>
+        <svg class="live-cam-svg" viewBox="0 0 20 16" width="16" height="13" fill="#00f5ff">
+          <rect x="1" y="2" width="12" height="12" rx="2.5"/>
+          <path d="M13.5 6.5L18.5 3.5V12.5L13.5 9.5V6.5Z"/>
+        </svg>
+      </div>
+      <div class="live-subtitles">
+        <div>WORK HARDER.</div>
+        <div>TOGETHER.</div>
+      </div>
+    </aside>
+
+    <!-- ── Left HUD: Cyber Productivity Gauge ────────────────────────────────── -->
+    <div class="cyber-productivity-panel">
+      <!-- Header -->
+      <div class="hud-header">
+        <div class="hud-label">PRODUCTIVITY</div>
+        <div class="hud-readout-row">
+          <span id="meter-multiplier-val" class="hud-readout">x2.8</span>
+        </div>
+        <div class="hud-sub">MULTIPLIER <svg class="hud-crown-mini" viewBox="0 0 20 15" width="13" height="10"><path d="M2 13L4 4L8 8L10 2L12 8L16 4L18 13H2Z" fill="#F59E0B" stroke="#FDE047" stroke-width="1.2"/></svg></div>
+      </div>
+
+      <!-- Gauge Section: Vertical Capsule LED Thermometer + Milestones -->
+      <div class="gauge-section">
+        <!-- Thermometer Capsule with 18 segmented LED bars -->
+        <div class="thermometer-capsule">
+          <div class="capsule-bolt">⚡</div>
+          <div id="thermometer-track" class="capsule-track">
+            <!-- Dynamically populated 18 segments -->
           </div>
         </div>
 
-        <!-- Gauge Bar with Milestones -->
-        <div class="meter-track-container">
-          <div class="meter-milestones">
-            <span class="milestone-label">1.0x Base</span>
-            <span class="milestone-label">2.0x Overtime</span>
-            <span class="milestone-label">3.0x Synergy</span>
-            <span class="milestone-label">4.0x MAXX ⚡</span>
+        <!-- Milestone Tick Markers -->
+        <div class="milestone-ticks">
+          <div class="tick-item max" data-tier="4.0">
+            <div class="tick-line"></div>
+            <div class="tick-content">
+              <div class="tick-title">MAX <svg class="hud-crown-mini" viewBox="0 0 20 15" width="12" height="9"><path d="M2 13L4 4L8 8L10 2L12 8L16 4L18 13H2Z" fill="#F59E0B" stroke="#FDE047" stroke-width="1.2"/></svg></div>
+              <div class="tick-val">x4.0</div>
+            </div>
           </div>
-          <div class="meter-track">
-            <div id="meter-fill" class="meter-fill" style="width: 0%;"></div>
-            <div id="meter-pip" class="meter-pip" style="left: 0%;"></div>
+          <div class="tick-item peak" data-tier="3.0">
+            <div class="tick-line"></div>
+            <div class="tick-content">
+              <div class="tick-title">PEAK <svg class="hud-crown-mini" viewBox="0 0 20 15" width="12" height="9"><path d="M2 13L4 4L8 8L10 2L12 8L16 4L18 13H2Z" fill="#F59E0B" stroke="#FDE047" stroke-width="1.2"/></svg></div>
+              <div class="tick-val">x3.0</div>
+            </div>
+          </div>
+          <div class="tick-item good" data-tier="2.0">
+            <div class="tick-line"></div>
+            <div class="tick-content">
+              <div class="tick-title">GOOD</div>
+              <div class="tick-val">x2.0</div>
+            </div>
+          </div>
+          <div class="tick-item ok" data-tier="1.0">
+            <div class="tick-line"></div>
+            <div class="tick-content">
+              <div class="tick-title">OK</div>
+              <div class="tick-val">x1.0</div>
+            </div>
           </div>
         </div>
+      </div>
 
-        <!-- Multiplier Stats Footer -->
-        <div class="meter-stats-row">
-          <div class="stat-group">
-            <span class="stat-small">MULTIPLIER</span>
-            <span id="meter-multiplier-val" class="stat-highlight">1.0x</span>
+      <!-- Combo Burst Badge -->
+      <div id="combo-burst-badge" class="combo-burst-badge">
+        <svg class="combo-burst-svg" viewBox="0 0 140 60">
+          <polygon points="10,30 20,12 40,16 65,5 90,14 115,8 128,25 138,36 124,48 102,46 80,56 55,48 30,54 18,42" fill="#040c1a" stroke="#ea580c" stroke-width="3.2" stroke-linejoin="round"/>
+          <polygon points="14,30 23,15 41,18 64,8 88,16 112,11 124,26 132,36 121,45 100,43 79,52 56,45 32,50 21,40" fill="none" stroke="#fbbf24" stroke-width="1.8" stroke-linejoin="round"/>
+        </svg>
+        <div class="combo-burst-content">
+          <div class="combo-text">COMBO</div>
+          <div id="combo-count-val" class="combo-val">x5</div>
+        </div>
+      </div>
+
+      <!-- Dynamic Buffs List -->
+      <div class="buffs-list">
+        <div class="buff-item">
+          <div class="buff-icon-circle">⚡</div>
+          <div class="buff-info">
+            <span class="buff-val">+0.4</span>
+            <span class="buff-name">Focus Boost</span>
           </div>
-          <div id="combo-pill" class="combo-pill hidden">
-            🔥 <span id="combo-count">1</span> COMBO
+        </div>
+        <div class="buff-item">
+          <div class="buff-icon-circle">🏃</div>
+          <div class="buff-info">
+            <span class="buff-val">+0.3</span>
+            <span class="buff-name">Speed Up</span>
           </div>
-          <div class="stat-group right">
-            <span class="stat-small">DISCIPLINE ACTIONS</span>
-            <span id="counter-val" class="stat-highlight">0 DELIVERED</span>
+        </div>
+        <div class="buff-item">
+          <div class="buff-icon-circle">🎯</div>
+          <div class="buff-info">
+            <span class="buff-val">+0.2</span>
+            <span class="buff-name">No Distraction</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Recording Timer Indicator -->
-    <div id="record-timer" class="record-timer hidden">
-      <div class="record-dot"></div>
-      <span id="record-time-text">REC 00:00</span>
-      <span class="mic-status-pill">🎙️ MIC ON</span>
-    </div>
-
-    <!-- ── Floating Corporate Action Controls ────────────────────────────────── -->
-    <div class="controls-container">
-      <!-- Executive Wardrobe Selection Button -->
-      <button id="btn-wardrobe" class="btn-control" title="Executive Wardrobe & Whip" aria-label="Executive Wardrobe">👔</button>
-
-      <!-- Broadcast / Record Video Button -->
-      <button id="btn-record" class="btn-control record-btn" title="Record Video" aria-label="Record Video">🔴</button>
-
-      <!-- Switch Camera Button -->
-      <button id="btn-flip" class="btn-control" title="Switch Perspective" aria-label="Switch Perspective">🔄</button>
-
-      <!-- Corporate Audio Policy Toggle -->
-      <button id="btn-sound" class="btn-control" title="Corporate Audio Policy" aria-label="Toggle Sound">🔊</button>
-
-      <!-- Presentation Mode / Fullscreen -->
-      <button id="btn-fullscreen" class="btn-control" title="Presentation Mode" aria-label="Toggle Fullscreen">⛶</button>
-    </div>
-
-    <!-- ── Corporate Tactical AR Reticle ─────────────────────────────────────── -->
+    <!-- ── Center Reticle & Tap Hint ─────────────────────────────────────────── -->
     <div id="target-crosshair" class="target-crosshair">
       <div class="reticle-bracket tl"></div>
       <div class="reticle-bracket tr"></div>
@@ -116,73 +166,144 @@
       <div class="reticle-bracket br"></div>
       <div class="crosshair-ring"></div>
       <div class="crosshair-dot"></div>
-      <div class="reticle-label">PERFORMANCE AUDIT</div>
+      <div class="reticle-label">TARGET LOCKED</div>
     </div>
 
-    <!-- Tap / Swing Hint Banner -->
-    <div id="tap-hint" class="tap-hint">
-      💼 Tap or 📱 Swing to align workplace synergy!
+    <div id="tap-hint" class="tap-hint hidden">
+      🎯 Tap coworker or 📱 Swing phone to motivate!
     </div>
 
-    <!-- ── Executive Wardrobe Modal ──────────────────────────────────────────── -->
-    <div id="wardrobe-modal" class="modal-overlay hidden">
-      <div class="modal-card wardrobe-card">
+    <!-- Recording Timer Indicator -->
+    <div id="record-timer" class="record-timer hidden">
+      <div class="record-dot"></div>
+      <span id="record-time-text">REC 00:00</span>
+      <span class="mic-status-pill mic-active">🎙️ MIC + SFX ON</span>
+    </div>
+
+    <!-- ── Bottom HUD: Weapon Deck Carousel ─────────────────────────────────── -->
+    <div class="bottom-weapon-deck">
+      <div class="deck-divider">
+        <div class="divider-line"></div>
+        <div class="divider-text">CHOOSE YOUR WEAPON</div>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="weapon-cards-carousel">
+        <!-- 1. WHIP (Classic) -->
+        <div class="weapon-card active" data-weapon="whip">
+          <div class="card-thumb" style="background-image: url('assets/whip.jpg')"></div>
+          <div class="card-label">
+            <span class="card-title">WHIP</span>
+            <span class="card-sub">Classic</span>
+          </div>
+        </div>
+
+        <!-- 2. BATON (Stun) -->
+        <div class="weapon-card" data-weapon="baton">
+          <div class="card-thumb" style="background-image: url('assets/baton.jpg')"></div>
+          <div class="card-label">
+            <span class="card-title">BATON</span>
+            <span class="card-sub">Stun</span>
+          </div>
+        </div>
+
+        <!-- 3. CHAIN (Heavy) -->
+        <div class="weapon-card" data-weapon="chain">
+          <div class="card-thumb" style="background-image: url('assets/chain.jpg')"></div>
+          <div class="card-label">
+            <span class="card-title">CHAIN</span>
+            <span class="card-sub">Heavy</span>
+          </div>
+        </div>
+
+        <!-- 4. TASER (Shock) -->
+        <div class="weapon-card" data-weapon="taser">
+          <div class="card-thumb" style="background-image: url('assets/taser.jpg')"></div>
+          <div class="card-label">
+            <span class="card-title">TASER</span>
+            <span class="card-sub">Shock</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Actions Bar -->
+      <div class="bottom-actions-row">
+        <button id="btn-settings" class="bottom-action-btn" title="Settings & Audio Controls" aria-label="Settings">
+          <svg class="action-btn-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00f5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+        <div class="bottom-slogan-wrap">
+          <div class="slogan-line"></div>
+          <div class="bottom-slogan">SMALL HITS. BIGGER RESULTS.</div>
+          <div class="slogan-line"></div>
+        </div>
+        <button id="btn-pause" class="bottom-action-btn" title="Pause / Resume" aria-label="Pause / Resume">
+          <svg id="pause-icon-svg" class="action-btn-svg" viewBox="0 0 24 24" width="18" height="18" fill="#00f5ff">
+            <rect x="5" y="4" width="4.5" height="16" rx="2"/>
+            <rect x="14.5" y="4" width="4.5" height="16" rx="2"/>
+          </svg>
+        </button>
+        <button id="btn-record" style="display: none;" aria-hidden="true"></button>
+      </div>
+    </div>
+
+    <!-- ── Settings Modal ────────────────────────────────────────────────────── -->
+    <div id="settings-modal" class="modal-overlay hidden">
+      <div class="modal-card">
         <div class="modal-header">
           <div class="modal-badge-row">
-            <span class="linkedin-mini-badge">in</span>
-            <span class="modal-subtitle">EXECUTIVE APPARATUS</span>
+            <span class="cyber-mini-badge">CYBER</span>
+            <span class="modal-subtitle">TACTICAL AR SUITE</span>
           </div>
-          <h2 class="modal-title">Executive Wardrobe & Whip</h2>
-          <p class="modal-desc">Select your corporate attire to optimize discipline delivery.</p>
+          <h2 class="modal-title">Settings & Controls</h2>
+          <p class="modal-desc">Configure your camera perspective, audio mix & presentation display.</p>
         </div>
 
-        <div class="wardrobe-grid">
-          <!-- Option 1: C-Suite -->
-          <div class="wardrobe-option active" data-style="csuite">
-            <div class="option-icon">👔</div>
-            <div class="option-info">
-              <div class="option-title">The C-Suite Executive</div>
-              <div class="option-meta">Navy Tailored Wool • Rolex Gold Watch • Italian Walnut Whip</div>
-              <div class="option-perk">+50% Executive Presence</div>
+        <div class="settings-grid">
+          <div id="opt-flip-camera" class="settings-option">
+            <div class="settings-left">
+              <span class="settings-icon">🔄</span>
+              <span class="settings-label">Switch Camera</span>
             </div>
-            <div class="option-check">✓</div>
+            <span id="label-camera-mode" class="settings-toggle">Back (Environment)</span>
           </div>
 
-          <!-- Option 2: Silicon Valley -->
-          <div class="wardrobe-option" data-style="silicon">
-            <div class="option-icon">💻</div>
-            <div class="option-info">
-              <div class="option-title">Silicon Valley 10x Hustler</div>
-              <div class="option-meta">Patagonia Tech Fleece • Apple Watch Ultra • Carbon Whip</div>
-              <div class="option-perk">+100% Disruptive Velocity</div>
+          <div id="opt-sound-toggle" class="settings-option">
+            <div class="settings-left">
+              <span class="settings-icon">🔊</span>
+              <span class="settings-label">Sound Effects (SFX)</span>
             </div>
-            <div class="option-check">✓</div>
+            <span id="label-sound-mode" class="settings-toggle">Enabled</span>
           </div>
 
-          <!-- Option 3: Wall Street Titan -->
-          <div class="wardrobe-option" data-style="wallstreet">
-            <div class="option-icon">🪙</div>
-            <div class="option-info">
-              <div class="option-title">Wall Street Titan</div>
-              <div class="option-meta">Midnight Wool • 24K Solid Gold Gauntlet • Bullion Whip</div>
-              <div class="option-perk">+200% Golden Parachute Bonus</div>
+          <div id="opt-mic-toggle" class="settings-option">
+            <div class="settings-left">
+              <span class="settings-icon">🎙️</span>
+              <span class="settings-label">Microphone Recording</span>
             </div>
-            <div class="option-check">✓</div>
+            <span id="label-mic-mode" class="settings-toggle">Mixed with SFX</span>
           </div>
 
-          <!-- Option 4: Cyber Director 2077 -->
-          <div class="wardrobe-option" data-style="cyber">
-            <div class="option-icon">🦾</div>
-            <div class="option-info">
-              <div class="option-title">Cyber Director 2077</div>
-              <div class="option-meta">Exoskeleton Bracer • Chrome Prosthetic • Plasma Whip</div>
-              <div class="option-perk">+300% Overclock Yield</div>
+          <div id="opt-fullscreen-toggle" class="settings-option">
+            <div class="settings-left">
+              <span class="settings-icon">⛶</span>
+              <span class="settings-label">Presentation Mode</span>
             </div>
-            <div class="option-check">✓</div>
+            <span class="settings-toggle">Toggle Fullscreen</span>
+          </div>
+
+          <div id="opt-mock-demo" class="settings-option">
+            <div class="settings-left">
+              <span class="settings-icon">🎬</span>
+              <span class="settings-label">Demo Video Mode</span>
+            </div>
+            <span class="settings-toggle">Simulate Feed</span>
           </div>
         </div>
 
-        <button id="btn-close-wardrobe" class="modal-btn linkedin-primary">Equip Attire</button>
+        <button id="btn-close-settings" class="modal-btn primary-cyan">Back to Action</button>
       </div>
     </div>
 
@@ -191,11 +312,11 @@
       <div class="modal-card">
         <div class="modal-header">
           <div class="modal-badge-row">
-            <span class="linkedin-mini-badge">in</span>
+            <span class="cyber-mini-badge">RECORDED</span>
             <span class="modal-subtitle">PERFORMANCE REVIEW LOGGED</span>
           </div>
           <h2 class="modal-title">📢 Review Broadcast Ready!</h2>
-          <p class="modal-desc">Clip recorded with microphone audio, sound effects & productivity metrics.</p>
+          <p class="modal-desc">Clip recorded with microphone audio, weapon SFX & cyber productivity metrics.</p>
         </div>
 
         <div class="preview-video-container">
@@ -213,8 +334,8 @@
             <span id="preview-actions" class="metric-value">18 Hits</span>
           </div>
           <div class="metric-pill">
-            <span class="metric-label">ATTIRE</span>
-            <span id="preview-style" class="metric-value">C-Suite</span>
+            <span class="metric-label">WEAPON</span>
+            <span id="preview-weapon" class="metric-value">WHIP</span>
           </div>
           <div class="metric-pill">
             <span class="metric-label">AUDIO MIX</span>
@@ -223,12 +344,10 @@
         </div>
 
         <div class="modal-actions">
-          <!-- Primary Share to Messaging Channel (WhatsApp, Slack, LinkedIn, etc.) -->
           <button id="btn-share-video" class="modal-btn share-btn">
             📲 Share Clip to Messaging Apps (WhatsApp / Slack / LinkedIn)
           </button>
 
-          <!-- Direct Messaging Channels Row -->
           <div class="share-shortcuts-row">
             <button id="btn-share-whatsapp" class="modal-btn shortcut-btn whatsapp" title="Share via WhatsApp">
               💬 WhatsApp
@@ -241,15 +360,12 @@
             </button>
           </div>
 
-          <!-- Copy Viral Post Text -->
           <button id="btn-copy-post" class="modal-btn secondary">
-            📋 Copy Corporate Announcement
+            📋 Copy Motivation Announcement
           </button>
-          <!-- Replay Button -->
           <button id="btn-replay-video" class="modal-btn secondary">
             🔁 Replay Video with Audio
           </button>
-          <!-- Done Button -->
           <button id="btn-close-preview" class="modal-btn tertiary">
             Dismiss
           </button>
@@ -263,10 +379,15 @@
     <!-- Camera Permission / Info Modal -->
     <div id="camera-modal" class="modal-overlay hidden">
       <div class="modal-card">
-        <div class="modal-icon">📷</div>
-        <h2 class="modal-title">Camera Permission Needed</h2>
-        <p class="modal-desc">OpenWhip AR requires camera access to project your executive whip onto workplace targets.</p>
-        <button id="btn-enable-camera" class="modal-btn linkedin-primary">Enable Camera Access</button>
+        <div class="modal-header">
+          <div class="modal-badge-row">
+            <span class="cyber-mini-badge">CAMERA</span>
+            <span class="modal-subtitle">ACCESS REQUIRED</span>
+          </div>
+          <h2 class="modal-title">Camera Permission Needed</h2>
+          <p class="modal-desc">OpenWhip AR requires camera access to project your cyber whip and productivity gauge onto your workplace targets.</p>
+        </div>
+        <button id="btn-enable-camera" class="modal-btn primary-cyan">Enable Camera Access</button>
         <button id="btn-mock-camera" class="modal-btn secondary">Try Demo (No Camera)</button>
       </div>
     </div>
@@ -275,7 +396,7 @@
   <!-- Three.js 3D Library & GLTF Loader -->
   <script src="libs/three.min.js"></script>
   <script src="libs/GLTFLoader.js"></script>
-  <script src="whip-engine.js?v=7"></script>
+  <script src="whip-engine.js?v=8"></script>
 
   <script>
     const container = document.getElementById('app-container');
@@ -287,42 +408,50 @@
     const recordTimer = document.getElementById('record-timer');
     const recordTimeText = document.getElementById('record-time-text');
 
-    // Productivity Maxx Meter Elements
-    const rankBadge = document.getElementById('productivity-rank-badge');
-    const meterFill = document.getElementById('meter-fill');
-    const meterPip = document.getElementById('meter-pip');
+    // Left HUD Elements
     const multiplierVal = document.getElementById('meter-multiplier-val');
-    const comboPill = document.getElementById('combo-pill');
-    const comboCount = document.getElementById('combo-count');
-    const counterVal = document.getElementById('counter-val');
+    const thermometerTrack = document.getElementById('thermometer-track');
+    const comboBurstBadge = document.getElementById('combo-burst-badge');
+    const comboCountVal = document.getElementById('combo-count-val');
 
-    // Controls
-    const btnWardrobe = document.getElementById('btn-wardrobe');
+    // Weapon Deck Cards
+    const weaponCards = document.querySelectorAll('.weapon-card');
+
+    // Bottom Controls
+    const btnSettings = document.getElementById('btn-settings');
     const btnRecord = document.getElementById('btn-record');
-    const btnFlip = document.getElementById('btn-flip');
-    const btnSound = document.getElementById('btn-sound');
-    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const btnPause = document.getElementById('btn-pause');
+    const livePillToggle = document.getElementById('live-pill-toggle');
 
-    // Wardrobe Modal
-    const wardrobeModal = document.getElementById('wardrobe-modal');
-    const btnCloseWardrobe = document.getElementById('btn-close-wardrobe');
-    const wardrobeOptions = document.querySelectorAll('.wardrobe-option');
+    // Settings Modal Elements
+    const settingsModal = document.getElementById('settings-modal');
+    const btnCloseSettings = document.getElementById('btn-close-settings');
+    const optFlipCamera = document.getElementById('opt-flip-camera');
+    const optSoundToggle = document.getElementById('opt-sound-toggle');
+    const optMicToggle = document.getElementById('opt-mic-toggle');
+    const optFullscreenToggle = document.getElementById('opt-fullscreen-toggle');
+    const optMockDemo = document.getElementById('opt-mock-demo');
+    const labelCameraMode = document.getElementById('label-camera-mode');
+    const labelSoundMode = document.getElementById('label-sound-mode');
 
-    // Preview Modal
+    // Preview Modal Elements
     const previewModal = document.getElementById('preview-modal');
     const previewVideo = document.getElementById('preview-video');
-    const btnReplayVideo = document.getElementById('btn-replay-video');
-    const btnDownloadVideo = document.getElementById('btn-download-video');
+    const previewPeakMult = document.getElementById('preview-peak-mult');
+    const previewActions = document.getElementById('preview-actions');
+    const previewWeapon = document.getElementById('preview-weapon');
+    const previewAudio = document.getElementById('preview-audio');
     const btnShareVideo = document.getElementById('btn-share-video');
     const btnShareWhatsapp = document.getElementById('btn-share-whatsapp');
     const btnShareLinkedin = document.getElementById('btn-share-linkedin');
+    const btnDownloadVideo = document.getElementById('btn-download-video');
     const btnCopyPost = document.getElementById('btn-copy-post');
+    const btnReplayVideo = document.getElementById('btn-replay-video');
     const btnClosePreview = document.getElementById('btn-close-preview');
 
-    const previewPeakMult = document.getElementById('preview-peak-mult');
-    const previewActions = document.getElementById('preview-actions');
-    const previewStyle = document.getElementById('preview-style');
-    const previewAudio = document.getElementById('preview-audio');
+    const cameraModal = document.getElementById('camera-modal');
+    const btnEnableCamera = document.getElementById('btn-enable-camera');
+    const btnMockCamera = document.getElementById('btn-mock-camera');
     const corporateToast = document.getElementById('corporate-toast');
 
     function showToast(message) {
@@ -334,52 +463,58 @@
       corporateToast._timer = setTimeout(() => {
         corporateToast.classList.remove('visible');
         setTimeout(() => corporateToast.classList.add('hidden'), 300);
-      }, 2800);
+      }, 2600);
     }
 
-    const cameraModal = document.getElementById('camera-modal');
-    const btnEnableCamera = document.getElementById('btn-enable-camera');
-    const btnMockCamera = document.getElementById('btn-mock-camera');
+    // Initialize 18 Segment LED Thermometer
+    const TOTAL_SEGMENTS = 18;
+    const segmentColors = [
+      '#ea580c', '#ea580c', '#f97316', '#f97316', // 0-3: Warm Amber/Orange
+      '#eab308', '#eab308', '#facc15', '#facc15', // 4-7: Golden Yellow
+      '#84cc16', '#22c55e', '#22c55e', '#39ff14', '#39ff14', '#39ff14', // 8-13: Lime Green
+      '#06b6d4', '#06b6d4', '#00f5ff', '#00f5ff'  // 14-17: Neon Electric Cyan
+    ];
 
-    // Initialize 3D Engine
+    const segmentElements = [];
+    for (let i = 0; i < TOTAL_SEGMENTS; i++) {
+      const seg = document.createElement('div');
+      seg.className = 'capsule-seg';
+      seg.style.color = segmentColors[i];
+      thermometerTrack.appendChild(seg);
+      segmentElements.push(seg);
+    }
+
+    // Initialize 3D Whip Engine
     const engine = new WhipEngine(canvas, threeCanvas);
     window.engine = engine;
 
     let peakMultiplierDuringRecording = 1.0;
 
-    // ── Update Productivity Maxx Meter HUD ──────────────────────────────────
+    // ── Update Productivity HUD ─────────────────────────────────────────────
     function updateProductivityHUD(frenzy, combo) {
       const info = engine.getProductivityInfo();
       multiplierVal.textContent = info.formattedMultiplier;
-      rankBadge.textContent = info.tierName;
 
-      // Update Meter Fill & Pip
-      const pct = Math.max(0, Math.min(100, info.progress * 100));
-      meterFill.style.width = pct + '%';
-      meterPip.style.left = pct + '%';
-
-      // Update Color Class
-      rankBadge.className = 'rank-badge';
-      if (frenzy >= 3.8) {
-        rankBadge.classList.add('unicorn');
-        meterFill.style.background = 'linear-gradient(90deg, #0a66c2 0%, #10b981 35%, #f59e0b 70%, #ec4899 100%)';
-      } else if (frenzy >= 2.8) {
-        rankBadge.classList.add('synergy');
-        meterFill.style.background = 'linear-gradient(90deg, #0a66c2 0%, #10b981 50%, #f59e0b 100%)';
-      } else if (frenzy >= 1.8) {
-        rankBadge.classList.add('overtime');
-        meterFill.style.background = 'linear-gradient(90deg, #0a66c2 0%, #10b981 100%)';
-      } else {
-        rankBadge.classList.add('intern');
-        meterFill.style.background = '#0a66c2';
+      // Update 18-Segment LED Thermometer
+      const activeCount = Math.round(info.progress * TOTAL_SEGMENTS);
+      for (let i = 0; i < TOTAL_SEGMENTS; i++) {
+        const seg = segmentElements[i];
+        if (i < activeCount || (i === 0 && frenzy >= 1.0)) {
+          seg.classList.add('active');
+          seg.style.backgroundColor = segmentColors[i];
+          seg.style.boxShadow = `0 0 8px ${segmentColors[i]}`;
+        } else {
+          seg.classList.remove('active');
+          seg.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
+          seg.style.boxShadow = 'none';
+        }
       }
 
-      // Combo Pill
+      // Update Combo Burst Badge
+      comboCountVal.textContent = `x${combo}`;
       if (combo > 1) {
-        comboPill.classList.remove('hidden');
-        comboCount.textContent = combo;
-      } else {
-        comboPill.classList.add('hidden');
+        comboBurstBadge.style.opacity = '1';
+        comboBurstBadge.style.transform = 'scale(1)';
       }
 
       if (frenzy > peakMultiplierDuringRecording) {
@@ -388,9 +523,11 @@
     }
 
     engine.onWhipHit = (count, combo) => {
-      counterVal.textContent = `${count} DELIVERED`;
-      counterVal.classList.add('bump');
-      setTimeout(() => counterVal.classList.remove('bump'), 160);
+      multiplierVal.classList.add('bump');
+      setTimeout(() => multiplierVal.classList.remove('bump'), 150);
+
+      comboBurstBadge.classList.add('bump');
+      setTimeout(() => comboBurstBadge.classList.remove('bump'), 160);
 
       if (crosshair) {
         crosshair.classList.add('active');
@@ -423,29 +560,73 @@
       engine.unlockAudio();
       engine.requestMotionPermission();
 
-      if (e.target.closest('.btn-control') || e.target.closest('.modal-card') || e.target.closest('.productivity-meter-container')) {
+      if (e.target.closest('.bottom-weapon-deck') || e.target.closest('.modal-card') || e.target.closest('.cyber-productivity-panel')) {
         return;
       }
       engine.strikeAt(e.clientX, e.clientY);
     });
 
-    // ── Executive Wardrobe Drawer ───────────────────────────────────────────
-    btnWardrobe.addEventListener('click', (e) => {
-      e.stopPropagation();
-      wardrobeModal.classList.remove('hidden');
-    });
-
-    wardrobeOptions.forEach(opt => {
-      opt.addEventListener('click', () => {
-        wardrobeOptions.forEach(o => o.classList.remove('active'));
-        opt.classList.add('active');
-        const styleKey = opt.getAttribute('data-style');
-        engine.setExecutiveStyle(styleKey);
+    // ── Weapon Deck Selection ───────────────────────────────────────────────
+    weaponCards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+        weaponCards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        const weaponId = card.getAttribute('data-weapon');
+        engine.setWeapon(weaponId);
+        showToast(`⚡ Equipped: ${weaponId.toUpperCase()}`);
       });
     });
 
-    btnCloseWardrobe.addEventListener('click', () => {
-      wardrobeModal.classList.add('hidden');
+    // ── Settings Modal Controls ─────────────────────────────────────────────
+    btnSettings.addEventListener('click', (e) => {
+      e.stopPropagation();
+      settingsModal.classList.remove('hidden');
+    });
+
+    btnCloseSettings.addEventListener('click', () => {
+      settingsModal.classList.add('hidden');
+    });
+
+    optFlipCamera.addEventListener('click', () => {
+      facingMode = (facingMode === 'environment') ? 'user' : 'environment';
+      labelCameraMode.textContent = facingMode === 'environment' ? 'Back (Environment)' : 'Front (Selfie)';
+      startCamera(facingMode);
+    });
+
+    optSoundToggle.addEventListener('click', () => {
+      engine.unlockAudio();
+      engine.isMuted = !engine.isMuted;
+      labelSoundMode.textContent = engine.isMuted ? 'Muted (Silent)' : 'Enabled';
+    });
+
+    optMicToggle.addEventListener('click', () => {
+      showToast('🎙️ Live microphone is mixed into video recordings!');
+    });
+
+    optFullscreenToggle.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    });
+
+    function activateDemoMode(showNotification = false) {
+      cameraModal.classList.add('hidden');
+      isMockMode = true;
+      video.pause();
+      video.srcObject = null;
+      video.style.background = "url('assets/coworker.jpg') center center / cover no-repeat";
+      if (showNotification) {
+        showToast('🎬 Demo mode enabled with office coworker feed');
+      }
+    }
+
+    btnMockCamera.addEventListener('click', () => activateDemoMode(true));
+    optMockDemo.addEventListener('click', () => {
+      settingsModal.classList.add('hidden');
+      activateDemoMode(true);
     });
 
     // ── Camera Streaming ────────────────────────────────────────────────────
@@ -502,152 +683,144 @@
       startCamera(facingMode);
     });
 
-    btnMockCamera.addEventListener('click', () => {
-      cameraModal.classList.add('hidden');
-      isMockMode = true;
-      video.pause();
-      video.srcObject = null;
-      video.style.background = 'radial-gradient(ellipse at center, #1b2635 0%, #0d131c 100%)';
-    });
-
-    btnFlip.addEventListener('click', (e) => {
-      e.stopPropagation();
-      facingMode = (facingMode === 'environment') ? 'user' : 'environment';
-      startCamera(facingMode);
-    });
-
-    btnSound.addEventListener('click', (e) => {
-      e.stopPropagation();
-      engine.unlockAudio();
-      engine.isMuted = !engine.isMuted;
-      btnSound.textContent = engine.isMuted ? '🔇' : '🔊';
-    });
-
-    btnFullscreen.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        document.exitFullscreen().catch(() => {});
-      }
-    });
-
-    // ── Watermark Function for Recording ("Include multiplier, but NOT the UI") ───
+    // ── Watermark Function for Video Recording (AAA Game Watermark) ──────────
     function drawRecordingWatermark(ctx, W, H, eng) {
       const info = eng.getProductivityInfo();
-
       ctx.save();
 
-      // Top-Left Broadcast-Style Corporate Watermark Card
-      const cardW = Math.min(360, W * 0.82);
-      const cardH = 78;
-      const cardX = 20;
-      const cardY = 24;
-      const r = 14;
+      // Top-Left Branding Watermark: Crown + WHIP YOUR COWORKER
+      ctx.save();
+      ctx.translate(24, 26);
+      ctx.rotate(-0.04);
 
-      // Card Background (LinkedIn Corporate Dark Navy Glassmorphism)
-      ctx.fillStyle = 'rgba(11, 19, 36, 0.90)';
+      // Gold Crown
+      ctx.fillStyle = '#f59e0b';
+      ctx.strokeStyle = '#fde047';
+      ctx.lineWidth = 1.6;
       ctx.beginPath();
-      ctx.roundRect(cardX, cardY, cardW, cardH, r);
+      ctx.moveTo(32, 19);
+      ctx.lineTo(36, 6);
+      ctx.lineTo(43, 12);
+      ctx.lineTo(47, 4);
+      ctx.lineTo(51, 12);
+      ctx.lineTo(58, 6);
+      ctx.lineTo(62, 19);
+      ctx.closePath();
       ctx.fill();
-
-      // Card Glowing Border
-      ctx.strokeStyle = info.tierColor || '#0a66c2';
-      ctx.lineWidth = 2.0;
-      ctx.shadowColor = info.tierColor || '#0a66c2';
-      ctx.shadowBlur = 8;
       ctx.stroke();
-      ctx.shadowBlur = 0; // reset shadow
 
-      // Mini 'in' logo badge
-      ctx.fillStyle = '#0a66c2';
+      ctx.font = '900 23px "Permanent Marker", "Bangers", Impact, sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+      ctx.shadowBlur = 8;
+      ctx.fillText('— WHIP YOUR /', 0, 42);
+      ctx.font = '900 28px "Permanent Marker", "Bangers", Impact, sans-serif';
+      ctx.fillText('/// COWORKER //', 0, 70);
+      // Double Brush underline
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 75, 175, 3.5);
+      ctx.fillRect(10, 80, 150, 2);
+      ctx.restore();
+
+      // Top-Right: LIVE Badge
+      ctx.save();
+      ctx.translate(W - 134, 26);
+      ctx.fillStyle = 'rgba(6, 18, 36, 0.88)';
+      ctx.strokeStyle = '#00f5ff';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.roundRect(cardX + 12, cardY + 12, 24, 24, 5);
+      ctx.roundRect(0, 0, 110, 32, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      // Red blinking dot
+      ctx.fillStyle = '#ff1744';
+      ctx.beginPath();
+      ctx.arc(16, 16, 4.5, 0, Math.PI * 2);
       ctx.fill();
 
+      // LIVE text
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 16px -apple-system, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('in', cardX + 24, cardY + 29);
+      ctx.font = '800 12px "Orbitron", sans-serif';
+      ctx.fillText('LIVE', 28, 20);
 
-      // Corporate Label
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '800 10px -apple-system, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText('WORK PRODUCTIVITY MAXX™', cardX + 44, cardY + 21);
-
-      // Multiplier Readout
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '900 20px -apple-system, sans-serif';
-      ctx.fillText(`⚡ ${info.formattedMultiplier}`, cardX + 44, cardY + 43);
-
-      // Tier Pill Badge
-      const pillX = cardX + 128;
-      const pillY = cardY + 29;
-      const pillW = cardW - 142;
-      const pillH = 18;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+      // Camera SVG Icon
+      ctx.fillStyle = '#00f5ff';
       ctx.beginPath();
-      ctx.roundRect(pillX, pillY, pillW, pillH, 9);
+      ctx.roundRect(68, 10, 13, 11, 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(82, 13);
+      ctx.lineTo(89, 10);
+      ctx.lineTo(89, 21);
+      ctx.lineTo(82, 18);
+      ctx.closePath();
       ctx.fill();
 
-      ctx.fillStyle = info.tierColor;
-      ctx.font = '800 10px -apple-system, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(info.tierName, pillX + pillW * 0.5, pillY + 13);
+      ctx.fillStyle = '#00f5ff';
+      ctx.font = '800 8.5px "Orbitron", sans-serif';
+      ctx.fillText('WORK HARDER.', 10, 46);
+      ctx.fillText('TOGETHER.', 28, 57);
+      ctx.restore();
 
-      // Segmented Tachometer LED Power Gauge (14 Segments)
-      const barX = cardX + 12;
-      const barY = cardY + 58;
-      const barW = cardW - 24;
-      const barH = 8;
-      const segments = 14;
-      const gap = 3;
-      const segW = (barW - (segments - 1) * gap) / segments;
-      const activeSegs = Math.round(info.progress * segments);
+      // Left HUD Productivity Card Watermark
+      const cardX = 24;
+      const cardY = 120;
+      const cardW = 120;
+      const cardH = 135;
 
-      for (let s = 0; s < segments; s++) {
-        const sx = barX + s * (segW + gap);
-        ctx.beginPath();
-        ctx.roundRect(sx, barY, segW, barH, 2);
-        if (s <= activeSegs && activeSegs > 0) {
-          ctx.fillStyle = info.tierColor;
-          ctx.fill();
-        } else {
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
-          ctx.fill();
-        }
+      ctx.fillStyle = 'rgba(5, 14, 28, 0.88)';
+      ctx.strokeStyle = 'rgba(0, 245, 255, 0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.roundRect(cardX, cardY, cardW, cardH, 12);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#00f5ff';
+      ctx.font = '800 9px "Orbitron", sans-serif';
+      ctx.fillText('PRODUCTIVITY', cardX + 10, cardY + 20);
+
+      ctx.fillStyle = '#39ff14';
+      ctx.font = '900 32px "Orbitron", sans-serif';
+      ctx.fillText(info.formattedMultiplier, cardX + 10, cardY + 56);
+
+      ctx.fillStyle = '#ffd700';
+      ctx.font = '800 9.5px "Orbitron", sans-serif';
+      ctx.fillText('MULTIPLIER 👑', cardX + 10, cardY + 74);
+
+      // Mini 10-segment power bar
+      const barY = cardY + 86;
+      const segW = 8;
+      const segH = 14;
+      const totalSegs = 10;
+      const activeSegs = Math.round(info.progress * totalSegs);
+
+      for (let s = 0; s < totalSegs; s++) {
+        const sx = cardX + 10 + s * 10;
+        ctx.fillStyle = s < activeSegs ? '#39ff14' : 'rgba(255, 255, 255, 0.12)';
+        ctx.fillRect(sx, barY, segW, segH);
       }
 
-      // Combo Pill (If combo > 1)
       if (info.combo > 1) {
-        const comboText = `🔥 ${info.combo}x COMBO`;
-        ctx.font = '800 11px -apple-system, sans-serif';
-        const cWidth = ctx.measureText(comboText).width + 16;
-        const cX = cardX + cardW - cWidth;
-        const cY = cardY - 14;
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.95)';
-        ctx.beginPath();
-        ctx.roundRect(cX, cY, cWidth, 20, 10);
-        ctx.fill();
-        ctx.fillStyle = '#111827';
-        ctx.textAlign = 'center';
-        ctx.fillText(comboText, cX + cWidth * 0.5, cY + 14);
+        ctx.fillStyle = '#f59e0b';
+        ctx.font = '900 12px "Permanent Marker", sans-serif';
+        ctx.fillText(`🔥 COMBO x${info.combo}`, cardX + 10, cardY + 120);
       }
 
-      // Bottom Right Watermark Stamp (Excludes any button UI)
-      const stampText = `OpenWhip™ Corporate AR • ${info.whipCount} AUDITS DELIVERED`;
-      ctx.font = '700 12px -apple-system, sans-serif';
+      // Bottom Right Watermark Stamp
+      const stampText = `OpenWhip™ AR • ${info.weaponName} • SMALL HITS. BIGGER RESULTS.`;
+      ctx.font = '800 11px "Orbitron", sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
       ctx.fillText(stampText, W - 19, H - 21);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.fillStyle = 'rgba(0, 245, 255, 0.9)';
       ctx.fillText(stampText, W - 20, H - 22);
 
       ctx.restore();
     }
 
-    // ── Video Recording Engine (Video + Microphone Audio + Whip SFX) ─────────
+    // ── Video Recording Engine (Live Mic + Weapon SFX Mixed) ─────────────────
     let mediaRecorder = null;
     let recordedChunks = [];
     let recordInterval = null;
@@ -670,6 +843,32 @@
       }
     });
 
+    if (livePillToggle) {
+      livePillToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (btnRecord.disabled) return;
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          stopRecording();
+        } else {
+          startRecording();
+        }
+      });
+    }
+
+    if (btnPause) {
+      btnPause.addEventListener('click', (e) => {
+        e.stopPropagation();
+        engine.isPaused = !engine.isPaused;
+        if (engine.isPaused) {
+          showToast('⏸️ Simulation Paused');
+          btnPause.innerHTML = `<svg class="action-btn-svg" viewBox="0 0 24 24" width="18" height="18" fill="#00f5ff"><polygon points="6,4 20,12 6,20"/></svg>`;
+        } else {
+          showToast('▶️ Simulation Resumed');
+          btnPause.innerHTML = `<svg id="pause-icon-svg" class="action-btn-svg" viewBox="0 0 24 24" width="18" height="18" fill="#00f5ff"><rect x="5" y="4" width="4.5" height="16" rx="2"/><rect x="14.5" y="4" width="4.5" height="16" rx="2"/></svg>`;
+        }
+      });
+    }
+
     async function startRecording() {
       if (mediaRecorder && mediaRecorder.state === 'recording') return;
       btnRecord.disabled = true;
@@ -679,12 +878,12 @@
       recordCanvas.width = canvas.width;
       recordCanvas.height = canvas.height;
 
-      // Start Audio Mixing: Combine Live Microphone + Web Audio whip crack effects
+      // Start Audio Mixing: Combine Live Microphone + Web Audio sound effects
       let audioStream = null;
       try {
         audioStream = await engine.startRecordingAudio();
       } catch (err) {
-        console.warn('Audio mixing init note:', err);
+        console.warn('Audio mixing note:', err);
         audioStream = engine.getAudioStream();
       }
 
@@ -706,17 +905,17 @@
           recordCtx.drawImage(video, 0, 0, W, H);
           recordCtx.restore();
         } else {
-          recordCtx.fillStyle = '#0f172a';
+          recordCtx.fillStyle = '#09111e';
           recordCtx.fillRect(0, 0, W, H);
         }
 
-        // 2. Draw 3D Arm/Gauntlet
+        // 2. Draw 3D Arm & Weapon Hilt
         recordCtx.drawImage(threeCanvas, 0, 0, W, H);
 
-        // 3. Draw 2D Whip Physics, Shockwaves, Sparks & Corporate Buzzwords
+        // 3. Draw 2D Cyber-Spine Whip, Sparks, Lightning & Comic Callouts
         recordCtx.drawImage(canvas, 0, 0, W, H);
 
-        // 4. Draw Productivity Multiplier Overlay (NO app UI buttons included!)
+        // 4. Draw AAA Cyber Watermark Overlay
         drawRecordingWatermark(recordCtx, W, H, engine);
 
         requestAnimationFrame(recordFrame);
@@ -732,7 +931,6 @@
 
       const stream = new MediaStream(combinedTracks);
 
-      // Prioritize MP4 formats (H.264 + AAC) so downloaded video has universal native audio on Windows/iOS/Android/Slack/WhatsApp
       const candidateTypes = [
         'video/mp4;codecs=avc1,mp4a.40.2',
         'video/mp4;codecs=avc1',
@@ -756,7 +954,7 @@
       try {
         mediaRecorder = new MediaRecorder(stream, options);
       } catch (err) {
-        console.error('MediaRecorder init failed:', err);
+        console.error('MediaRecorder error:', err);
         showToast('⚠️ Video recording not supported on this browser.');
         recordingActive = false;
         btnRecord.disabled = false;
@@ -782,7 +980,6 @@
         if (recordedUrl) URL.revokeObjectURL(recordedUrl);
         recordedUrl = URL.createObjectURL(recordedBlob);
 
-        // Populate Preview Modal with recorded clip
         previewVideo.src = recordedUrl;
         previewVideo.muted = false;
         previewVideo.volume = 1.0;
@@ -791,12 +988,11 @@
         const info = engine.getProductivityInfo();
         previewPeakMult.textContent = `${peakMultiplierDuringRecording.toFixed(1)}x`;
         previewActions.textContent = `${info.whipCount} Hits`;
-        previewStyle.textContent = info.styleName;
+        previewWeapon.textContent = info.weaponName;
         previewAudio.textContent = engine.isMicrophoneActive() ? '🎙️ Mic + SFX' : '🔊 SFX Only';
 
         previewModal.classList.remove('hidden');
 
-        // Autoplay with sound (or fall back to muted if blocked)
         previewVideo.play().catch(() => {
           previewVideo.muted = true;
           previewVideo.play().catch(() => {});
@@ -807,13 +1003,11 @@
 
       mediaRecorder.start(100);
 
-      // UI state
       btnRecord.disabled = false;
       btnRecord.classList.add('recording');
       btnRecord.textContent = '⏹️';
       recordTimer.classList.remove('hidden');
 
-      // Update mic status pill
       const micPill = recordTimer.querySelector('.mic-status-pill');
       if (micPill) {
         if (engine.isMicrophoneActive()) {
@@ -857,7 +1051,7 @@
       if (!recordedBlob) return;
       const isMp4 = isMp4Recording || recordedBlob.type.includes('mp4');
       const ext = isMp4 ? 'mp4' : 'webm';
-      const filename = `OpenWhip-ProductivityMaxx-${Date.now()}.${ext}`;
+      const filename = `WhipYourCoworker-Productivity-${Date.now()}.${ext}`;
 
       const a = document.createElement('a');
       a.href = recordedUrl;
@@ -868,32 +1062,29 @@
       showToast('💾 Video saved to downloads!');
     });
 
-    // Share Video File to messaging channels (WhatsApp, Slack, LinkedIn, etc.)
     btnShareVideo.addEventListener('click', async () => {
       if (!recordedBlob) return;
       const isMp4 = isMp4Recording || recordedBlob.type.includes('mp4');
       const ext = isMp4 ? 'mp4' : 'webm';
-      const filename = `OpenWhip-ProductivityMaxx-${Date.now()}.${ext}`;
+      const filename = `WhipYourCoworker-Productivity-${Date.now()}.${ext}`;
       const file = new File([recordedBlob], filename, { type: recordedBlob.type });
 
-      const shareText = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity Maxx to my coworkers with OpenWhip! 💼⚡`;
+      const shareText = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity to my coworkers with Whip Your Coworker! 👑⚡`;
 
-      // 1. Try Native File Share API (Supported on iOS Safari, Android Chrome, macOS Safari)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
-            title: 'OpenWhip Corporate Performance Review ⚡',
+            title: 'Whip Your Coworker - Productivity Review 👑⚡',
             text: shareText,
             files: [file],
           });
           showToast('✅ Clip shared successfully!');
           return;
         } catch (err) {
-          if (err.name !== 'AbortError') console.warn('Native file share error:', err);
+          if (err.name !== 'AbortError') console.warn('Share error:', err);
         }
       }
 
-      // 2. Fallback for Desktop: Auto-download & copy announcement text
       const a = document.createElement('a');
       a.href = recordedUrl;
       a.download = filename;
@@ -901,35 +1092,32 @@
       a.click();
       document.body.removeChild(a);
 
-      const postCopy = `${shareText} Disciplining workplace inefficiency at ${window.location.href}`;
+      const postCopy = `${shareText} Motivating workplace productivity at ${window.location.href}`;
       if (navigator.clipboard) {
         navigator.clipboard.writeText(postCopy);
       }
-      showToast('✅ Clip downloaded & corporate announcement copied! Paste into Slack or WhatsApp.');
+      showToast('✅ Clip downloaded & announcement copied! Paste into Slack or WhatsApp.');
     });
 
-    // WhatsApp Shortcut
     if (btnShareWhatsapp) {
       btnShareWhatsapp.addEventListener('click', () => {
-        const text = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity Maxx with OpenWhip! 💼⚡ Check it out: ${window.location.href}`;
+        const text = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity with Whip Your Coworker! 👑⚡ ${window.location.href}`;
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
       });
     }
 
-    // LinkedIn Shortcut
     if (btnShareLinkedin) {
       btnShareLinkedin.addEventListener('click', () => {
-        const text = `Thrilled to announce that I just delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity Maxx to my team! 💼⚡ Disciplining workplace inefficiency with @OpenWhip. #WorkplaceSynergy #OpenWhip #Productivity #Hustle`;
+        const text = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity to my team! 👑⚡ Disciplining workplace inefficiency with #OpenWhip #WorkProductivity #Hustle`;
         window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`, '_blank');
       });
     }
 
-    // Copy Corporate Post Text
     btnCopyPost.addEventListener('click', () => {
-      const postText = `Thrilled to announce that I just delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity Maxx to my team! 💼⚡ Disciplining workplace inefficiency with @OpenWhip. #WorkplaceSynergy #OpenWhip #Productivity #Hustle`;
+      const postText = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity to my team! 👑⚡ Disciplining workplace inefficiency with Whip Your Coworker. #WhipYourCoworker #ProductivityMaxx #WorkplaceSynergy`;
       if (navigator.clipboard) {
         navigator.clipboard.writeText(postText);
-        showToast('📋 Corporate announcement copied to clipboard!');
+        showToast('📋 Announcement copied to clipboard!');
       }
     });
 
@@ -939,8 +1127,36 @@
       previewVideo.src = '';
     });
 
-    // Start camera
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    // Auto-detect demo mode from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('demo') === '1' || urlParams.get('mock') === '1') {
+      activateDemoMode(false);
+      if (urlParams.get('match') === '1' || urlParams.get('preview') === '1') {
+        engine.lockFrenzy = true;
+        engine.frenzy = 2.8;
+        engine.combo = 5;
+        engine.whipCount = 14;
+        updateProductivityHUD(2.8, 5);
+        setTimeout(() => {
+          engine.callouts.push({
+            x: window.innerWidth * 0.80,
+            y: window.innerHeight * 0.28,
+            text: 'FOCUS NOW!',
+            rotation: -0.15,
+            scale: 1.05,
+            targetScale: 1.05,
+            alpha: 1.0,
+            age: 0,
+            life: 9999,
+            color: '#00f5ff',
+          });
+        }, 80);
+      } else {
+        setTimeout(() => {
+          engine.strikeAt(window.innerWidth * 0.5, window.innerHeight * 0.38);
+        }, 500);
+      }
+    } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       startCamera(facingMode);
     } else {
       showCameraModal();

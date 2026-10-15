@@ -1,12 +1,17 @@
 /**
- * OpenWhip AR - LinkedIn Corporate Edition
+ * OpenWhip™ AR - AAA Cyberpunk Game Edition
  * Features:
- * • Rigged 3D Hand Model with Executive Wardrobe Customization (C-Suite, Silicon Valley, Wall Street, Cyber)
- * • Luxury accessories: Tailored Suit Cuff, Rolex Oyster Perpetual, Apple Watch with Fitness Rings, 24K Gold Gauntlet
- * • Next-Gen Spring-Damper Kinetic Whipping Physics & Aim-Aware Wrist Flex
- * • Full Web Audio Mixing: Combined User Microphone + Decoded SFX + Procedural Sonic Boom Crack
- * • Corporate "Work Productivity Maxx" Multiplier & Tier Progression
- * • Satirical Corporate Buzzwords & High-Impact Visual Effects
+ * • First-Person Tactical Arm with Combat Glove & Molded Knuckle Armor Plates
+ * • 4 Distinct Selectable Weapons in 3D & 2D:
+ *   1. WHIP: Articulated Mechanical Cyber-Spine Segmented Vertebrae with Glowing Crimson LED Core
+ *   2. BATON: High-Tech Riot Stun Baton with Glowing Electric Blue Plasma Core & Voltage Arcs
+ *   3. CHAIN: Heavy Iron Morningstar Spiked Flail with Interlocking Chain Links & Inertia Physics
+ *   4. TASER: Futuristic Dual-Prong Stun Taser Firing High-Voltage Lightning Discharges
+ * • Comic Speech Bubble Callout ("FOCUS NOW!", "WORK HARDER!", etc.) & Curved Crimson Slash Arcs
+ * • Zero-Latency Procedural Synthesizer for all 4 Weapon SFX + Decoded Buffer & Audio Pool
+ * • Live Microphone + SFX Mixing into .mp4 Video Recorder
+ * • Full Cyber Productivity Gauge HUD Integration (1.0x - 4.0x) with 20-Segment LED Thermometer
+ * • Mobile Device Orientation Gyro Tilt Parallax
  */
 
 class WhipEngine {
@@ -18,107 +23,80 @@ class WhipEngine {
     this.W = 0;
     this.H = 0;
 
-    // ── Executive Style & Skin System ─────────────────────────────────────────
-    this.currentStyle = 'csuite'; // 'csuite' | 'silicon' | 'wallstreet' | 'cyber'
-    this.styleConfigs = {
-      csuite: {
-        id: 'csuite',
-        name: 'The C-Suite Executive',
-        role: 'Chief Retention Officer',
-        perk: '+50% Executive Presence',
-        handColor: 0xdeb887,
-        handRoughness: 0.62,
-        handMetalness: 0.04,
-        sleeveColor: 0x182635, // Navy Tailored Wool
-        cuffColor: 0xf5f7fa,   // White French Cuff
-        cufflink: 0xffd700,    // 24K Gold
-        handleWood: 0x3d2314,  // Italian Walnut
-        handleMetal: 0xd4af37, // Polished Brass
-        ropeGlow: '#0a66c2',   // LinkedIn Blue
-        ropeCore: '#ffc107',   // Gold Braid
-        sparkColors: ['#0a66c2', '#ffd700', '#ffffff', '#004182'],
+    // ── Current Weapon System ─────────────────────────────────────────────────
+    this.currentWeapon = 'whip'; // 'whip' | 'baton' | 'chain' | 'taser'
+
+    this.weaponConfigs = {
+      whip: {
+        id: 'whip',
+        name: 'WHIP',
+        sub: 'Classic',
+        themeColor: '#ff1744',
+        coreColor: '#ff8a80',
+        glowColor: 'rgba(255, 23, 68, 0.85)',
+        sparkColors: ['#ff1744', '#ff5252', '#ffffff', '#ff8a80', '#d50000'],
         phrases: [
-          'SYNERGY ALIGNED! 💼',
-          'QUARTERLY OKR HIT! 🎯',
-          'CIRCLE BACK! 🔄',
-          'TAKE THIS OFFLINE! 📌',
-          'PROMOTED TO VP! 🏆',
-          'WORK PRODUCTIVITY MAXX! ⚡'
+          'FOCUS NOW! ⚡',
+          'WORK HARDER! 🔥',
+          'OUCH! 💢',
+          'FASTER! 💨',
+          'DEADLINE TODAY! ⏰',
+          'NO SLACKING! 🚫',
+          'CRUSH THE OKR! 🎯'
         ]
       },
-      silicon: {
-        id: 'silicon',
-        name: 'Silicon Valley 10x Hustler',
-        role: 'Disruptive Architect',
-        perk: '+100% Agile Velocity',
-        handColor: 0x242830, // Fingerless Tech Glove
-        handRoughness: 0.45,
-        handMetalness: 0.45,
-        sleeveColor: 0x2b2e38, // Patagonia Tech Fleece
-        cuffColor: 0x00f5ff,   // Cyan technical seam
-        cufflink: 0x10b981,    // Emerald sensor
-        handleWood: 0x14161a,  // Carbon Fiber
-        handleMetal: 0x00f5ff, // Anodized Cyan
-        ropeGlow: '#00f0ff',   // Neon Cyan
-        ropeCore: '#10b981',   // Growth Emerald
-        sparkColors: ['#00f0ff', '#10b981', '#ffffff', '#38bdf8'],
+      baton: {
+        id: 'baton',
+        name: 'BATON',
+        sub: 'Stun',
+        themeColor: '#00f5ff',
+        coreColor: '#e0f7fa',
+        glowColor: 'rgba(0, 245, 255, 0.85)',
+        sparkColors: ['#00f5ff', '#00b4d8', '#ffffff', '#38bdf8', '#0077b6'],
         phrases: [
-          'PIVOT! 🚀',
-          '10X ENGINEER! 💻',
-          'DISRUPTIVE INNOVATION! ⚡',
-          'SERIES B SECURED! 🦄',
-          'FAST REFACTOR! ⚡',
-          'PRODUCTIVITY MAXX! ⚡'
+          'STUNNED! ⚡',
+          'SHOCK THERAPY! 🔌',
+          'WAKE UP! 🚨',
+          'MAX VOLTAGE! ⚡',
+          'OUCH! 💢',
+          'SYSTEM RESET! 🔄',
+          'ALERT LEVEL HIGH! ⚠️'
         ]
       },
-      wallstreet: {
-        id: 'wallstreet',
-        name: 'Wall Street Titan',
-        role: 'Managing Partner',
-        perk: '+200% Golden Parachute',
-        handColor: 0xffb703, // Pure 24K Gold Gauntlet
-        handRoughness: 0.12,
-        handMetalness: 0.96,
-        sleeveColor: 0x0f1115, // Pinstripe Midnight Wool
-        cuffColor: 0x880e4f,   // Silk Crimson
-        cufflink: 0xffd700,    // Diamond Stud
-        handleWood: 0xffc107,  // Solid Gold Bullion
-        handleMetal: 0xd90429, // Ruby Pommel
-        ropeGlow: '#ffb703',   // Pure Gold
-        ropeCore: '#ef4444',   // Ruby Crimson
-        sparkColors: ['#ffd700', '#ffb703', '#ffffff', '#ef4444'],
+      chain: {
+        id: 'chain',
+        name: 'CHAIN',
+        sub: 'Heavy',
+        themeColor: '#f59e0b',
+        coreColor: '#fef3c7',
+        glowColor: 'rgba(245, 158, 11, 0.85)',
+        sparkColors: ['#f59e0b', '#fbbf24', '#ffffff', '#d97706', '#b45309'],
         phrases: [
-          'GOLDEN PARACHUTE! 🪙',
-          'HOSTILE TAKEOVER! 💼',
-          'LEVERAGED BUYOUT! 📈',
-          'BONUS APPROVED! 💰',
-          'HIGH NET WORTH! 💎',
-          'PRODUCTIVITY MAXX! ⚡'
+          'CRUNCH! 💥',
+          'SMACK! 🔨',
+          'GET TO WORK! 💼',
+          'HEAVY DUTY! 🛡️',
+          'OUCH! 💢',
+          'PRESSURE APPLIED! 📈',
+          'NO EXCUSES! 🚫'
         ]
       },
-      cyber: {
-        id: 'cyber',
-        name: 'Cyber Director 2077',
-        role: 'Autonomous Syndicate AI',
-        perk: '+300% Overclock Yield',
-        handColor: 0xdde3ed, // Platinum Chrome Prosthetic
-        handRoughness: 0.18,
-        handMetalness: 0.88,
-        sleeveColor: 0x161822, // Exoskeleton Armor
-        cuffColor: 0xff0077,   // Plasma Pink conduit
-        cufflink: 0x00f5ff,    // Cyber Cyan node
-        handleWood: 0x0d0e14,  // Matte Carbon
-        handleMetal: 0xff0077, // Plasma Emitter
-        ropeGlow: '#ff0077',   // Hot Plasma Pink
-        ropeCore: '#00f5ff',   // Cyber Cyan
-        sparkColors: ['#ff0077', '#00f5ff', '#ffffff', '#e879f9'],
+      taser: {
+        id: 'taser',
+        name: 'TASER',
+        sub: 'Shock',
+        themeColor: '#38bdf8',
+        coreColor: '#ffffff',
+        glowColor: 'rgba(56, 189, 248, 0.95)',
+        sparkColors: ['#38bdf8', '#818cf8', '#ffffff', '#00f5ff', '#c084fc'],
         phrases: [
-          'NEURAL SYNERGY! ⚡',
-          'OVERCLOCK MAXX! 💥',
-          'QUANTUM DISRUPT! 🔮',
-          'CYBER HUSTLE! 🦾',
-          'CORE SYNCED! ⚡',
-          'PRODUCTIVITY MAXX! ⚡'
+          'ZAP! ⚡',
+          'MAX VOLTAGE! ⚡',
+          'OVERCLOCK! 🚀',
+          '10X SPEED! 💻',
+          'OUCH! 💢',
+          'POWER SURGE! ⚡',
+          'HIGH CURRENT! 🔋'
         ]
       }
     };
@@ -130,35 +108,39 @@ class WhipEngine {
     this.micStream = null;
     this.micSource = null;
     this.micGain = null;
+    this.isMicActive = false;
     this.initAudio();
 
     // ── Three.js 3D Viewport & Scene ──────────────────────────────────────────
     this.initThreeJS(threeCanvas);
     this.resize();
 
-    // ── Whip Rope Physics ─────────────────────────────────────────────────────
-    this.segments = 24;
+    // ── Whip & Chain Physics Points ─────────────────────────────────────────
+    this.segments = 18; // Articulated vertebrae count (matches reference spacing)
     this.segmentLength = 22;
     this.pts = [];
     this.initWhipPoints();
 
-    // ── Work Productivity Maxx Multiplier ────────────────────────────────────
+    // ── Work Productivity Multiplier ─────────────────────────────────────────
     this.frenzy = 1.0;
-    this.combo = 0;
+    this.combo = 1;
     this.lastTapTime = 0;
     this.whipCount = 0;
     this.lastTierAlert = 1;
+    this.lockFrenzy = false;
+    this.isPaused = false;
 
     // ── Animation & Strike State ──────────────────────────────────────────────
     this.time = 0;
     this.lastTime = performance.now();
     this.strike = null; // { startTime, duration, targetX, targetY, impactFired }
 
-    // ── Particles, Shockwaves, Starbursts & Text ──────────────────────────────
+    // ── Visual FX Collections ─────────────────────────────────────────────────
     this.particles = [];
     this.shockwaves = [];
-    this.starbursts = [];
-    this.floatingTexts = [];
+    this.slashMarks = [];
+    this.callouts = []; // Comic speech bubbles ("FOCUS NOW!")
+    this.lightningArcs = [];
     this.screenShake = 0;
 
     // ── Device Motion & 3D Gyro Parallax ──────────────────────────────────────
@@ -255,8 +237,8 @@ class WhipEngine {
         try { navigator.vibrate([40, 25, 80]); } catch {}
       }
 
-      const targetX = this.W * 0.5 + (Math.random() * 16 - 8);
-      const targetY = this.H * 0.5 + (Math.random() * 16 - 8);
+      const targetX = this.W * 0.5 + (Math.random() * 24 - 12);
+      const targetY = this.H * 0.38 + (Math.random() * 24 - 12);
       this.strikeAt(targetX, targetY);
 
       if (this.onSwingDetected) {
@@ -268,7 +250,7 @@ class WhipEngine {
   resize() {
     this.W = this.canvas.width = window.innerWidth;
     this.H = this.canvas.height = window.innerHeight;
-    this.segmentLength = Math.max(16, Math.min(26, this.H * 0.026));
+    this.segmentLength = Math.max(14, Math.min(26, this.H * 0.024));
 
     if (this.camera && this.renderer) {
       this.camera.aspect = this.W / this.H;
@@ -279,7 +261,7 @@ class WhipEngine {
     this.updateArmPlacement();
   }
 
-  // ── Web Audio & Microphone Mixing ─────────────────────────────────────────
+  // ── Web Audio & Synthesizer ───────────────────────────────────────────────
   initAudio() {
     this.soundFiles = [
       'sounds/A.mp3',
@@ -308,7 +290,7 @@ class WhipEngine {
         this.sfxGain.connect(this.audioCtx.destination); // to user speakers
         this.sfxGain.connect(this.audioDest); // to video recorder
 
-        // Keep-alive silent node ensures MediaRecorder gets continuous audio frames without audible buzz
+        // Keep-alive silent node ensures MediaRecorder gets continuous audio frames
         const silenceGain = this.audioCtx.createGain();
         silenceGain.gain.value = 0.0;
         const keepAliveOsc = this.audioCtx.createOscillator();
@@ -336,7 +318,7 @@ class WhipEngine {
           this.audioBuffers.push(decoded);
         }
       } catch (e) {
-        // Fallback to procedural synth + HTML5 audio pool
+        // Fallback to procedural synthesis
       }
     }
   }
@@ -360,7 +342,7 @@ class WhipEngine {
     } catch {}
   }
 
-  // Connect microphone stream into the recording audio bus (direct to recorder, no speaker feedback!)
+  // Connect microphone stream into the recording audio bus
   async startRecordingAudio() {
     await this.unlockAudio();
     if (!this.audioCtx) return this.getAudioStream();
@@ -369,8 +351,8 @@ class WhipEngine {
       try { await this.audioCtx.resume(); } catch {}
     }
 
-    const needNewMic = !this.micStream || 
-      this.micStream.getAudioTracks().length === 0 || 
+    const needNewMic = !this.micStream ||
+      this.micStream.getAudioTracks().length === 0 ||
       this.micStream.getAudioTracks().every(t => t.readyState === 'ended');
 
     if (needNewMic && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
@@ -415,8 +397,6 @@ class WhipEngine {
   }
 
   stopRecordingAudio() {
-    // Soft mute mic gain to avoid idle noise bleeding into recorder bus,
-    // while keeping the stream active for instant subsequent recordings without re-prompt
     if (this.micGain) {
       this.micGain.gain.value = 0.0;
     }
@@ -430,32 +410,31 @@ class WhipEngine {
     return this.audioDest ? this.audioDest.stream : null;
   }
 
-  // Realistic Procedural Whip Crack Synthesizer (Instantaneous zero-latency fallback)
-  playProceduralCrack(pitchRate = 1.0) {
+  // ── Procedural Sound Synthesizers for 4 Weapons ───────────────────────────
+  playWhipSound(pitchRate = 1.0) {
     if (!this.audioCtx || this.isMuted) return;
     try {
       if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
       const ctx = this.audioCtx;
       const t = ctx.currentTime;
 
-      // 1. High-frequency crack noise burst
-      const bufferSize = Math.floor(ctx.sampleRate * 0.05); // 50ms burst
+      // 1. High-frequency supersonic crack burst (50ms)
+      const bufferSize = Math.floor(ctx.sampleRate * 0.045);
       const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const output = noiseBuffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.25));
+        output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.22));
       }
-
       const noise = ctx.createBufferSource();
       noise.buffer = noiseBuffer;
 
       const filter = ctx.createBiquadFilter();
       filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(3200 * pitchRate, t);
-      filter.Q.setValueAtTime(3.5, t);
+      filter.frequency.setValueAtTime(3600 * pitchRate, t);
+      filter.Q.setValueAtTime(3.8, t);
 
       const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(1.1, t);
+      noiseGain.gain.setValueAtTime(1.15, t);
       noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
 
       noise.connect(filter);
@@ -463,26 +442,144 @@ class WhipEngine {
       noiseGain.connect(this.sfxGain);
       noise.start(t);
 
-      // 2. Sub-bass sonic boom thud (breaking sound barrier)
+      // 2. Sub-bass sonic boom
       const boom = ctx.createOscillator();
       boom.type = 'sine';
-      boom.frequency.setValueAtTime(190 * pitchRate, t);
-      boom.frequency.exponentialRampToValueAtTime(36, t + 0.075);
+      boom.frequency.setValueAtTime(210 * pitchRate, t);
+      boom.frequency.exponentialRampToValueAtTime(34, t + 0.08);
 
       const boomGain = ctx.createGain();
-      boomGain.gain.setValueAtTime(0.95, t);
-      boomGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+      boomGain.gain.setValueAtTime(1.0, t);
+      boomGain.gain.exponentialRampToValueAtTime(0.001, t + 0.085);
 
       boom.connect(boomGain);
       boomGain.connect(this.sfxGain);
       boom.start(t);
-      boom.stop(t + 0.085);
-    } catch (e) {
-      console.warn('Procedural audio error:', e);
-    }
+      boom.stop(t + 0.09);
+    } catch (e) {}
   }
 
-  // Corporate Level-Up Chime when passing Productivity Tiers
+  playBatonSound(pitchRate = 1.0) {
+    if (!this.audioCtx || this.isMuted) return;
+    try {
+      if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+      const ctx = this.audioCtx;
+      const t = ctx.currentTime;
+
+      // Electric stun crackle + high voltage buzz
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      osc1.type = 'sawtooth';
+      osc2.type = 'square';
+      osc1.frequency.setValueAtTime(880 * pitchRate, t);
+      osc1.frequency.exponentialRampToValueAtTime(110, t + 0.12);
+      osc2.frequency.setValueAtTime(1760 * pitchRate, t);
+      osc2.frequency.exponentialRampToValueAtTime(220, t + 0.1);
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.setValueAtTime(600, t);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.95, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+
+      osc1.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.sfxGain);
+
+      osc1.start(t);
+      osc2.start(t);
+      osc1.stop(t + 0.15);
+      osc2.stop(t + 0.15);
+    } catch (e) {}
+  }
+
+  playChainSound(pitchRate = 1.0) {
+    if (!this.audioCtx || this.isMuted) return;
+    try {
+      if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+      const ctx = this.audioCtx;
+      const t = ctx.currentTime;
+
+      // Heavy iron impact clang + metal resonance
+      const metalOsc = ctx.createOscillator();
+      metalOsc.type = 'triangle';
+      metalOsc.frequency.setValueAtTime(440 * pitchRate, t);
+      metalOsc.frequency.exponentialRampToValueAtTime(70, t + 0.22);
+
+      const ringOsc = ctx.createOscillator();
+      ringOsc.type = 'sine';
+      ringOsc.frequency.setValueAtTime(1420 * pitchRate, t);
+      ringOsc.frequency.exponentialRampToValueAtTime(320, t + 0.18);
+
+      const metalGain = ctx.createGain();
+      metalGain.gain.setValueAtTime(1.1, t);
+      metalGain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+
+      metalOsc.connect(metalGain);
+      ringOsc.connect(metalGain);
+      metalGain.connect(this.sfxGain);
+
+      metalOsc.start(t);
+      ringOsc.start(t);
+      metalOsc.stop(t + 0.25);
+      ringOsc.stop(t + 0.25);
+    } catch (e) {}
+  }
+
+  playTaserSound(pitchRate = 1.0) {
+    if (!this.audioCtx || this.isMuted) return;
+    try {
+      if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+      const ctx = this.audioCtx;
+      const t = ctx.currentTime;
+
+      // Rapid high-voltage multi-spark discharge
+      for (let s = 0; s < 4; s++) {
+        const sparkTime = t + s * 0.025;
+        const osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime((1200 + s * 400) * pitchRate, sparkTime);
+        osc.frequency.exponentialRampToValueAtTime(300, sparkTime + 0.022);
+
+        const sparkGain = ctx.createGain();
+        sparkGain.gain.setValueAtTime(0.85, sparkTime);
+        sparkGain.gain.exponentialRampToValueAtTime(0.001, sparkTime + 0.024);
+
+        osc.connect(sparkGain);
+        sparkGain.connect(this.sfxGain);
+        osc.start(sparkTime);
+        osc.stop(sparkTime + 0.026);
+      }
+    } catch (e) {}
+  }
+
+  playWeaponSwitchSound() {
+    if (!this.audioCtx || this.isMuted) return;
+    try {
+      if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+      const ctx = this.audioCtx;
+      const t = ctx.currentTime;
+
+      // Sci-fi high-tech weapon equip click & whoosh
+      const osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(320, t);
+      osc.frequency.exponentialRampToValueAtTime(840, t + 0.08);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.65, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(t);
+      osc.stop(t + 0.095);
+    } catch (e) {}
+  }
+
   playLevelUpChime(tier) {
     if (!this.audioCtx || this.isMuted) return;
     try {
@@ -490,7 +587,7 @@ class WhipEngine {
       const ctx = this.audioCtx;
       const t = ctx.currentTime;
 
-      const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 corporate arpeggio
+      const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6 arpeggio
       freqs.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -509,60 +606,51 @@ class WhipEngine {
     } catch (e) {}
   }
 
-  playCrackSound() {
+  playWeaponSound() {
     if (this.isMuted) return;
     this.unlockAudio();
+    const pitchRate = Math.min(1.55, 0.95 + (this.frenzy - 1.0) * 0.16);
 
-    const pitchRate = Math.min(1.58, 0.95 + (this.frenzy - 1.0) * 0.18);
-
-    // 1. Play decoded high-fidelity sound buffer if available
-    let bufferPlayed = false;
-    if (this.audioCtx && this.audioBuffers && this.audioBuffers.length > 0) {
-      try {
-        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
-        const buffer = this.audioBuffers[Math.floor(Math.random() * this.audioBuffers.length)];
-        const source = this.audioCtx.createBufferSource();
-        source.buffer = buffer;
-        source.playbackRate.value = pitchRate;
-
-        const gainNode = this.audioCtx.createGain();
-        gainNode.gain.value = 0.95;
-
-        source.connect(gainNode);
-        gainNode.connect(this.sfxGain);
-        source.start(0);
-        bufferPlayed = true;
-      } catch (e) {}
-    }
-
-    // 2. Play procedural synth whip crack layer for crisp impact
-    this.playProceduralCrack(pitchRate);
-
-    // 3. Fallback HTML5 audio pool if WebAudio buffer wasn't available
-    if (!bufferPlayed) {
-      try {
-        if (this.audioPool && this.audioPool.length > 0) {
-          const a = this.audioPool[Math.floor(Math.random() * this.audioPool.length)];
-          a.currentTime = 0;
-          a.playbackRate = pitchRate;
-          a.play().catch(() => {});
+    switch (this.currentWeapon) {
+      case 'baton':
+        this.playBatonSound(pitchRate);
+        break;
+      case 'chain':
+        this.playChainSound(pitchRate);
+        break;
+      case 'taser':
+        this.playTaserSound(pitchRate);
+        break;
+      case 'whip':
+      default:
+        this.playWhipSound(pitchRate);
+        // Fallback decoded sample buffer if available
+        if (this.audioCtx && this.audioBuffers && this.audioBuffers.length > 0) {
+          try {
+            const buf = this.audioBuffers[Math.floor(Math.random() * this.audioBuffers.length)];
+            const src = this.audioCtx.createBufferSource();
+            src.buffer = buf;
+            src.playbackRate.value = pitchRate;
+            const g = this.audioCtx.createGain();
+            g.gain.value = 0.9;
+            src.connect(g);
+            g.connect(this.sfxGain);
+            src.start(0);
+          } catch {}
         }
-      } catch {}
+        break;
     }
   }
 
-  initWhipPoints() {
-    this.pts = [];
-    const origin = this.getEmitterScreenPos();
-    for (let i = 0; i < this.segments; i++) {
-      const t = i / (this.segments - 1);
-      const x = origin.x - t * 90 + Math.sin(t * Math.PI) * 45;
-      const y = origin.y + t * (this.H * 0.32) + Math.sin(t * Math.PI * 0.7) * 40;
-      this.pts.push({ x, y, px: x, py: y });
-    }
+  // ── Weapon Switching ──────────────────────────────────────────────────────
+  setWeapon(weaponId) {
+    if (!this.weaponConfigs[weaponId]) return;
+    this.currentWeapon = weaponId;
+    this.playWeaponSwitchSound();
+    this.update3DWeaponVisibility();
   }
 
-  // ── Three.js 3D Viewport & Modular Executive Wardrobe ─────────────────────
+  // ── 3D Scene Initialization ───────────────────────────────────────────────
   initThreeJS(threeCanvas) {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
@@ -580,27 +668,65 @@ class WhipEngine {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // Studio Lights for Executive Materials
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.25);
+    // Studio Lights for AAA Materials
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
     this.scene.add(ambientLight);
 
-    this.keyLight = new THREE.DirectionalLight(0xfff4d6, 1.7);
+    this.keyLight = new THREE.DirectionalLight(0xffffff, 2.0);
     this.keyLight.position.set(4, 7, 5);
     this.scene.add(this.keyLight);
 
-    this.rimLight = new THREE.DirectionalLight(0x0a66c2, 1.4); // LinkedIn Blue Rim
+    this.rimLight = new THREE.DirectionalLight(0x00f5ff, 1.6); // Cyber Cyan Rim
     this.rimLight.position.set(-5, 4, -2);
     this.scene.add(this.rimLight);
 
     this.armRoot = new THREE.Group();
     this.camera.add(this.armRoot);
 
-    // Assemble Arm, Hand & Wardrobe Accessories
-    this.build3DGauntlet();
-    this.loadHandGLB();
+    // Assemble Photorealistic First-Person Tactical Arm & Weapon Planes
+    this.init3DArmPlanes();
+    this.update3DWeaponVisibility();
+  }
 
-    // Apply default style
-    this.setExecutiveStyle('csuite');
+  init3DArmPlanes() {
+    const texLoader = new THREE.TextureLoader();
+    this.weaponTextures = {
+      whip: texLoader.load('assets/fps_arm_whip.png'),
+      baton: texLoader.load('assets/fps_arm_baton.png'),
+      chain: texLoader.load('assets/fps_arm_chain.png'),
+      taser: texLoader.load('assets/fps_arm_taser.png'),
+    };
+
+    for (const key in this.weaponTextures) {
+      this.weaponTextures[key].generateMipmaps = true;
+      this.weaponTextures[key].minFilter = THREE.LinearMipmapLinearFilter;
+      this.weaponTextures[key].magFilter = THREE.LinearFilter;
+    }
+
+    const h = 2.85;
+    const w = h / (1376 / 768);
+    const geo = new THREE.PlaneGeometry(w, h);
+
+    this.weaponMeshes = {};
+    for (const key of ['whip', 'baton', 'chain', 'taser']) {
+      const mat = new THREE.MeshBasicMaterial({
+        map: this.weaponTextures[key],
+        transparent: true,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.visible = (key === this.currentWeapon);
+      this.armRoot.add(mesh);
+      this.weaponMeshes[key] = mesh;
+    }
+
+    // Universal Emitter Node (tracked in 3D for whip/spark origin)
+    this.whipEmitter = new THREE.Object3D();
+    const emitLocalX = (0.336 - 0.5) * w;
+    const emitLocalY = (0.5 - 0.249) * h;
+    this.whipEmitter.position.set(emitLocalX, emitLocalY, 0.02);
+    this.armRoot.add(this.whipEmitter);
   }
 
   updateArmPlacement() {
@@ -615,365 +741,81 @@ class WhipEngine {
 
     if (isPortrait) {
       this.armBasePos = new THREE.Vector3(
-        visibleWidth * 0.38,
-        -visibleHeight * 0.36,
+        visibleWidth * 0.40,
+        -visibleHeight * 0.35,
         -dist
       );
-      this.armRoot.scale.set(0.88, 0.88, 0.88);
+      this.armRoot.scale.set(0.92, 0.92, 0.92);
     } else {
       this.armBasePos = new THREE.Vector3(
-        Math.min(visibleWidth * 0.28, 1.15),
-        -visibleHeight * 0.32,
+        Math.min(visibleWidth * 0.30, 1.15),
+        -visibleHeight * 0.28,
         -dist
       );
-      this.armRoot.scale.set(1.0, 1.0, 1.0);
+      this.armRoot.scale.set(1.05, 1.05, 1.05);
     }
 
     this.armRoot.position.copy(this.armBasePos);
   }
 
-  loadHandGLB() {
-    if (typeof THREE.GLTFLoader === 'undefined') return;
-
-    const loader = new THREE.GLTFLoader();
-    loader.load('models/hand.glb', (gltf) => {
-      const model = gltf.scene;
-
-      this.handModel = model;
-      this.handMeshes = [];
-
-      model.traverse((child) => {
-        if (child.isMesh) {
-          this.handMeshes.push(child);
-          child.castShadow = true;
-          child.receiveShadow = true;
-        }
-      });
-
-      model.scale.set(4.8, 4.8, 4.8);
-      model.position.set(0.04, -0.02, -0.02);
-      model.rotation.set(Math.PI / 2 + 0.22, 0.35, -0.55);
-
-      if (this.armAssembly) {
-        this.armAssembly.add(model);
-      } else {
-        this.armRoot.add(model);
-      }
-
-      // Re-apply style to newly loaded hand mesh
-      this.applyStyleMaterials();
-    }, undefined, (err) => {
-      console.warn('Custom GLB load note:', err.message);
-    });
-  }
-
-  build3DGauntlet() {
-    // 1. Arm Assembly Group
-    this.armAssembly = new THREE.Group();
-    this.armAssembly.rotation.set(0.18, -0.32, 0.24);
-
-    // 2. Forearm Suit Sleeve / Bracer
-    const sleeveGeo = new THREE.CylinderGeometry(0.24, 0.32, 1.45, 24);
-    this.sleeveMat = new THREE.MeshStandardMaterial({
-      color: 0x182635,
-      roughness: 0.85,
-      metalness: 0.1
-    });
-    this.sleeveMesh = new THREE.Mesh(sleeveGeo, this.sleeveMat);
-    this.sleeveMesh.position.set(0, -0.65, 0);
-    this.armAssembly.add(this.sleeveMesh);
-
-    // 3. Crisp White French Shirt Cuff / Inner Seam
-    const shirtCuffGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.16, 24);
-    this.shirtCuffMat = new THREE.MeshStandardMaterial({
-      color: 0xf4f6f8,
-      roughness: 0.7,
-      metalness: 0.05
-    });
-    this.shirtCuffMesh = new THREE.Mesh(shirtCuffGeo, this.shirtCuffMat);
-    this.shirtCuffMesh.position.set(0, -0.04, 0);
-    this.armAssembly.add(this.shirtCuffMesh);
-
-    // 4. Gold Cufflinks
-    this.cufflinkMat = new THREE.MeshStandardMaterial({
-      color: 0xffd700,
-      roughness: 0.15,
-      metalness: 0.95
-    });
-    const linkGeo = new THREE.BoxGeometry(0.04, 0.04, 0.07);
-    this.cufflinkMesh1 = new THREE.Mesh(linkGeo, this.cufflinkMat);
-    this.cufflinkMesh1.position.set(0.18, -0.04, 0.14);
-    this.armAssembly.add(this.cufflinkMesh1);
-
-    // 5. Luxury Watch Group (Rolex / Apple Watch / Diamond Chronometer) positioned on top of wrist
-    this.watchGroup = new THREE.Group();
-    this.watchGroup.position.set(0, -0.14, 0.22);
-    this.watchGroup.rotation.set(0.42, 0, 0);
-    this.watchGroup.scale.set(1.45, 1.45, 1.45);
-
-    // Watch Case
-    const watchCaseGeo = new THREE.CylinderGeometry(0.12, 0.12, 0.06, 24);
-    this.watchCaseMat = new THREE.MeshStandardMaterial({
-      color: 0xffd700,
-      metalness: 0.95,
-      roughness: 0.15
-    });
-    this.watchCaseMesh = new THREE.Mesh(watchCaseGeo, this.watchCaseMat);
-    this.watchCaseMesh.rotation.x = Math.PI / 2;
-    this.watchGroup.add(this.watchCaseMesh);
-
-    // Watch Dial / Bezel
-    const watchDialGeo = new THREE.CylinderGeometry(0.095, 0.095, 0.065, 24);
-    this.watchDialMat = new THREE.MeshStandardMaterial({
-      color: 0x057642, // Rolex Emerald Ceramic Bezel
-      metalness: 0.6,
-      roughness: 0.3
-    });
-    this.watchDialMesh = new THREE.Mesh(watchDialGeo, this.watchDialMat);
-    this.watchDialMesh.rotation.x = Math.PI / 2;
-    this.watchGroup.add(this.watchDialMesh);
-
-    // Watch Bracelet Straps
-    const strapGeo = new THREE.BoxGeometry(0.14, 0.03, 0.36);
-    this.watchStrapMat = new THREE.MeshStandardMaterial({
-      color: 0xffd700,
-      metalness: 0.9,
-      roughness: 0.2
-    });
-    this.watchStrapMesh = new THREE.Mesh(strapGeo, this.watchStrapMat);
-    this.watchStrapMesh.position.set(0, -0.01, 0);
-    this.watchGroup.add(this.watchStrapMesh);
-
-    this.armAssembly.add(this.watchGroup);
-
-    // 6. Glowing Energy Conduit
-    this.energyMat = new THREE.MeshBasicMaterial({ color: 0x0a66c2 });
-    this.conduitMesh = new THREE.Mesh(new THREE.BoxGeometry(0.035, 1.3, 0.05), this.energyMat);
-    this.conduitMesh.position.set(0, -0.65, 0.24);
-    this.armAssembly.add(this.conduitMesh);
-
-    // 7. Whip Handle (Tactical Baton gripped tightly in hand)
-    const handleGroup = new THREE.Group();
-    handleGroup.position.set(0, 0.18, 0.02);
-    handleGroup.rotation.set(0.35, 0.15, -0.25);
-
-    this.handleWoodMat = new THREE.MeshStandardMaterial({
-      color: 0x3d2314,
-      metalness: 0.3,
-      roughness: 0.6
-    });
-    this.gripMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.065, 0.95, 24), this.handleWoodMat);
-    handleGroup.add(this.gripMesh);
-
-    // Golden Collar & Pommel
-    this.handleMetalMat = new THREE.MeshStandardMaterial({
-      color: 0xffd700,
-      metalness: 0.95,
-      roughness: 0.15
-    });
-    this.collarMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.065, 0.15, 24), this.handleMetalMat);
-    this.collarMesh.position.set(0, 0.48, 0);
-    handleGroup.add(this.collarMesh);
-
-    this.pommelMesh = new THREE.Mesh(new THREE.SphereGeometry(0.08, 20, 20), this.handleMetalMat);
-    this.pommelMesh.position.set(0, -0.48, 0);
-    handleGroup.add(this.pommelMesh);
-
-    // 3D Whip Emitter Point
-    this.whipEmitter = new THREE.Object3D();
-    this.whipEmitter.position.set(0, 0.56, 0);
-    handleGroup.add(this.whipEmitter);
-
-    this.armAssembly.add(handleGroup);
-
-    // 8. Anatomical Fist Group gripping the baton handle firmly
-    this.fistGroup = new THREE.Group();
-    this.fistGroup.name = 'fistGroup';
-    this.fistGroup.position.set(0, 0.04, 0.02);
-
-    this.fistSkinMat = new THREE.MeshStandardMaterial({
-      color: 0xdeb887,
-      roughness: 0.55,
-      metalness: 0.05
-    });
-    this.knuckleMat = new THREE.MeshStandardMaterial({
-      color: 0xd4a373,
-      roughness: 0.48,
-      metalness: 0.08
-    });
-
-    // Palm block
-    const palm = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.28, 0.18), this.fistSkinMat);
-    palm.position.set(0, 0.06, 0.02);
-    this.fistGroup.add(palm);
-
-    // 4 Curled fingers wrapping around the baton
-    const fingerData = [
-      { y: 0.16, r: 0.040, len: 0.17 }, // Index
-      { y: 0.09, r: 0.042, len: 0.18 }, // Middle
-      { y: 0.02, r: 0.040, len: 0.17 }, // Ring
-      { y: -0.05, r: 0.036, len: 0.15 } // Pinky
-    ];
-
-    fingerData.forEach(d => {
-      const fGroup = new THREE.Group();
-      fGroup.position.set(-0.06, d.y, 0.03);
-
-      // Knuckle
-      const k = new THREE.Mesh(new THREE.SphereGeometry(d.r * 1.05, 12, 12), this.knuckleMat);
-      k.position.set(0.02, 0, 0.05);
-      fGroup.add(k);
-
-      // Proximal phalanx
-      const p = new THREE.Mesh(new THREE.CylinderGeometry(d.r, d.r * 1.05, d.len * 0.48, 12), this.fistSkinMat);
-      p.rotation.set(0.2, 0, Math.PI / 2 + 0.3);
-      p.position.set(d.len * 0.24, 0, 0.03);
-      fGroup.add(p);
-
-      // Distal phalanx wrapping tightly around front of baton
-      const dist = new THREE.Mesh(new THREE.CylinderGeometry(d.r * 0.85, d.r, d.len * 0.55, 12), this.fistSkinMat);
-      dist.rotation.set(0.7, 0.15, Math.PI / 2 - 0.4);
-      dist.position.set(d.len * 0.58, 0, -0.02);
-      fGroup.add(dist);
-
-      this.fistGroup.add(fGroup);
-    });
-
-    // Opposing Thumb locked over the grip and index knuckle
-    const thumb = new THREE.Group();
-    thumb.position.set(0.08, 0.12, 0.08);
-    const thumbProx = new THREE.Mesh(new THREE.CylinderGeometry(0.048, 0.056, 0.15, 12), this.fistSkinMat);
-    thumbProx.rotation.set(0.35, -0.5, -0.75);
-    thumb.add(thumbProx);
-
-    const thumbDist = new THREE.Mesh(new THREE.SphereGeometry(0.048, 12, 12), this.fistSkinMat);
-    thumbDist.position.set(-0.07, 0.02, -0.02);
-    thumb.add(thumbDist);
-    this.fistGroup.add(thumb);
-
-    // Signet Ring on Pinky Finger
-    this.ringMat = new THREE.MeshStandardMaterial({
-      color: 0xffd700,
-      metalness: 0.95,
-      roughness: 0.15
-    });
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.042, 0.012, 8, 20), this.ringMat);
-    ring.position.set(-0.04, -0.05, 0.06);
-    ring.rotation.y = Math.PI / 2;
-    this.fistGroup.add(ring);
-
-    this.armAssembly.add(this.fistGroup);
-    this.armRoot.add(this.armAssembly);
-  }
-
-  // ── Executive Style Switching ─────────────────────────────────────────────
-  setExecutiveStyle(styleKey) {
-    if (!this.styleConfigs[styleKey]) return;
-    this.currentStyle = styleKey;
-    this.applyStyleMaterials();
-  }
-
-  applyStyleMaterials() {
-    const cfg = this.styleConfigs[this.currentStyle];
-    if (!cfg) return;
-
-    // 1. Fist Skin & Knuckle Materials
-    if (this.fistSkinMat) {
-      this.fistSkinMat.color.setHex(cfg.handColor);
-      this.fistSkinMat.roughness = cfg.handRoughness;
-      this.fistSkinMat.metalness = cfg.handMetalness;
-    }
-    if (this.knuckleMat) {
-      this.knuckleMat.color.setHex(cfg.handColor);
-      this.knuckleMat.roughness = cfg.handRoughness * 0.9;
-      this.knuckleMat.metalness = cfg.handMetalness;
-    }
-
-    // 2. Sleeve & Cuff
-    if (this.sleeveMat) this.sleeveMat.color.setHex(cfg.sleeveColor);
-    if (this.shirtCuffMat) this.shirtCuffMat.color.setHex(cfg.cuffColor);
-    if (this.cufflinkMat) this.cufflinkMat.color.setHex(cfg.cufflink);
-    if (this.ringMat) this.ringMat.color.setHex(cfg.cufflink);
-
-    // 3. Watch customization per executive style
-    if (this.watchGroup) {
-      if (this.currentStyle === 'csuite') {
-        // Gold Rolex Oyster Perpetual with Emerald Bezel
-        this.watchCaseMat.color.setHex(0xffd700);
-        this.watchCaseMat.metalness = 0.95;
-        this.watchDialMat.color.setHex(0x057642); // Emerald dial
-        this.watchStrapMat.color.setHex(0xffd700);
-        this.watchGroup.visible = true;
-        this.conduitMesh.visible = false;
-      } else if (this.currentStyle === 'silicon') {
-        // Apple Watch Ultra with Orange Action Button & OLED face
-        this.watchCaseMat.color.setHex(0x9aa0a6); // Titanium
-        this.watchCaseMat.metalness = 0.7;
-        this.watchDialMat.color.setHex(0x00f5ff); // Glowing cyan fitness ring
-        this.watchStrapMat.color.setHex(0x1e2024); // Sport band
-        this.watchGroup.visible = true;
-        this.conduitMesh.visible = true;
-      } else if (this.currentStyle === 'wallstreet') {
-        // Pure Gold Diamond Chronometer
-        this.watchCaseMat.color.setHex(0xffb703);
-        this.watchCaseMat.metalness = 0.98;
-        this.watchDialMat.color.setHex(0xd90429); // Ruby Red dial
-        this.watchStrapMat.color.setHex(0xffb703);
-        this.watchGroup.visible = true;
-        this.conduitMesh.visible = false;
-      } else if (this.currentStyle === 'cyber') {
-        // Cyber Holographic Interface
-        this.watchCaseMat.color.setHex(0x161822);
-        this.watchCaseMat.metalness = 0.9;
-        this.watchDialMat.color.setHex(0xff0077);
-        this.watchStrapMat.color.setHex(0x0a0c10);
-        this.watchGroup.visible = true;
-        this.conduitMesh.visible = true;
+  update3DWeaponVisibility() {
+    if (!this.weaponMeshes) return;
+    for (const key of ['whip', 'baton', 'chain', 'taser']) {
+      if (this.weaponMeshes[key]) {
+        this.weaponMeshes[key].visible = (this.currentWeapon === key);
       }
     }
 
-    // 4. Whip Handle Materials
-    if (this.handleWoodMat) this.handleWoodMat.color.setHex(cfg.handleWood);
-    if (this.handleMetalMat) this.handleMetalMat.color.setHex(cfg.handleMetal);
-    if (this.energyMat) this.energyMat.color.set(cfg.ropeGlow);
+    if (this.whipEmitter) {
+      const h = 2.85;
+      const w = h / (1376 / 768);
+      let u = 0.336, v = 0.249;
+      if (this.currentWeapon === 'baton') { u = 0.330; v = 0.160; }
+      else if (this.currentWeapon === 'chain') { u = 0.440; v = 0.120; }
+      else if (this.currentWeapon === 'taser') { u = 0.340; v = 0.220; }
+      this.whipEmitter.position.set((u - 0.5) * w, (0.5 - v) * h, 0.02);
+    }
 
-    // 5. Rim light matches theme
     if (this.rimLight) {
-      this.rimLight.color.set(cfg.ropeGlow);
+      const cfg = this.weaponConfigs[this.currentWeapon];
+      this.rimLight.color.set(cfg.themeColor);
     }
   }
 
   // Helper providing full productivity stats for HUD and recording watermark
   getProductivityInfo() {
-    let tierName = 'UNPAID INTERN';
-    let tierColor = '#0a66c2';
+    let tierName = 'OK (1.0x)';
+    let tierColor = '#38bdf8';
     let progress = Math.min(1.0, (this.frenzy - 1.0) / 3.0);
 
     if (this.frenzy >= 3.8) {
-      tierName = '10X UNICORN MAXX 🦄';
-      tierColor = '#ec4899';
+      tierName = 'MAX 👑 (4.0x)';
+      tierColor = '#00f5ff';
     } else if (this.frenzy >= 2.8) {
-      tierName = 'VP OF SYNERGY 🏆';
-      tierColor = '#f59e0b';
+      tierName = 'PEAK 👑 (3.0x)';
+      tierColor = '#39ff14';
     } else if (this.frenzy >= 1.8) {
-      tierName = 'OVERTIME SPECIALIST ⏱️';
-      tierColor = '#10b981';
+      tierName = 'GOOD (2.0x)';
+      tierColor = '#eab308';
     }
+
+    const cfg = this.weaponConfigs[this.currentWeapon];
 
     return {
       multiplier: this.frenzy,
-      formattedMultiplier: this.frenzy.toFixed(1) + 'x',
+      formattedMultiplier: 'x' + this.frenzy.toFixed(1),
       combo: this.combo,
       whipCount: this.whipCount,
       tierName,
       tierColor,
       progress,
-      styleName: this.styleConfigs[this.currentStyle].name,
-      roleName: this.styleConfigs[this.currentStyle].role
+      weaponName: cfg.name,
+      weaponSub: cfg.sub,
+      weaponTheme: cfg.themeColor,
     };
   }
 
-  // ── Strike Trigger with Speed Frenzy ──────────────────────────────────────
+  // ── Strike Trigger ────────────────────────────────────────────────────────
   strikeAt(targetX, targetY) {
     this.unlockAudio();
 
@@ -982,9 +824,9 @@ class WhipEngine {
     this.lastTapTime = now;
 
     // Frenzy Speed Escalation (Work Productivity Maxx)
-    if (timeSinceLastTap < 550) {
+    if (timeSinceLastTap < 650) {
       this.combo++;
-      this.frenzy = Math.min(4.0, this.frenzy + 0.42);
+      this.frenzy = Math.min(4.0, this.frenzy + 0.36);
     } else {
       this.combo = 1;
     }
@@ -996,8 +838,8 @@ class WhipEngine {
       this.lastTierAlert = currentTier;
     }
 
-    const baseDuration = 210;
-    const strikeDuration = Math.max(60, baseDuration / this.frenzy);
+    const baseDuration = this.currentWeapon === 'chain' ? 240 : (this.currentWeapon === 'baton' ? 170 : 200);
+    const strikeDuration = Math.max(65, baseDuration / this.frenzy);
 
     this.strike = {
       startTime: now,
@@ -1012,21 +854,60 @@ class WhipEngine {
     }
   }
 
+  initWhipPoints() {
+    this.pts = [];
+    const origin = this.getEmitterScreenPos();
+
+    // Parabolic arc matching reference image: poised gracefully above coworker head
+    const p0 = { x: origin.x, y: origin.y };
+    const p1 = { x: origin.x - this.W * 0.08, y: origin.y - this.H * 0.18 };
+    const p2 = { x: origin.x - this.W * 0.22, y: origin.y - this.H * 0.21 };
+    const p3 = { x: this.W * 0.43, y: origin.y - this.H * 0.13 };
+
+    for (let i = 0; i < this.segments; i++) {
+      const t = i / (this.segments - 1);
+      const oneMinusT = 1 - t;
+      const x = oneMinusT * oneMinusT * oneMinusT * p0.x +
+                3 * oneMinusT * oneMinusT * t * p1.x +
+                3 * oneMinusT * t * t * p2.x +
+                t * t * t * p3.x;
+      const y = oneMinusT * oneMinusT * oneMinusT * p0.y +
+                3 * oneMinusT * oneMinusT * t * p1.y +
+                3 * oneMinusT * t * t * p2.y +
+                t * t * t * p3.y;
+      this.pts.push({ x, y, px: x, py: y });
+    }
+  }
+
+  getEmitterScreenPos() {
+    if (!this.whipEmitter || !this.camera) {
+      return { x: this.W * 0.76, y: this.H * 0.70 };
+    }
+    const worldPos = new THREE.Vector3();
+    this.whipEmitter.getWorldPosition(worldPos);
+    worldPos.project(this.camera);
+
+    return {
+      x: (worldPos.x * 0.5 + 0.5) * this.W,
+      y: (-(worldPos.y * 0.5) + 0.5) * this.H,
+    };
+  }
+
   // ── Physics & Animation Update ────────────────────────────────────────────
   update(dt) {
     this.time += dt;
 
-    // Decay Frenzy when idle
+    // Decay Frenzy when idle (unless locked for reference match)
     const timeSinceLastTap = performance.now() - this.lastTapTime;
-    if (timeSinceLastTap > 650 && this.frenzy > 1.0) {
-      this.frenzy = Math.max(1.0, this.frenzy - dt * 1.8);
+    if (!this.lockFrenzy && timeSinceLastTap > 750 && this.frenzy > 1.0) {
+      this.frenzy = Math.max(1.0, this.frenzy - dt * 1.6);
       this.lastTierAlert = this.frenzy >= 3.8 ? 4 : (this.frenzy >= 2.8 ? 3 : (this.frenzy >= 1.8 ? 2 : 1));
       if (this.onFrenzyChange) {
         this.onFrenzyChange(this.frenzy, this.combo);
       }
     }
 
-    // Three.js 3D Arm Motion, Weapon Sway & Spring Recoil
+    // 3D Arm Motion, Sway & Recoil
     const idleSwayX = Math.cos(this.time * 2.2) * 0.02;
     const idleSwayY = Math.sin(this.time * 3.0) * 0.015;
     const idleRotZ = Math.sin(this.time * 1.8) * 0.012;
@@ -1052,7 +933,7 @@ class WhipEngine {
       strikeAimAngle = Math.atan2(dy, dx);
 
       if (progress < 0.22) {
-        // Wind-up: Arm cocks backward in 3D depth with aim-aware wrist tension
+        // Wind-up: Arm cocks backward with aim-aware wrist tension
         const p = progress / 0.22;
         armTargetX += 0.12 * Math.sin(p * Math.PI * 0.5);
         armTargetY -= 0.10 * Math.sin(p * Math.PI * 0.5);
@@ -1060,7 +941,7 @@ class WhipEngine {
         armRotX -= 0.22 * Math.sin(p * Math.PI * 0.5);
         armRotZ += 0.16 * Math.sin(p * Math.PI * 0.5);
       } else if (progress < 0.65) {
-        // Explosive forward lunge: Arm drives deep into the scene toward target with dynamic wrist snap
+        // Forward strike lunge towards target
         const p = (progress - 0.22) / 0.43;
         const ease = p * p * (3 - 2 * p);
         armTargetX -= 0.26 * ease;
@@ -1081,7 +962,7 @@ class WhipEngine {
         tipTarget = { x: this.strike.targetX, y: this.strike.targetY };
         this.triggerImpact(this.strike.targetX, this.strike.targetY);
       } else {
-        // Kinetic Spring Recoil with Damped Harmonic Oscillation
+        // Kinetic spring recoil
         const p = (progress - 0.65) / 0.35;
         const recoilOsc = Math.sin(p * Math.PI * 3.5) * Math.exp(-p * 4.5) * 0.12;
         armTargetX += 0.08 * (1 - p) + recoilOsc;
@@ -1106,9 +987,10 @@ class WhipEngine {
     // Get 3D Emitter screen coordinates
     const emitterScreen = this.getEmitterScreenPos();
 
-    // 2. Whip Rope Physics (Verlet) with S-Curve Wave
-    const gravity = 1.3;
-    const damping = 0.94;
+    // Whip / Chain Physics (Verlet) with S-Curve Wave
+    const isWhip = this.currentWeapon === 'whip';
+    const gravity = isWhip ? 0.35 : (this.currentWeapon === 'chain' ? 2.2 : 1.25);
+    const damping = this.currentWeapon === 'chain' ? 0.91 : 0.94;
 
     for (let i = 1; i < this.pts.length; i++) {
       const p = this.pts[i];
@@ -1119,10 +1001,32 @@ class WhipEngine {
       p.x += vx;
       p.y += vy + gravity;
 
+      if (!this.strike && isWhip) {
+        // Poised cyber-spine internal tension & gentle breath sway
+        const t = i / (this.pts.length - 1);
+        const breath = Math.sin(this.time * 2.2 + t * 2.5) * (3.5 * t);
+        const p0 = { x: emitterScreen.x, y: emitterScreen.y };
+        const p1 = { x: emitterScreen.x - this.W * 0.08, y: emitterScreen.y - this.H * 0.18 };
+        const p2 = { x: emitterScreen.x - this.W * 0.22, y: emitterScreen.y - this.H * 0.21 };
+        const p3 = { x: this.W * 0.43, y: emitterScreen.y - this.H * 0.13 };
+
+        const oneMinusT = 1 - t;
+        const targetX = oneMinusT * oneMinusT * oneMinusT * p0.x +
+                        3 * oneMinusT * oneMinusT * t * p1.x +
+                        3 * oneMinusT * t * t * p2.x +
+                        t * t * t * p3.x + breath;
+        const targetY = oneMinusT * oneMinusT * oneMinusT * p0.y +
+                        3 * oneMinusT * oneMinusT * t * p1.y +
+                        3 * oneMinusT * t * t * p2.y +
+                        t * t * t * p3.y + breath * 0.5;
+        p.x += (targetX - p.x) * 0.085;
+        p.y += (targetY - p.y) * 0.085;
+      }
+
       if (strikeWavePhase > 0) {
         const segT = i / (this.pts.length - 1);
         const distFromWave = segT - strikeWavePhase;
-        const waveAmp = Math.sin(distFromWave * Math.PI * 3) * Math.exp(-distFromWave * distFromWave * 14) * 50 * (1 - strikeWavePhase);
+        const waveAmp = Math.sin(distFromWave * Math.PI * 3) * Math.exp(-distFromWave * distFromWave * 14) * 55 * (1 - strikeWavePhase);
         const perpX = -Math.sin(strikeAimAngle) * waveAmp;
         const perpY = Math.cos(strikeAimAngle) * waveAmp;
         p.x += perpX * 0.38;
@@ -1170,62 +1074,68 @@ class WhipEngine {
     this.updateFX(dt);
   }
 
-  getEmitterScreenPos() {
-    if (!this.whipEmitter || !this.camera) {
-      return { x: this.W * 0.78, y: this.H * 0.78 };
-    }
-    const worldPos = new THREE.Vector3();
-    this.whipEmitter.getWorldPosition(worldPos);
-    worldPos.project(this.camera);
-
-    return {
-      x: (worldPos.x * 0.5 + 0.5) * this.W,
-      y: (-(worldPos.y * 0.5) + 0.5) * this.H,
-    };
-  }
-
+  // ── Impact Trigger ────────────────────────────────────────────────────────
   triggerImpact(x, y) {
     this.whipCount++;
-    this.playCrackSound();
+    this.playWeaponSound();
 
     if ('vibrate' in navigator) {
       try {
-        const vib = Math.min(85, 35 + this.frenzy * 14);
+        const vib = Math.min(90, 40 + this.frenzy * 14);
         navigator.vibrate([vib, 20, vib * 1.3]);
       } catch {}
     }
 
-    this.screenShake = 16 + this.frenzy * 4;
+    this.screenShake = 16 + this.frenzy * 5;
+    const cfg = this.weaponConfigs[this.currentWeapon];
 
-    const cfg = this.styleConfigs[this.currentStyle];
-    const frenzyColor = this.frenzy > 3.8 ? '#ec4899' : (this.frenzy > 2.8 ? '#f59e0b' : (this.frenzy > 1.8 ? '#10b981' : cfg.ropeGlow));
-
-    // 1. Comic Impact Starburst
-    this.starbursts.push({
-      x,
-      y,
+    // 1. Comic Speech Bubble Callout ("FOCUS NOW!", "WORK HARDER!", etc.)
+    const phrases = cfg.phrases;
+    const chosenText = phrases[Math.floor(Math.random() * phrases.length)];
+    this.callouts.push({
+      x: x + (Math.random() * 40 - 20),
+      y: y - 50 + (Math.random() * 20 - 10),
+      text: chosenText,
+      rotation: (Math.random() - 0.5) * 0.22, // Dynamic angled comic style
       scale: 0.3,
-      maxScale: 1.25 + this.frenzy * 0.25,
-      rotation: Math.random() * Math.PI,
+      targetScale: 1.05 + this.frenzy * 0.1,
       alpha: 1.0,
-      color: frenzyColor,
+      age: 0,
+      life: 1.25,
+      color: cfg.themeColor,
     });
 
-    // 2. Double Expanding Shockwaves
-    this.shockwaves.push({ x, y, r: 12, maxR: 90 + this.frenzy * 10, alpha: 1.0, color: frenzyColor });
-    this.shockwaves.push({ x, y, r: 6, maxR: 55, alpha: 1.0, color: '#ffffff' });
+    // 2. Curved Crimson / Electric Slash Streaks radiating outwards
+    const slashCount = 5;
+    for (let i = 0; i < slashCount; i++) {
+      const baseAng = (i / slashCount) * Math.PI * 2 + (Math.random() * 0.4 - 0.2);
+      this.slashMarks.push({
+        x,
+        y,
+        angle: baseAng,
+        len: 40 + Math.random() * 55 * (1 + this.frenzy * 0.25),
+        curve: (Math.random() - 0.5) * 35,
+        alpha: 1.0,
+        color: cfg.themeColor,
+        width: 3.5 + Math.random() * 3.0,
+      });
+    }
 
-    // 3. Spark Particles
-    const sparkCount = Math.floor(22 + this.frenzy * 6);
+    // 3. Double Expanding Shockwaves
+    this.shockwaves.push({ x, y, r: 12, maxR: 95 + this.frenzy * 12, alpha: 1.0, color: cfg.themeColor });
+    this.shockwaves.push({ x, y, r: 6, maxR: 60, alpha: 1.0, color: '#ffffff' });
+
+    // 4. Spark Particles
+    const sparkCount = Math.floor(24 + this.frenzy * 8);
     const sparkPalette = cfg.sparkColors;
     for (let i = 0; i < sparkCount; i++) {
       const ang = Math.random() * Math.PI * 2;
-      const spd = 6 + Math.random() * (12 + this.frenzy * 4);
+      const spd = 6 + Math.random() * (14 + this.frenzy * 4);
       this.particles.push({
         x,
         y,
         vx: Math.cos(ang) * spd,
-        vy: Math.sin(ang) * spd - 3.5,
+        vy: Math.sin(ang) * spd - 3.8,
         alpha: 1.0,
         size: 3 + Math.random() * 4.5,
         color: sparkPalette[Math.floor(Math.random() * sparkPalette.length)],
@@ -1233,19 +1143,20 @@ class WhipEngine {
       });
     }
 
-    // 4. Floating Corporate Buzzwords
-    const phrases = cfg.phrases;
-    const chosenText = phrases[Math.floor(Math.random() * phrases.length)];
-
-    this.floatingTexts.push({
-      x: x + (Math.random() * 24 - 12),
-      y: y - 26,
-      text: chosenText,
-      alpha: 1.0,
-      scale: 0.6,
-      vy: -3.4,
-      color: frenzyColor,
-    });
+    // 5. Taser / Baton Electric Lightning Arcs
+    if (this.currentWeapon === 'taser' || this.currentWeapon === 'baton') {
+      const emitter = this.getEmitterScreenPos();
+      for (let a = 0; a < 3; a++) {
+        this.lightningArcs.push({
+          x1: emitter.x,
+          y1: emitter.y,
+          x2: x,
+          y2: y,
+          alpha: 1.0,
+          color: cfg.themeColor,
+        });
+      }
+    }
 
     if (this.onWhipHit) {
       this.onWhipHit(this.whipCount, this.combo);
@@ -1258,35 +1169,47 @@ class WhipEngine {
       if (this.screenShake < 0.5) this.screenShake = 0;
     }
 
-    for (let i = this.starbursts.length - 1; i >= 0; i--) {
-      const sb = this.starbursts[i];
-      sb.scale += 0.12;
-      sb.alpha -= 0.07;
-      if (sb.alpha <= 0 || sb.scale >= sb.maxScale) this.starbursts.splice(i, 1);
+    // Callout comic speech bubbles
+    for (let i = this.callouts.length - 1; i >= 0; i--) {
+      const c = this.callouts[i];
+      c.age += dt;
+      if (c.scale < c.targetScale) c.scale += (c.targetScale - c.scale) * 0.35;
+      if (c.age > c.life * 0.6) {
+        c.alpha -= dt * 2.8;
+      }
+      if (c.alpha <= 0 || c.age >= c.life) this.callouts.splice(i, 1);
     }
 
+    // Slash marks
+    for (let i = this.slashMarks.length - 1; i >= 0; i--) {
+      const sl = this.slashMarks[i];
+      sl.alpha -= 0.065;
+      if (sl.alpha <= 0) this.slashMarks.splice(i, 1);
+    }
+
+    // Shockwaves
     for (let i = this.shockwaves.length - 1; i >= 0; i--) {
       const s = this.shockwaves[i];
-      s.r += 5.2;
-      s.alpha -= 0.058;
+      s.r += 6.5;
+      s.alpha -= 0.055;
       if (s.alpha <= 0 || s.r >= s.maxR) this.shockwaves.splice(i, 1);
     }
 
+    // Particles
     for (let i = this.particles.length - 1; i >= 0; i--) {
       const p = this.particles[i];
       p.x += p.vx;
       p.y += p.vy;
       p.vy += p.gravity;
-      p.alpha -= 0.038;
+      p.alpha -= 0.035;
       if (p.alpha <= 0) this.particles.splice(i, 1);
     }
 
-    for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
-      const ft = this.floatingTexts[i];
-      ft.y += ft.vy;
-      if (ft.scale < 1.25) ft.scale += 0.08;
-      ft.alpha -= 0.024;
-      if (ft.alpha <= 0) this.floatingTexts.splice(i, 1);
+    // Lightning arcs
+    for (let i = this.lightningArcs.length - 1; i >= 0; i--) {
+      const la = this.lightningArcs[i];
+      la.alpha -= 0.12;
+      if (la.alpha <= 0) this.lightningArcs.splice(i, 1);
     }
   }
 
@@ -1302,20 +1225,21 @@ class WhipEngine {
       this.ctx.translate(sx, sy);
     }
 
-    // 1. Draw Whip Rope Spline
-    this.drawWhip();
+    // 1. Draw Active 2D Weapon Physics (Cyber-Spine Whip / Baton / Chain / Taser)
+    this.drawCurrentWeapon();
 
-    // 2. Render Three.js 3D Arm onto Canvas
+    // 2. Render Three.js 3D Tactical Arm onto Canvas
     if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
     }
 
-    // 3. Draw Comic Starbursts
-    for (const sb of this.starbursts) {
-      this.drawStarburst(sb);
-    }
+    // 3. Draw Lightning Arcs (for Taser & Baton)
+    this.drawLightningArcs();
 
-    // 4. Draw Shockwaves
+    // 4. Draw Slash Marks
+    this.drawSlashMarks();
+
+    // 5. Draw Shockwaves
     for (const s of this.shockwaves) {
       this.ctx.save();
       this.ctx.beginPath();
@@ -1323,116 +1247,523 @@ class WhipEngine {
       this.ctx.strokeStyle = s.color;
       this.ctx.globalAlpha = Math.max(0, s.alpha);
       this.ctx.lineWidth = 4.5;
+      this.ctx.shadowColor = s.color;
+      this.ctx.shadowBlur = 10;
       this.ctx.stroke();
       this.ctx.restore();
     }
 
-    // 5. Draw Particles
+    // 6. Draw Spark Particles
     for (const p of this.particles) {
       this.ctx.save();
       this.ctx.beginPath();
       this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       this.ctx.fillStyle = p.color;
       this.ctx.globalAlpha = Math.max(0, p.alpha);
+      this.ctx.shadowColor = p.color;
+      this.ctx.shadowBlur = 6;
       this.ctx.fill();
       this.ctx.restore();
     }
 
-    // 6. Draw Floating Corporate Comic Text
-    for (const ft of this.floatingTexts) {
-      this.ctx.save();
-      this.ctx.translate(ft.x, ft.y);
-      this.ctx.scale(ft.scale, ft.scale);
-      this.ctx.globalAlpha = Math.max(0, ft.alpha);
-      this.ctx.textAlign = 'center';
-      this.ctx.font = '900 26px system-ui, -apple-system, sans-serif';
-
-      this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.85)';
-      this.ctx.lineWidth = 5;
-      this.ctx.strokeText(ft.text, 0, 0);
-
-      this.ctx.fillStyle = ft.color || '#ffea00';
-      this.ctx.fillText(ft.text, 0, 0);
-      this.ctx.restore();
+    // 7. Draw Comic Speech Bubbles ("FOCUS NOW!", "WORK HARDER!", etc.)
+    for (const c of this.callouts) {
+      this.drawComicCallout(c);
     }
 
     this.ctx.restore();
   }
 
-  drawStarburst(sb) {
-    this.ctx.save();
-    this.ctx.translate(sb.x, sb.y);
-    this.ctx.rotate(sb.rotation);
-    this.ctx.scale(sb.scale, sb.scale);
-    this.ctx.globalAlpha = Math.max(0, sb.alpha);
-
-    const points = 10;
-    const outerRadius = 45;
-    const innerRadius = 20;
-
-    this.ctx.beginPath();
-    for (let i = 0; i < points * 2; i++) {
-      const r = (i % 2 === 0) ? outerRadius : innerRadius;
-      const a = (i * Math.PI) / points;
-      const px = Math.cos(a) * r;
-      const py = Math.sin(a) * r;
-      if (i === 0) this.ctx.moveTo(px, py);
-      else this.ctx.lineTo(px, py);
+  // ── Draw Specific Weapon Visuals ──────────────────────────────────────────
+  drawCurrentWeapon() {
+    switch (this.currentWeapon) {
+      case 'baton':
+        this.drawBatonVisual();
+        break;
+      case 'chain':
+        this.drawChainVisual();
+        break;
+      case 'taser':
+        this.drawTaserVisual();
+        break;
+      case 'whip':
+      default:
+        this.drawCyberSpineWhip();
+        break;
     }
-    this.ctx.closePath();
-
-    this.ctx.fillStyle = sb.color;
-    this.ctx.fill();
-    this.ctx.strokeStyle = '#000';
-    this.ctx.lineWidth = 4;
-    this.ctx.stroke();
-
-    this.ctx.restore();
   }
 
-  drawWhip() {
+  // ── Articulated Mechanical Cyber-Spine Whip (Matches Reference Image) ──────
+  drawCyberSpineWhip() {
     if (this.pts.length < 2) return;
+    const ctx = this.ctx;
+    ctx.save();
 
-    this.ctx.save();
-    this.ctx.lineCap = 'round';
-    this.ctx.lineJoin = 'round';
+    const n = this.pts.length;
 
-    const cfg = this.styleConfigs[this.currentStyle];
-    const frenzyGlow = this.frenzy > 3.8 ? '#ec4899' : (this.frenzy > 2.8 ? '#f59e0b' : (this.frenzy > 1.8 ? '#10b981' : cfg.ropeGlow));
-    const frenzyCore = this.frenzy > 3.8 ? '#fbcfe8' : (this.frenzy > 2.8 ? '#fef08a' : (this.frenzy > 1.8 ? '#a7f3d0' : cfg.ropeCore));
-
-    // Outer Glow Halo
-    this.ctx.beginPath();
-    this.ctx.moveTo(this.pts[0].x, this.pts[0].y);
-    for (let i = 0; i < this.pts.length - 1; i++) {
+    // 1. Underlying Glowing Tendon/Spine Core (Flexible Crimson Synthetic Muscle)
+    ctx.beginPath();
+    ctx.moveTo(this.pts[0].x, this.pts[0].y);
+    for (let i = 0; i < n - 1; i++) {
       const b = this.getBezier(i);
-      this.ctx.bezierCurveTo(b.cp1x, b.cp1y, b.cp2x, b.cp2y, b.x2, b.y2);
+      ctx.bezierCurveTo(b.cp1x, b.cp1y, b.cp2x, b.cp2y, b.x2, b.y2);
     }
-    this.ctx.strokeStyle = frenzyGlow;
-    this.ctx.lineWidth = 9 + this.frenzy * 2.5;
-    this.ctx.stroke();
+    ctx.strokeStyle = '#ff1744';
+    ctx.lineWidth = 4.0 + this.frenzy * 0.8;
+    ctx.shadowColor = '#ff1744';
+    ctx.shadowBlur = 8;
+    ctx.stroke();
 
-    // Glowing Braided Core
-    for (let i = 0; i < this.pts.length - 1; i++) {
-      const t = i / (this.pts.length - 2);
-      const w = (7 * (1 - t * 0.5) + 2) + this.frenzy * 1.5;
+    // Inner bright core
+    ctx.beginPath();
+    ctx.moveTo(this.pts[0].x, this.pts[0].y);
+    for (let i = 0; i < n - 1; i++) {
       const b = this.getBezier(i);
-      this.ctx.beginPath();
-      this.ctx.moveTo(this.pts[i].x, this.pts[i].y);
-      this.ctx.bezierCurveTo(b.cp1x, b.cp1y, b.cp2x, b.cp2y, b.x2, b.y2);
-      this.ctx.strokeStyle = frenzyCore;
-      this.ctx.lineWidth = w;
-      this.ctx.stroke();
+      ctx.bezierCurveTo(b.cp1x, b.cp1y, b.cp2x, b.cp2y, b.x2, b.y2);
+    }
+    ctx.strokeStyle = '#ffcdd2';
+    ctx.lineWidth = 1.4;
+    ctx.shadowBlur = 0;
+    ctx.stroke();
+
+    // 2. Articulated Mechanical Vertebrae Segments (Gunmetal Shell + Specular Rim)
+    for (let i = 0; i < n; i++) {
+      const t = i / (n - 1); // 0 at base, 1 at tip
+      const p = this.pts[i];
+
+      // Tangent direction along spine
+      const prev = this.pts[Math.max(0, i - 1)];
+      const next = this.pts[Math.min(n - 1, i + 1)];
+      const angle = Math.atan2(next.y - prev.y, next.x - prev.x);
+
+      // Vertebra dimensions: tapering from base to tip
+      const w = 32 * (1 - t * 0.60) + 6; // Width across spine
+      const h = 13 * (1 - t * 0.38) + 4; // Length along spine
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(angle);
+
+      // Backwards-pointing mechanical spinal process ridges (top & bottom flanges)
+      ctx.fillStyle = '#1c222b';
+      ctx.strokeStyle = '#374151';
+      ctx.lineWidth = 1.0;
+      ctx.beginPath();
+      ctx.moveTo(-h * 0.45, -w * 0.46);
+      ctx.lineTo(-h * 0.82, -w * 0.56);
+      ctx.lineTo(h * 0.22, -w * 0.42);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(-h * 0.45, w * 0.46);
+      ctx.lineTo(-h * 0.82, w * 0.56);
+      ctx.lineTo(h * 0.22, w * 0.42);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Main Armored Gunmetal Vertebra Shell
+      const grad = ctx.createLinearGradient(-h * 0.5, 0, h * 0.5, 0);
+      grad.addColorStop(0, '#101418');
+      grad.addColorStop(0.35, '#28303c');
+      grad.addColorStop(0.7, '#1a1f26');
+      grad.addColorStop(1, '#0e1115');
+
+      ctx.fillStyle = grad;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.32)';
+      ctx.lineWidth = 1.2;
+      ctx.shadowBlur = 0;
+
+      ctx.beginPath();
+      ctx.roundRect(-h * 0.5, -w * 0.5, h, w, Math.min(4, h * 0.35));
+      ctx.fill();
+      ctx.stroke();
+
+      // Specular Top Rim Highlight
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.42)';
+      ctx.lineWidth = 1.0;
+      ctx.beginPath();
+      ctx.moveTo(-h * 0.35, -w * 0.44);
+      ctx.lineTo(h * 0.35, -w * 0.44);
+      ctx.stroke();
+
+      // Center Glowing Crimson LED Reactor Core Slot
+      ctx.fillStyle = '#ff1744';
+      ctx.shadowColor = '#ff1744';
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.roundRect(-h * 0.24, -w * 0.18, h * 0.48, w * 0.36, 1.5);
+      ctx.fill();
+
+      // White-hot inner core slit
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 0;
+      ctx.fillRect(-h * 0.10, -w * 0.08, h * 0.20, w * 0.16);
+
+      ctx.restore();
     }
 
-    // Cracker Tip
+    // 3. Glowing Rounded Emitter Cap at Tip (with radiating sparks)
+    const tip = this.pts[n - 1];
+    ctx.save();
+    ctx.translate(tip.x, tip.y);
+
+    const radGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 14);
+    radGrad.addColorStop(0, '#ffffff');
+    radGrad.addColorStop(0.35, '#ff1744');
+    radGrad.addColorStop(1, 'rgba(255, 23, 68, 0)');
+
+    ctx.fillStyle = radGrad;
+    ctx.beginPath();
+    ctx.arc(0, 0, 14 + this.frenzy * 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Radiating dynamic crimson energy slash sparks at tip (as in reference image)
+    const sparks = [-1.1, -0.6, -0.1, 0.4, 0.9];
+    ctx.strokeStyle = '#ff1744';
+    ctx.lineWidth = 2.5;
+    ctx.shadowColor = '#ff1744';
+    ctx.shadowBlur = 10;
+    sparks.forEach((angOffset, idx) => {
+      ctx.save();
+      ctx.rotate(angOffset + Math.sin(this.time * 4.0 + idx) * 0.15);
+      ctx.beginPath();
+      ctx.moveTo(12, 0);
+      ctx.quadraticCurveTo(24, (idx % 2 === 0 ? 8 : -8), 42 + (idx % 3) * 12, 0);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.0;
+      ctx.beginPath();
+      ctx.moveTo(12, 0);
+      ctx.quadraticCurveTo(20, (idx % 2 === 0 ? 4 : -4), 30, 0);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    ctx.restore();
+    ctx.restore();
+  }
+
+  // ── Riot Stun Baton Visual ────────────────────────────────────────────────
+  drawBatonVisual() {
+    const ctx = this.ctx;
+    const origin = this.getEmitterScreenPos();
     const tip = this.pts[this.pts.length - 1];
-    this.ctx.beginPath();
-    this.ctx.arc(tip.x, tip.y, 5 + this.frenzy, 0, Math.PI * 2);
-    this.ctx.fillStyle = frenzyGlow;
-    this.ctx.fill();
 
-    this.ctx.restore();
+    ctx.save();
+
+    // Draw electrical lightning aura around baton line
+    ctx.beginPath();
+    ctx.moveTo(origin.x, origin.y);
+    ctx.lineTo(tip.x, tip.y);
+    ctx.strokeStyle = '#00f5ff';
+    ctx.lineWidth = 10;
+    ctx.shadowColor = '#00f5ff';
+    ctx.shadowBlur = 18;
+    ctx.stroke();
+
+    // Inner bright plasma core
+    ctx.beginPath();
+    ctx.moveTo(origin.x, origin.y);
+    ctx.lineTo(tip.x, tip.y);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Electrical sparks at baton tip
+    ctx.fillStyle = '#00f5ff';
+    ctx.beginPath();
+    ctx.arc(tip.x, tip.y, 10 + this.frenzy * 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  // ── Heavy Iron Spiked Flail Chain Visual ──────────────────────────────────
+  drawChainVisual() {
+    if (this.pts.length < 2) return;
+    const ctx = this.ctx;
+    ctx.save();
+
+    const n = this.pts.length;
+
+    // 1. Interlocking Dark Iron Chain Links
+    for (let i = 0; i < n - 1; i++) {
+      const p1 = this.pts[i];
+      const p2 = this.pts[i + 1];
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const ang = Math.atan2(dy, dx);
+      const dist = Math.hypot(dx, dy);
+
+      ctx.save();
+      ctx.translate((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
+      ctx.rotate(ang);
+
+      if (i % 2 === 0) {
+        // Flat oval chain link
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 4.5;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, dist * 0.48, 7, 0, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.strokeStyle = '#94a3b8'; // Specular sheen
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      } else {
+        // Edge-profile link
+        ctx.fillStyle = '#334155';
+        ctx.beginPath();
+        ctx.roundRect(-dist * 0.35, -3.5, dist * 0.7, 7, 3);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    // 2. Heavy Spiked Morningstar Iron Ball at Tip
+    const tip = this.pts[n - 1];
+    ctx.save();
+    ctx.translate(tip.x, tip.y);
+
+    const ballRadius = 24 + this.frenzy * 2;
+
+    // 12 Conical Spikes around the perimeter
+    const spikeCount = 10;
+    ctx.fillStyle = '#1e293b';
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1.5;
+
+    for (let s = 0; s < spikeCount; s++) {
+      const ang = (s / spikeCount) * Math.PI * 2 + this.time * 0.5;
+      const spikeLen = 14 + (s % 2 === 0 ? 6 : 0);
+
+      ctx.save();
+      ctx.rotate(ang);
+      ctx.beginPath();
+      ctx.moveTo(-5, ballRadius * 0.85);
+      ctx.lineTo(0, ballRadius + spikeLen);
+      ctx.lineTo(5, ballRadius * 0.85);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Iron Sphere Body with Specular Highlight
+    const sphereGrad = ctx.createRadialGradient(-6, -6, 2, 0, 0, ballRadius);
+    sphereGrad.addColorStop(0, '#94a3b8');
+    sphereGrad.addColorStop(0.3, '#334155');
+    sphereGrad.addColorStop(0.85, '#0f172a');
+    sphereGrad.addColorStop(1, '#020617');
+
+    ctx.fillStyle = sphereGrad;
+    ctx.beginPath();
+    ctx.arc(0, 0, ballRadius, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.restore();
+    ctx.restore();
+  }
+
+  // ── Tactical Dual-Prong Taser Visual ──────────────────────────────────────
+  drawTaserVisual() {
+    const ctx = this.ctx;
+    const origin = this.getEmitterScreenPos();
+    const tip = this.pts[this.pts.length - 1];
+
+    ctx.save();
+
+    // Dual electrified dart wires with high-frequency jitter
+    const wires = [-6, 6];
+    wires.forEach(offset => {
+      ctx.beginPath();
+      ctx.moveTo(origin.x + offset, origin.y + offset);
+
+      const segments = 12;
+      for (let s = 1; s <= segments; s++) {
+        const t = s / segments;
+        const x = origin.x + offset + (tip.x - origin.x - offset) * t;
+        const y = origin.y + offset + (tip.y - origin.y - offset) * t;
+        const jitterX = (Math.random() - 0.5) * 8 * (1 - t * 0.5);
+        const jitterY = (Math.random() - 0.5) * 8 * (1 - t * 0.5);
+        ctx.lineTo(x + jitterX, y + jitterY);
+      }
+
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#00f5ff';
+      ctx.shadowBlur = 10;
+      ctx.stroke();
+    });
+
+    // Electrified dart node at target
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(tip.x, tip.y, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  drawComicCallout(c) {
+    const ctx = this.ctx;
+    ctx.save();
+
+    const isFocusNow = (c.text === 'FOCUS NOW!' || c.text.startsWith('FOCUS NOW'));
+    const lines = isFocusNow ? ['FOCUS', 'NOW!'] : (c.text.includes('\n') ? c.text.split('\n') : [c.text]);
+
+    ctx.font = '900 24px "Permanent Marker", "Bangers", Impact, sans-serif';
+    let maxLineWidth = 0;
+    lines.forEach(l => {
+      const w = ctx.measureText(l).width;
+      if (w > maxLineWidth) maxLineWidth = w;
+    });
+
+    const isMultiLine = lines.length > 1;
+    const bubbleW = isMultiLine ? Math.max(116, maxLineWidth + 32) : Math.max(130, maxLineWidth + 32);
+    const bubbleH = isMultiLine ? 66 : 50;
+    const r = 12;
+
+    // Boundary clamp: keep bubble within screen margins
+    const clampedX = Math.min(this.W - bubbleW * 0.5 - 14, Math.max(bubbleW * 0.5 + 14, c.x));
+    const clampedY = Math.min(this.H - bubbleH - 120, Math.max(bubbleH * 0.5 + 40, c.y));
+
+    ctx.translate(clampedX, clampedY);
+    ctx.rotate(c.rotation || -0.12);
+    ctx.scale(c.scale, c.scale);
+    ctx.globalAlpha = Math.max(0, c.alpha);
+
+    // Jagged / Angled Comic Speech Balloon
+    ctx.fillStyle = 'rgba(6, 16, 32, 0.94)';
+    ctx.beginPath();
+    ctx.roundRect(-bubbleW * 0.5, -bubbleH * 0.5, bubbleW, bubbleH, r);
+    ctx.fill();
+
+    // Pointed Tail pointing toward coworker target
+    ctx.beginPath();
+    ctx.moveTo(-14, bubbleH * 0.5);
+    ctx.lineTo(-26, bubbleH * 0.5 + 18);
+    ctx.lineTo(-2, bubbleH * 0.5);
+    ctx.closePath();
+    ctx.fill();
+
+    // Glowing Neon Cyan Border
+    ctx.strokeStyle = '#00f5ff';
+    ctx.lineWidth = 3.0;
+    ctx.shadowColor = '#00f5ff';
+    ctx.shadowBlur = 14;
+    ctx.beginPath();
+    ctx.roundRect(-bubbleW * 0.5, -bubbleH * 0.5, bubbleW, bubbleH, r);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-14, bubbleH * 0.5);
+    ctx.lineTo(-26, bubbleH * 0.5 + 18);
+    ctx.lineTo(-2, bubbleH * 0.5);
+    ctx.stroke();
+
+    // Radiating red action marks around comic bubble (reference image detail)
+    ctx.strokeStyle = '#ff1744';
+    ctx.lineWidth = 2.4;
+    ctx.shadowColor = '#ff1744';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    // Top right tick
+    ctx.moveTo(bubbleW * 0.5 + 4, -bubbleH * 0.35);
+    ctx.lineTo(bubbleW * 0.5 + 15, -bubbleH * 0.48);
+    // Right middle tick
+    ctx.moveTo(bubbleW * 0.5 + 5, 2);
+    ctx.lineTo(bubbleW * 0.5 + 17, 4);
+    // Top tick
+    ctx.moveTo(2, -bubbleH * 0.5 - 4);
+    ctx.lineTo(-2, -bubbleH * 0.5 - 14);
+    ctx.stroke();
+
+    // Dynamic Comic Text
+    ctx.shadowBlur = 0;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#ffffff';
+
+    if (isMultiLine) {
+      ctx.font = '900 24px "Permanent Marker", "Bangers", Impact, sans-serif';
+      ctx.fillText(lines[0], 0, -14);
+      ctx.font = '900 26px "Permanent Marker", "Bangers", Impact, sans-serif';
+      ctx.fillText(lines[1], 0, 15);
+    } else {
+      ctx.font = '900 24px "Permanent Marker", "Bangers", Impact, sans-serif';
+      ctx.fillText(lines[0], 0, -2);
+    }
+
+    ctx.restore();
+  }
+
+  // ── Radiating Crimson / Electric Slash Marks ───────────────────────────────
+  drawSlashMarks() {
+    const ctx = this.ctx;
+    for (const sl of this.slashMarks) {
+      ctx.save();
+      ctx.translate(sl.x, sl.y);
+      ctx.rotate(sl.angle);
+      ctx.globalAlpha = Math.max(0, sl.alpha);
+
+      ctx.strokeStyle = sl.color;
+      ctx.lineWidth = sl.width;
+      ctx.lineCap = 'round';
+      ctx.shadowColor = sl.color;
+      ctx.shadowBlur = 10;
+
+      ctx.beginPath();
+      ctx.moveTo(8, 0);
+      ctx.quadraticCurveTo(sl.len * 0.5, sl.curve, sl.len, 0);
+      ctx.stroke();
+
+      // White-hot inner core streak
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = Math.max(1, sl.width * 0.4);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+  }
+
+  // ── Branching Lightning Arcs (for Taser & Baton) ──────────────────────────
+  drawLightningArcs() {
+    const ctx = this.ctx;
+    for (const la of this.lightningArcs) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, la.alpha);
+      ctx.strokeStyle = la.color;
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = la.color;
+      ctx.shadowBlur = 12;
+
+      ctx.beginPath();
+      ctx.moveTo(la.x1, la.y1);
+
+      const steps = 14;
+      for (let s = 1; s <= steps; s++) {
+        const t = s / steps;
+        const x = la.x1 + (la.x2 - la.x1) * t;
+        const y = la.y1 + (la.y2 - la.y1) * t;
+        const jX = (Math.random() - 0.5) * 36;
+        const jY = (Math.random() - 0.5) * 36;
+        ctx.lineTo(x + jX, y + jY);
+      }
+      ctx.lineTo(la.x2, la.y2);
+      ctx.stroke();
+
+      ctx.restore();
+    }
   }
 
   getBezier(i) {
@@ -1461,7 +1792,9 @@ class WhipEngine {
     const dt = Math.min(0.1, (currTime - this.lastTime) * 0.001);
     this.lastTime = currTime;
 
-    this.update(dt);
+    if (!this.isPaused) {
+      this.update(dt);
+    }
     this.draw();
 
     requestAnimationFrame(this.loop);
