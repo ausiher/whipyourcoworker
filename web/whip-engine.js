@@ -24,7 +24,7 @@ class WhipEngine {
     this.H = 0;
 
     // ── Current Weapon System ─────────────────────────────────────────────────
-    this.currentWeapon = 'whip'; // 'whip' | 'baton' | 'chain' | 'taser'
+    this.currentWeapon = 'whip'; // 'whip' | 'chain' | 'taser'
     this.taserLatch = null; // { x, y, startTime, lastTapTime, comboTaps, active }
 
     this.weaponConfigs = {
@@ -36,26 +36,6 @@ class WhipEngine {
         coreColor: '#78350f',
         glowColor: 'rgba(217, 119, 6, 0.65)',
         sparkColors: ['#d97706', '#b45309', '#92400e', '#fef3c7', '#78350f'],
-        phrases: []
-      },
-      pentung: {
-        id: 'pentung',
-        name: 'PENTUNG',
-        sub: 'Satpam Bash',
-        themeColor: '#f59e0b',
-        coreColor: '#78350f',
-        glowColor: 'rgba(245, 158, 11, 0.65)',
-        sparkColors: ['#f59e0b', '#d97706', '#fbbf24', '#ffffff', '#78350f'],
-        phrases: []
-      },
-      baton: {
-        id: 'pentung',
-        name: 'PENTUNG',
-        sub: 'Satpam Bash',
-        themeColor: '#f59e0b',
-        coreColor: '#78350f',
-        glowColor: 'rgba(245, 158, 11, 0.65)',
-        sparkColors: ['#f59e0b', '#d97706', '#fbbf24', '#ffffff', '#78350f'],
         phrases: []
       },
       chain: {
@@ -118,7 +98,24 @@ class WhipEngine {
     this.particles = [];
     this.shockwaves = [];
     this.slashMarks = [];
-    this.callouts = []; // Comic speech bubbles ("FOCUS NOW!")
+    this.callouts = []; // Indonesian satire comic meme popouts
+    this.memesEnabled = true;
+    this.memePhrases = [
+      'BURUAN ACC!',
+      'LEMBUR GA DIBAYAR!',
+      'ASAP YA KAK!',
+      'BUKAN JOBDESK SAYA!',
+      'SENIN LAGI SENIN LAGI?!',
+      'FOLLOW UP DULU GA SIH?!',
+      'KERJA KERJA KERJA TIPES!',
+      'GA SESUAI KPI!',
+      'SCALLING UP KELAS PEKERJA!',
+      'TANGGAL TUA MENGGILA!',
+      'OTW MEETING ZOOM DULU!',
+      'REVISI SAMPE SUBUH!',
+      'GAUSAH BANYAK ALASAN!',
+      'SIAP BAPAK/IBU!'
+    ];
     this.lightningArcs = [];
     this.screenShake = 0;
 
@@ -617,10 +614,6 @@ class WhipEngine {
     const pitchRate = Math.min(1.55, 0.95 + (this.frenzy - 1.0) * 0.16);
 
     switch (this.currentWeapon) {
-      case 'pentung':
-      case 'baton':
-        this.playBatonSound(pitchRate);
-        break;
       case 'chain':
         this.playChainSound(pitchRate);
         break;
@@ -650,7 +643,6 @@ class WhipEngine {
 
   // ── Weapon Switching ──────────────────────────────────────────────────────
   setWeapon(weaponId) {
-    if (weaponId === 'baton') weaponId = 'pentung';
     if (!this.weaponConfigs[weaponId]) return;
     this.currentWeapon = weaponId;
     this.playWeaponSwitchSound();
@@ -660,6 +652,9 @@ class WhipEngine {
       this.taserLatch.active = false;
     }
     this.initWhipPoints();
+    if (this.onWeaponChange) {
+      this.onWeaponChange(weaponId);
+    }
   }
 
   // ── 3D Scene Initialization ───────────────────────────────────────────────
@@ -772,19 +767,20 @@ class WhipEngine {
 
   update3DWeaponVisibility() {
     if (!this.weaponMeshes) return;
-    const meshKey = (this.currentWeapon === 'pentung') ? 'baton' : this.currentWeapon;
-    for (const key of ['whip', 'baton', 'chain', 'taser']) {
+    for (const key of ['whip', 'chain', 'taser']) {
       if (this.weaponMeshes[key]) {
-        this.weaponMeshes[key].visible = (meshKey === key);
+        this.weaponMeshes[key].visible = (this.currentWeapon === key);
       }
+    }
+    if (this.weaponMeshes['baton']) {
+      this.weaponMeshes['baton'].visible = false;
     }
 
     if (this.whipEmitter) {
       const h = 2.85;
       const w = h / (1376 / 768);
       let u = 0.336, v = 0.249;
-      if (this.currentWeapon === 'pentung' || this.currentWeapon === 'baton') { u = 0.330; v = 0.160; }
-      else if (this.currentWeapon === 'chain') { u = 0.440; v = 0.120; }
+      if (this.currentWeapon === 'chain') { u = 0.440; v = 0.120; }
       else if (this.currentWeapon === 'taser') { u = 0.340; v = 0.220; }
       this.whipEmitter.position.set((u - 0.5) * w, (0.5 - v) * h, 0.02);
     }
@@ -834,15 +830,14 @@ class WhipEngine {
 
     const now = performance.now();
     const timeSinceLastTap = now - this.lastTapTime;
-    this.lastTapTime = now;
-
-    // Frenzy Speed Escalation (Work Productivity Maxx)
-    if (timeSinceLastTap < 650) {
+    // Frenzy Speed Escalation & Combo Building (1400ms combo window)
+    if (timeSinceLastTap < 1400) {
       this.combo++;
-      this.frenzy = Math.min(4.0, this.frenzy + 0.36);
+      this.frenzy = Math.min(4.0, this.frenzy + 0.25);
     } else {
       this.combo = 1;
     }
+    this.lastTapTime = now;
 
     // Check for level up chime crossing tiers
     const currentTier = this.frenzy >= 3.8 ? 4 : (this.frenzy >= 2.8 ? 3 : (this.frenzy >= 1.8 ? 2 : 1));
@@ -878,8 +873,9 @@ class WhipEngine {
       return;
     }
 
-    const baseDuration = (this.currentWeapon === 'chain') ? 240 : ((this.currentWeapon === 'pentung' || this.currentWeapon === 'baton') ? 180 : 200);
-    const strikeDuration = Math.max(65, baseDuration / this.frenzy);
+    // Chain Flail has 380ms duration for dramatic impact freeze frame
+    const baseDuration = (this.currentWeapon === 'chain') ? 380 : 200;
+    const strikeDuration = Math.max(90, baseDuration / this.frenzy);
 
     this.strike = {
       startTime: now,
@@ -935,9 +931,9 @@ class WhipEngine {
   update(dt) {
     this.time += dt;
 
-    // Combo decays after idle, but Productivity Multiplier does NOT reset/decay to 1.0x when idle
+    // Combo decays after idle (1400ms combo window), Multiplier stays at peak
     const timeSinceLastTap = performance.now() - this.lastTapTime;
-    if (timeSinceLastTap > 3200 && this.combo > 1) {
+    if (timeSinceLastTap > 1400 && this.combo > 1) {
       this.combo = 1;
       if (this.onFrenzyChange) {
         this.onFrenzyChange(this.frenzy, this.combo);
@@ -961,7 +957,7 @@ class WhipEngine {
     let strikeAimAngle = 0;
 
     if (this.strike) {
-      const elapsed = performance.now() - this.strike.startTime;
+      const elapsed = (this.strike.elapsed !== undefined) ? this.strike.elapsed : (performance.now() - this.strike.startTime);
       const progress = Math.min(1, Math.max(0, elapsed / this.strike.duration));
 
       const emitterScreen = this.getEmitterScreenPos();
@@ -969,74 +965,40 @@ class WhipEngine {
       const dy = this.strike.targetY - emitterScreen.y;
       strikeAimAngle = Math.atan2(dy, dx);
 
-      const isPentung = (this.currentWeapon === 'pentung' || this.currentWeapon === 'baton');
+      // Standard whip & flail arm kinematics
+      if (progress < 0.22) {
+        const p = progress / 0.22;
+        armTargetX += 0.12 * Math.sin(p * Math.PI * 0.5);
+        armTargetY -= 0.10 * Math.sin(p * Math.PI * 0.5);
+        armTargetZ += 0.28 * Math.sin(p * Math.PI * 0.5);
+        armRotX -= 0.22 * Math.sin(p * Math.PI * 0.5);
+        armRotZ += 0.16 * Math.sin(p * Math.PI * 0.5);
+      } else if (progress < 0.65) {
+        const p = (progress - 0.22) / 0.43;
+        const ease = p * p * (3 - 2 * p);
+        armTargetX -= 0.26 * ease;
+        armTargetY += 0.22 * ease;
+        armTargetZ -= 0.52 * ease;
+        armRotX += 0.44 * ease;
+        armRotZ = -Math.sin(strikeAimAngle) * 0.38;
 
-      if (isPentung) {
-        // Pentung: Overhead downward bash diagonally across screen
-        if (progress < 0.28) {
-          // Cock high overhead
-          const p = progress / 0.28;
-          armTargetX += 0.22 * Math.sin(p * Math.PI * 0.5);
-          armTargetY += 0.42 * Math.sin(p * Math.PI * 0.5);
-          armTargetZ += 0.22 * Math.sin(p * Math.PI * 0.5);
-          armRotX -= 0.65 * Math.sin(p * Math.PI * 0.5);
-          armRotZ += 0.42 * Math.sin(p * Math.PI * 0.5);
-        } else if (progress < 0.65) {
-          // Smash down diagonally across the whole screen
-          const p = (progress - 0.28) / 0.37;
-          const ease = p * p * (3 - 2 * p);
-          armTargetX -= 0.55 * ease;
-          armTargetY -= 0.65 * ease;
-          armTargetZ -= 0.35 * ease;
-          armRotX += 1.05 * ease;
-          armRotZ -= 0.75 * ease;
-        } else if (!this.strike.impactFired) {
-          this.strike.impactFired = true;
-          this.triggerImpact(this.strike.targetX, this.strike.targetY);
-        } else {
-          // Stiff blunt rebound
-          const p = (progress - 0.65) / 0.35;
-          const recoilOsc = Math.sin(p * Math.PI * 4) * Math.exp(-p * 5.5) * 0.16;
-          armTargetX += recoilOsc;
-          armTargetY += recoilOsc * 0.6;
-          armRotZ += recoilOsc * 0.5;
-        }
+        strikeWavePhase = p;
+
+        tipTarget = {
+          x: this.pts[this.pts.length - 1].x + (this.strike.targetX - this.pts[this.pts.length - 1].x) * ease,
+          y: this.pts[this.pts.length - 1].y + (this.strike.targetY - this.pts[this.pts.length - 1].y) * ease,
+        };
+      } else if (!this.strike.impactFired) {
+        this.strike.impactFired = true;
+        tipTarget = { x: this.strike.targetX, y: this.strike.targetY };
+        this.triggerImpact(this.strike.targetX, this.strike.targetY);
       } else {
-        // Standard whip & flail arm kinematics
-        if (progress < 0.22) {
-          const p = progress / 0.22;
-          armTargetX += 0.12 * Math.sin(p * Math.PI * 0.5);
-          armTargetY -= 0.10 * Math.sin(p * Math.PI * 0.5);
-          armTargetZ += 0.28 * Math.sin(p * Math.PI * 0.5);
-          armRotX -= 0.22 * Math.sin(p * Math.PI * 0.5);
-          armRotZ += 0.16 * Math.sin(p * Math.PI * 0.5);
-        } else if (progress < 0.65) {
-          const p = (progress - 0.22) / 0.43;
-          const ease = p * p * (3 - 2 * p);
-          armTargetX -= 0.26 * ease;
-          armTargetY += 0.22 * ease;
-          armTargetZ -= 0.52 * ease;
-          armRotX += 0.44 * ease;
-          armRotZ = -Math.sin(strikeAimAngle) * 0.38;
-
-          strikeWavePhase = p;
-
-          tipTarget = {
-            x: this.pts[this.pts.length - 1].x + (this.strike.targetX - this.pts[this.pts.length - 1].x) * ease,
-            y: this.pts[this.pts.length - 1].y + (this.strike.targetY - this.pts[this.pts.length - 1].y) * ease,
-          };
-        } else if (!this.strike.impactFired) {
-          this.strike.impactFired = true;
-          tipTarget = { x: this.strike.targetX, y: this.strike.targetY };
-          this.triggerImpact(this.strike.targetX, this.strike.targetY);
-        } else {
-          const p = (progress - 0.65) / 0.35;
-          const recoilOsc = Math.sin(p * Math.PI * 3.5) * Math.exp(-p * 4.5) * 0.12;
-          armTargetX += 0.08 * (1 - p) + recoilOsc;
-          armTargetY -= 0.06 * (1 - p) - recoilOsc * 0.5;
-          armTargetZ += recoilOsc * 0.8;
-          armRotZ += recoilOsc * 0.4;
-        }
+        const p = (progress - 0.65) / 0.35;
+        const recoilOsc = Math.sin(p * Math.PI * 3.5) * Math.exp(-p * 4.5) * 0.12;
+        armTargetX += 0.08 * (1 - p) + recoilOsc;
+        armTargetY -= 0.06 * (1 - p) - recoilOsc * 0.5;
+        armTargetZ += recoilOsc * 0.8;
+        armRotZ += recoilOsc * 0.4;
       }
 
       if (progress >= 1.0) {
@@ -1131,6 +1093,17 @@ class WhipEngine {
           }
         }
       }
+
+      // Angular bending stiffness to prevent rope kinking or sharp zigzags
+      for (let i = 1; i < this.pts.length - 1; i++) {
+        const pPrev = this.pts[i - 1];
+        const pCurr = this.pts[i];
+        const pNext = this.pts[i + 1];
+        const midX = (pPrev.x + pNext.x) * 0.5;
+        const midY = (pPrev.y + pNext.y) * 0.5;
+        pCurr.x += (midX - pCurr.x) * 0.25;
+        pCurr.y += (midY - pCurr.y) * 0.25;
+      }
     }
 
     this.updateFX(dt);
@@ -1208,6 +1181,23 @@ class WhipEngine {
       }
     }
 
+    // 6. Indonesian Satire Workplace Meme Popout
+    if (this.memesEnabled && this.memePhrases && this.memePhrases.length > 0) {
+      const phrase = this.memePhrases[Math.floor(Math.random() * this.memePhrases.length)];
+      const calloutY = Math.max(70, y - 55);
+      this.callouts.push({
+        text: phrase,
+        x,
+        y: calloutY,
+        rotation: (Math.random() - 0.5) * 0.16,
+        scale: 0.15,
+        targetScale: 1.0,
+        alpha: 1.0,
+        age: 0,
+        life: 1.45,
+      });
+    }
+
     if (this.onWhipHit) {
       this.onWhipHit(this.whipCount, this.combo);
     }
@@ -1275,7 +1265,7 @@ class WhipEngine {
       this.ctx.translate(sx, sy);
     }
 
-    // 1. Draw Active 2D Weapon Physics (Cyber-Spine Whip / Baton / Chain / Taser)
+    // 1. Draw Active 2D Weapon Physics (Cyber-Spine Whip / Chain / Taser)
     this.drawCurrentWeapon();
 
     // 2. Render Three.js 3D Tactical Arm onto Canvas
@@ -1283,7 +1273,7 @@ class WhipEngine {
       this.renderer.render(this.scene, this.camera);
     }
 
-    // 3. Draw Lightning Arcs (for Taser & Baton)
+    // 3. Draw Lightning Arcs (for Taser)
     this.drawLightningArcs();
 
     // 4. Draw Slash Marks
@@ -1316,16 +1306,21 @@ class WhipEngine {
       this.ctx.restore();
     }
 
+    // 7. Draw Indonesian Satire Comic Callouts
+    this.drawCallouts();
+
     this.ctx.restore();
+  }
+
+  drawCallouts() {
+    for (const c of this.callouts) {
+      this.drawComicCallout(c);
+    }
   }
 
   // ── Draw Specific Weapon Visuals ──────────────────────────────────────────
   drawCurrentWeapon() {
     switch (this.currentWeapon) {
-      case 'pentung':
-      case 'baton':
-        this.drawPentungVisual();
-        break;
       case 'chain':
         this.drawChainVisual();
         break;
@@ -1339,7 +1334,7 @@ class WhipEngine {
     }
   }
 
-  // ── Classic Braided Brown Leather Whip ────────────────────────────────────
+  // ── Classic Braided Brown Leather Whip (Continuous Tapered Quad Strip) ─────
   drawClassicBrownWhip() {
     if (this.pts.length < 2) return;
     const ctx = this.ctx;
@@ -1347,137 +1342,180 @@ class WhipEngine {
 
     const n = this.pts.length;
 
-    // 1. Draw tapered braided leather body
-    // Outer leather shadow & depth
+    // 1. Calculate tangent and normal vectors + local taper width at each spline node
+    const normals = [];
+    const tangents = [];
+    const widths = [];
+
+    for (let i = 0; i < n; i++) {
+      const prev = this.pts[Math.max(0, i - 1)];
+      const next = this.pts[Math.min(n - 1, i + 1)];
+      let tx = next.x - prev.x;
+      let ty = next.y - prev.y;
+      const len = Math.hypot(tx, ty) || 0.001;
+      tx /= len;
+      ty /= len;
+      tangents.push({ x: tx, y: ty, angle: Math.atan2(ty, tx) });
+      normals.push({ x: -ty, y: tx });
+
+      // Organic taper: ~15px at handle base down to ~2.8px at cracker tip
+      const t = i / (n - 1);
+      const w = (15.0 * Math.pow(1 - t, 0.72) + 2.8) * (1 + (this.frenzy - 1.0) * 0.08);
+      widths.push(w);
+    }
+
+    // 2. Draw Deep Leather Shadow & Outer Crease
     ctx.beginPath();
     ctx.moveTo(this.pts[0].x, this.pts[0].y);
     for (let i = 0; i < n - 1; i++) {
       const b = this.getBezier(i);
       ctx.bezierCurveTo(b.cp1x, b.cp1y, b.cp2x, b.cp2y, b.x2, b.y2);
     }
-    ctx.strokeStyle = '#271105'; // dark leather crease
-    ctx.lineWidth = 10.0 + this.frenzy * 0.5;
+    ctx.strokeStyle = '#1a0a03';
+    ctx.lineWidth = widths[0] + 3.0;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.stroke();
 
-    // Main rich saddle-brown braided core
-    ctx.beginPath();
-    ctx.moveTo(this.pts[0].x, this.pts[0].y);
+    // 3. Draw Continuous Tapered Quad Strip for Leather Body
     for (let i = 0; i < n - 1; i++) {
-      const b = this.getBezier(i);
-      ctx.bezierCurveTo(b.cp1x, b.cp1y, b.cp2x, b.cp2y, b.x2, b.y2);
-    }
-    ctx.strokeStyle = '#78350f'; // rich warm brown
-    ctx.lineWidth = 7.0 + this.frenzy * 0.4;
-    ctx.stroke();
+      const p1 = this.pts[i];
+      const p2 = this.pts[i + 1];
+      const n1 = normals[i];
+      const n2 = normals[i + 1];
+      const hw1 = widths[i] * 0.5;
+      const hw2 = widths[i + 1] * 0.5;
 
-    // Inner tan highlight ridge
-    ctx.beginPath();
-    ctx.moveTo(this.pts[0].x, this.pts[0].y);
+      const p1_top = { x: p1.x + n1.x * hw1, y: p1.y + n1.y * hw1 };
+      const p1_bot = { x: p1.x - n1.x * hw1, y: p1.y - n1.y * hw1 };
+      const p2_top = { x: p2.x + n2.x * hw2, y: p2.y + n2.y * hw2 };
+      const p2_bot = { x: p2.x - n2.x * hw2, y: p2.y - n2.y * hw2 };
+
+      // Rich gradient across the leather quad: dark bevel -> warm saddle brown -> dark underside
+      const quadGrad = ctx.createLinearGradient(p1_top.x, p1_top.y, p1_bot.x, p1_bot.y);
+      quadGrad.addColorStop(0, '#3b1a07');
+      quadGrad.addColorStop(0.25, '#92400e');
+      quadGrad.addColorStop(0.55, '#78350f');
+      quadGrad.addColorStop(0.85, '#451a03');
+      quadGrad.addColorStop(1, '#240c02');
+
+      ctx.fillStyle = quadGrad;
+      ctx.beginPath();
+      ctx.moveTo(p1_top.x, p1_top.y);
+      ctx.lineTo(p2_top.x, p2_top.y);
+      ctx.lineTo(p2_bot.x, p2_bot.y);
+      ctx.lineTo(p1_bot.x, p1_bot.y);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 4. Draw Braided Leather Herringbone Chevron Plaits along the length
+    // Forward-angled chevrons that flow ALONG the spline instead of 90-degree blocks
     for (let i = 0; i < n - 1; i++) {
-      const b = this.getBezier(i);
-      ctx.bezierCurveTo(b.cp1x, b.cp1y, b.cp2x, b.cp2y, b.x2, b.y2);
-    }
-    ctx.strokeStyle = '#d97706'; // tan leather sheen
-    ctx.lineWidth = 3.0;
-    ctx.stroke();
-
-    // 2. Leather Braiding Segments along the lash
-    for (let i = 0; i < n; i++) {
       const t = i / (n - 1);
-      const p = this.pts[i];
-      const prev = this.pts[Math.max(0, i - 1)];
-      const next = this.pts[Math.min(n - 1, i + 1)];
-      const angle = Math.atan2(next.y - prev.y, next.x - prev.x);
-
-      const w = 18 * (1 - t * 0.65) + 3; // Tapers from base to tip
-      const h = 8 * (1 - t * 0.35) + 2;
+      const p1 = this.pts[i];
+      const p2 = this.pts[i + 1];
+      const mx = (p1.x + p2.x) * 0.5;
+      const my = (p1.y + p2.y) * 0.5;
+      const tan = tangents[i];
+      const w = widths[i];
+      const hw = w * 0.44;
 
       ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(angle);
+      ctx.translate(mx, my);
+      ctx.rotate(tan.angle);
 
-      // Braided leather weave segment
-      const grad = ctx.createLinearGradient(-h * 0.5, 0, h * 0.5, 0);
-      grad.addColorStop(0, '#451a03');
-      grad.addColorStop(0.35, '#b45309');
-      grad.addColorStop(0.7, '#78350f');
-      grad.addColorStop(1, '#290f02');
+      // Forward-angled herringbone V-braid chevron (angle ~35deg forward)
+      ctx.lineWidth = Math.max(0.9, 1.6 * (1 - t * 0.5));
+      ctx.lineCap = 'round';
 
-      ctx.fillStyle = grad;
+      // Shadow deboss
+      ctx.strokeStyle = '#1f0a02';
       ctx.beginPath();
-      ctx.roundRect(-h * 0.5, -w * 0.5, h, w, 2);
-      ctx.fill();
+      ctx.moveTo(-hw, -hw * 0.7);
+      ctx.lineTo(hw * 0.35, 0);
+      ctx.lineTo(-hw, hw * 0.7);
+      ctx.stroke();
 
-      // Alternating diagonal chevron braid seam
-      ctx.strokeStyle = (i % 2 === 0) ? '#d97706' : '#290f02';
-      ctx.lineWidth = 1.0;
+      // Tan specular highlight stitch
+      ctx.strokeStyle = (i % 2 === 0) ? '#d97706' : '#b45309';
       ctx.beginPath();
-      ctx.moveTo(-h * 0.4, -w * 0.45);
-      ctx.lineTo(h * 0.4, w * 0.45);
+      ctx.moveTo(-hw + 0.8, -hw * 0.7);
+      ctx.lineTo(hw * 0.35 + 0.8, 0);
+      ctx.lineTo(-hw + 0.8, hw * 0.7);
       ctx.stroke();
 
       ctx.restore();
     }
 
-    // 3. Brass Ferrule at whip root
+    // 5. Sleek Continuous Tan Specular Ridge along upper spine
+    ctx.beginPath();
+    ctx.moveTo(this.pts[0].x, this.pts[0].y);
+    for (let i = 0; i < n - 1; i++) {
+      const b = this.getBezier(i);
+      ctx.bezierCurveTo(b.cp1x, b.cp1y, b.cp2x, b.cp2y, b.x2, b.y2);
+    }
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.6;
+    ctx.stroke();
+
+    // 6. Solid Polished Brass Ferrule at whip root
     const root = this.pts[0];
-    const rootNext = this.pts[1];
-    const rootAngle = Math.atan2(rootNext.y - root.y, rootNext.x - root.x);
+    const rootAngle = tangents[0].angle;
     ctx.save();
     ctx.translate(root.x, root.y);
     ctx.rotate(rootAngle);
-    const brassGrad = ctx.createLinearGradient(-8, 0, 8, 0);
+    const brassGrad = ctx.createLinearGradient(-10, 0, 10, 0);
     brassGrad.addColorStop(0, '#78350f');
-    brassGrad.addColorStop(0.4, '#fde047');
-    brassGrad.addColorStop(0.8, '#d4af37');
+    brassGrad.addColorStop(0.35, '#fde047');
+    brassGrad.addColorStop(0.75, '#d4af37');
     brassGrad.addColorStop(1, '#78350f');
     ctx.fillStyle = brassGrad;
     ctx.beginPath();
-    ctx.roundRect(-8, -12, 16, 24, 3);
+    ctx.roundRect(-8, -widths[0] * 0.75, 16, widths[0] * 1.5, 3);
     ctx.fill();
     ctx.strokeStyle = '#fef08a';
     ctx.lineWidth = 1.2;
     ctx.stroke();
     ctx.restore();
 
-    // 4. Genuine Leather Fall & Red/White Cracker Knot at Tip
+    // 7. Kangaroo Leather Fall & Vibrant Red Cracker Knot at Tip
     const tip = this.pts[n - 1];
-    const tipPrev = this.pts[n - 2];
-    const tipAngle = Math.atan2(tip.y - tipPrev.y, tip.x - tipPrev.x);
+    const tipAngle = tangents[n - 1].angle;
     ctx.save();
     ctx.translate(tip.x, tip.y);
     ctx.rotate(tipAngle);
 
-    // Leather Fall thong (narrow strip extending beyond last point)
+    // Leather Fall (kangaroo lace strip extending 24px)
     ctx.strokeStyle = '#78350f';
-    ctx.lineWidth = 2.5;
+    ctx.lineWidth = 2.2;
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.quadraticCurveTo(15, Math.sin(this.time * 5) * 6, 28, 0);
+    ctx.quadraticCurveTo(14, Math.sin(this.time * 6) * 5, 26, 0);
     ctx.stroke();
 
-    // Red yarn cracker/popper at the extreme end
-    ctx.strokeStyle = '#dc2626';
+    // Vivid red yarn popper/cracker
+    ctx.strokeStyle = '#ef4444';
     ctx.lineWidth = 1.8;
     ctx.beginPath();
-    ctx.moveTo(28, 0);
-    ctx.lineTo(38, Math.sin(this.time * 8) * 8);
+    ctx.moveTo(26, 0);
+    ctx.lineTo(36, Math.sin(this.time * 10) * 7);
     ctx.stroke();
 
-    // Knot bead
-    ctx.fillStyle = '#fef2f2';
+    // White knot bead
+    ctx.fillStyle = '#ffffff';
     ctx.beginPath();
-    ctx.arc(28, 0, 3, 0, Math.PI * 2);
+    ctx.arc(26, 0, 2.5, 0, Math.PI * 2);
     ctx.fill();
 
     // Supersonic crack shockwave if striking
     if (this.strike && this.strike.impactFired) {
-      ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.9)';
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 10;
       ctx.beginPath();
-      ctx.arc(32, 0, 16, 0, Math.PI * 2);
+      ctx.arc(30, 0, 18, 0, Math.PI * 2);
       ctx.stroke();
     }
 
@@ -1485,184 +1523,84 @@ class WhipEngine {
     ctx.restore();
   }
 
-  // ── Traditional Indonesian Satpam Pentung (Tongkat Satpam Nightstick) ─────
-  drawPentungVisual() {
-    const ctx = this.ctx;
-    const origin = this.getEmitterScreenPos();
-    ctx.save();
-
-    const batonLen = Math.max(150, Math.min(240, this.H * 0.25));
-    const batonW = 16;
-    let swingAngle = -Math.PI * 0.58; // Idle guard angle pointing up-left
-
-    if (this.strike) {
-      const elapsed = performance.now() - this.strike.startTime;
-      const progress = Math.min(1, Math.max(0, elapsed / this.strike.duration));
-
-      const dx = this.strike.targetX - origin.x;
-      const dy = this.strike.targetY - origin.y;
-      const targetAngle = Math.atan2(dy, dx);
-
-      const startAng = -Math.PI * 0.58 - 0.55;
-      const endAng = targetAngle + 0.45;
-
-      if (progress < 0.28) {
-        // Cock back overhead
-        const p = progress / 0.28;
-        swingAngle = -Math.PI * 0.58 - p * 0.55;
-      } else if (progress < 0.65) {
-        // Forward high-speed downward slash diagonally across the entire screen
-        const p = (progress - 0.28) / 0.37;
-        const ease = p * p * (3 - 2 * p);
-        swingAngle = startAng + (endAng - startAng) * ease;
-
-        // Draw Motion Blur Sweep Arc across screen
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(origin.x, origin.y, batonLen * 0.95, startAng, swingAngle, false);
-        ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
-        ctx.lineWidth = batonLen * 0.48;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(origin.x, origin.y, batonLen, startAng, swingAngle, false);
-        ctx.strokeStyle = 'rgba(254, 240, 138, 0.85)';
-        ctx.lineWidth = 6.5;
-        ctx.stroke();
-        ctx.restore();
-      } else {
-        // Stiff blunt rebound back to guard
-        const p = (progress - 0.65) / 0.35;
-        const recoilOsc = Math.sin(p * Math.PI * 3.5) * Math.exp(-p * 5.2) * 0.22;
-        swingAngle = -Math.PI * 0.58 + recoilOsc;
-      }
-    } else {
-      // Idle natural breathing sway
-      const sway = Math.sin(this.time * 2.2) * 0.04;
-      swingAngle += sway;
-    }
-
-    // Draw the Stiff Satpam Pentung Body
-    ctx.save();
-    ctx.translate(origin.x, origin.y);
-    ctx.rotate(swingAngle);
-
-    // 1. Heavy Ribbed Hardwood / Black Rubber Cylinder
-    const batonGrad = ctx.createLinearGradient(0, -batonW * 0.5, 0, batonW * 0.5);
-    batonGrad.addColorStop(0, '#1c1917');
-    batonGrad.addColorStop(0.22, '#451a03');
-    batonGrad.addColorStop(0.5, '#78350f');
-    batonGrad.addColorStop(0.78, '#29180d');
-    batonGrad.addColorStop(1, '#0c0a09');
-
-    // Main shaft
-    ctx.fillStyle = batonGrad;
-    ctx.beginPath();
-    ctx.roundRect(-batonLen * 0.15, -batonW * 0.5, batonLen, batonW, 4);
-    ctx.fill();
-
-    // 2. Ribbed Non-Slip Grip Handle
-    const gripStart = -batonLen * 0.12;
-    const gripEnd = batonLen * 0.25;
-    const gripSteps = 8;
-    ctx.strokeStyle = '#0a0a0a';
-    ctx.lineWidth = 2.4;
-    for (let g = 0; g < gripSteps; g++) {
-      const gx = gripStart + (gripEnd - gripStart) * (g / (gripSteps - 1));
-      ctx.beginPath();
-      ctx.moveTo(gx, -batonW * 0.55);
-      ctx.lineTo(gx, batonW * 0.55);
-      ctx.stroke();
-    }
-
-    // 3. Satpam Indonesian Gold Accent Rings
-    ctx.strokeStyle = '#f59e0b';
-    ctx.lineWidth = 2.0;
-    ctx.beginPath();
-    ctx.moveTo(gripEnd + 4, -batonW * 0.55);
-    ctx.lineTo(gripEnd + 4, batonW * 0.55);
-    ctx.moveTo(gripEnd + 8, -batonW * 0.55);
-    ctx.lineTo(gripEnd + 8, batonW * 0.55);
-    ctx.moveTo(batonLen * 0.75, -batonW * 0.52);
-    ctx.lineTo(batonLen * 0.75, batonW * 0.52);
-    ctx.stroke();
-
-    // 4. Solid Rounded Tip Cap
-    ctx.fillStyle = '#292524';
-    ctx.beginPath();
-    ctx.arc(batonLen * 0.85, 0, batonW * 0.52, -Math.PI * 0.5, Math.PI * 0.5);
-    ctx.fill();
-    ctx.strokeStyle = '#78716c';
-    ctx.lineWidth = 1.2;
-    ctx.stroke();
-
-    // 5. Pommel & Lanyard Wrist Loop at base
-    ctx.fillStyle = '#1c1917';
-    ctx.beginPath();
-    ctx.arc(-batonLen * 0.14, 0, batonW * 0.65, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#d97706';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Lanyard cord hanging from pommel with natural physics sway
-    ctx.strokeStyle = '#78350f';
-    ctx.lineWidth = 2.4;
-    ctx.beginPath();
-    ctx.moveTo(-batonLen * 0.14, 0);
-    const cordSway = Math.sin(this.time * 3.5) * 8;
-    ctx.quadraticCurveTo(-batonLen * 0.22, 18 + cordSway, -batonLen * 0.12, 34);
-    ctx.stroke();
-
-    ctx.restore();
-    ctx.restore();
-  }
-
-  // ── Heavy Iron Spiked Flail Chain Visual (Dynamic Multi-Link Whip-Lash) ─────
+  // ── Heavy Spiked Morningstar Flail with Impact Freeze Frame ────────────────
   drawChainVisual() {
     if (this.currentWeapon !== 'chain') return;
-    if (!this.strike) return; // HIDDEN in idle! Spiked ball never hovers on screen!
+    if (!this.strike) return; // Completely hidden when idle!
 
     const ctx = this.ctx;
     const origin = this.getEmitterScreenPos();
-    const elapsed = performance.now() - this.strike.startTime;
+    const elapsed = (this.strike && this.strike.elapsed !== undefined) ? this.strike.elapsed : (performance.now() - this.strike.startTime);
     const progress = Math.min(1, Math.max(0, elapsed / this.strike.duration));
 
     const targetX = this.strike.targetX;
     const targetY = this.strike.targetY;
     const bottomStartX = this.W * 0.62;
-    const bottomStartY = this.H + 190;
+    const bottomStartY = this.H + 200;
 
     let ballX, ballY;
+    let isFreezeFrame = false;
 
-    if (progress < 0.58) {
-      // Phase 1: Hurling UP from bottom to target with whip-lash acceleration
-      const p = progress / 0.58;
+    if (progress < 0.40) {
+      // Phase 1 (0.00 - 0.40): Hurling UP from bottom to target with whip-lash acceleration
+      const p = progress / 0.40;
       const ease = p * p * (3 - 2 * p);
       ballX = bottomStartX + (targetX - bottomStartX) * ease;
       ballY = bottomStartY + (targetY - bottomStartY) * ease;
+    } else if (progress < 0.72) {
+      // Phase 2 (0.40 - 0.72): HIT FREEZE FRAME! Spiked ball locks on target with micro-tremor
+      isFreezeFrame = true;
+      const p = (progress - 0.40) / 0.32; // 0 to 1 during freeze
+      const tremorAmp = (1 - p) * 4.2;
+      ballX = targetX + Math.sin(this.time * 85) * tremorAmp;
+      ballY = targetY + Math.cos(this.time * 95) * tremorAmp;
     } else {
-      // Phase 2: Post-impact recoil - heavy morningstar drops back down off screen
-      const p = (progress - 0.58) / 0.42;
-      ballX = targetX + Math.sin(p * Math.PI) * 28;
-      ballY = targetY + p * p * (this.H * 1.05); // Plunges down
+      // Phase 3 (0.72 - 1.00): Heavy Recoil Plunge - massive morningstar plunges down off-screen
+      const p = (progress - 0.72) / 0.28;
+      ballX = targetX + Math.sin(p * Math.PI) * 32;
+      ballY = targetY + p * p * (this.H * 1.25);
     }
 
     ctx.save();
 
-    // Dynamic Multi-Link Catenary Curve with Wave Sag & Inertia
+    // 1. Kinetic Freeze Frame Shockwave Ring & Impact Starburst
+    if (isFreezeFrame) {
+      ctx.save();
+      const ringR = 38 + (progress - 0.40) * 120;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.lineWidth = 3.0;
+      ctx.shadowColor = '#94a3b8';
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(targetX, targetY, ringR, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // High-contrast starburst spikes on impact
+      ctx.strokeStyle = 'rgba(254, 240, 138, 0.85)';
+      ctx.lineWidth = 2.0;
+      for (let k = 0; k < 6; k++) {
+        const kAng = (k / 6) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.moveTo(targetX + Math.cos(kAng) * (ringR * 0.4), targetY + Math.sin(kAng) * (ringR * 0.4));
+        ctx.lineTo(targetX + Math.cos(kAng) * (ringR * 1.15), targetY + Math.sin(kAng) * (ringR * 1.15));
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    // 2. Interlocking Heavy Steel Chain Links
     const chainLinksCount = 18;
     const chainPoints = [];
     for (let c = 0; c <= chainLinksCount; c++) {
       const t = c / chainLinksCount;
-      const sag = Math.sin(t * Math.PI) * (70 * (1 - progress * 0.45));
-      const wave = Math.sin(t * Math.PI * 2 - progress * 8) * (14 * (1 - progress));
+      const sagAmp = isFreezeFrame ? 18 : 65 * (1 - progress * 0.45);
+      const sag = Math.sin(t * Math.PI) * sagAmp;
+      const wave = Math.sin(t * Math.PI * 2 - progress * 9) * (12 * (1 - progress));
       const cx = origin.x + (ballX - origin.x) * t + wave;
       const cy = origin.y + (ballY - origin.y) * t + sag;
       chainPoints.push({ x: cx, y: cy });
     }
 
-    // 1. Draw Interlocking Heavy Dark Iron Chain Links
     for (let i = 0; i < chainPoints.length - 1; i++) {
       const p1 = chainPoints[i];
       const p2 = chainPoints[i + 1];
@@ -1677,62 +1615,80 @@ class WhipEngine {
 
       if (i % 2 === 0) {
         // Flat oval chain link
-        ctx.strokeStyle = '#475569';
-        ctx.lineWidth = 5.2;
+        ctx.strokeStyle = '#334155';
+        ctx.lineWidth = 5.5;
         ctx.beginPath();
-        ctx.ellipse(0, 0, Math.max(8, dist * 0.48), 7.5, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, Math.max(9, dist * 0.48), 8.0, 0, 0, Math.PI * 2);
         ctx.stroke();
 
-        ctx.strokeStyle = '#cbd5e1'; // Specular sheen
-        ctx.lineWidth = 1.6;
+        ctx.strokeStyle = '#e2e8f0'; // Specular steel highlight
+        ctx.lineWidth = 1.8;
         ctx.stroke();
       } else {
         // Edge-profile link
-        ctx.fillStyle = '#334155';
+        ctx.fillStyle = '#1e293b';
         ctx.beginPath();
-        ctx.roundRect(-dist * 0.35, -4, dist * 0.7, 8, 3);
+        ctx.roundRect(-dist * 0.35, -4.5, dist * 0.7, 9, 3);
         ctx.fill();
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 1.0;
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = 1.2;
         ctx.stroke();
       }
 
       ctx.restore();
     }
 
-    // 2. Heavy Spiked Morningstar Iron Ball
+    // 3. Huge Reinforced Morningstar Spiked Ball (Distinctly visible during Freeze Frame!)
     ctx.save();
     ctx.translate(ballX, ballY);
 
-    const ballRadius = 26 + this.frenzy * 2.2;
-    const spikeCount = 10;
+    const ballRadius = 30 + this.frenzy * 2.5;
+    const spikeCount = 12;
 
-    // Conical spikes radiating from morningstar with high-velocity rotation
-    ctx.fillStyle = '#1e293b';
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.lineWidth = 1.5;
-
+    // Draw 12 Sharp Steel Conical Spikes
     for (let s = 0; s < spikeCount; s++) {
-      const ang = (s / spikeCount) * Math.PI * 2 + progress * 16.0; // Fast spin in flight
-      const spikeLen = 15 + (s % 2 === 0 ? 7 : 0);
+      // Rotation: frozen during freeze frame, spinning during travel
+      const ang = (s / spikeCount) * Math.PI * 2 + (isFreezeFrame ? 0.35 : progress * 16.0);
+      const spikeLen = 18 + (s % 2 === 0 ? 8 : 0);
 
       ctx.save();
       ctx.rotate(ang);
+
+      // Shadow facet of spike
+      ctx.fillStyle = '#0f172a';
       ctx.beginPath();
-      ctx.moveTo(-5.5, ballRadius * 0.82);
+      ctx.moveTo(-6, ballRadius * 0.85);
       ctx.lineTo(0, ballRadius + spikeLen);
-      ctx.lineTo(5.5, ballRadius * 0.82);
+      ctx.lineTo(0, ballRadius * 0.85);
       ctx.closePath();
       ctx.fill();
+
+      // Highlight facet of spike
+      ctx.fillStyle = '#64748b';
+      ctx.beginPath();
+      ctx.moveTo(0, ballRadius * 0.85);
+      ctx.lineTo(0, ballRadius + spikeLen);
+      ctx.lineTo(6, ballRadius * 0.85);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(-6, ballRadius * 0.85);
+      ctx.lineTo(0, ballRadius + spikeLen);
+      ctx.lineTo(6, ballRadius * 0.85);
       ctx.stroke();
+
       ctx.restore();
     }
 
-    // Iron Sphere Body with Specular Highlight
-    const sphereGrad = ctx.createRadialGradient(-7, -7, 2, 0, 0, ballRadius);
-    sphereGrad.addColorStop(0, '#e2e8f0');
-    sphereGrad.addColorStop(0.25, '#64748b');
-    sphereGrad.addColorStop(0.7, '#1e293b');
+    // Heavy Iron Sphere Body with High-Contrast Specular Reflection
+    const sphereGrad = ctx.createRadialGradient(-9, -9, 3, 0, 0, ballRadius);
+    sphereGrad.addColorStop(0, '#ffffff');
+    sphereGrad.addColorStop(0.22, '#cbd5e1');
+    sphereGrad.addColorStop(0.55, '#475569');
+    sphereGrad.addColorStop(0.85, '#1e293b');
     sphereGrad.addColorStop(1, '#020617');
 
     ctx.fillStyle = sphereGrad;
@@ -1740,8 +1696,24 @@ class WhipEngine {
     ctx.arc(0, 0, ballRadius, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.strokeStyle = '#cbd5e1';
-    ctx.lineWidth = 2.2;
+    ctx.strokeStyle = '#f1f5f9';
+    ctx.lineWidth = 2.4;
+    ctx.stroke();
+
+    // Equatorial Rivet Band
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, ballRadius * 0.95, -0.6, 0.6);
+    ctx.stroke();
+
+    // Central Heavy Iron Eyelet / Swivel Shackle
+    ctx.fillStyle = '#334155';
+    ctx.beginPath();
+    ctx.arc(0, 0, 7.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
     ctx.restore();
@@ -2046,8 +2018,8 @@ class WhipEngine {
 
     if (!this.isPaused) {
       this.update(dt);
+      this.draw();
     }
-    this.draw();
 
     requestAnimationFrame(this.loop);
   }

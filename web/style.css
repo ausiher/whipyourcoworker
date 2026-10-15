@@ -188,7 +188,7 @@ html, body {
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9));
 }
 
-/* ── Top-Right: Clean Productivity Multiplier (No Floating Box) ────────────── */
+/* ── Top-Right: Clean Productivity Multiplier (Visible on strike, auto-hides after 5s) ── */
 .top-multiplier-container {
   position: absolute;
   top: 14px;
@@ -198,11 +198,18 @@ html, body {
   align-items: flex-end;
   z-index: 10;
   pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.top-multiplier-container.hidden-inactive {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-12px) scale(0.92);
 }
 
 .top-mult-label {
   font-family: var(--font-scifi-title);
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 800;
   letter-spacing: 2px;
   color: rgba(255, 255, 255, 0.7);
@@ -218,7 +225,7 @@ html, body {
 
 .top-mult-val {
   font-family: var(--font-scifi-title);
-  font-size: 34px;
+  font-size: 32px;
   font-weight: 900;
   color: #39ff14;
   letter-spacing: -0.5px;
@@ -232,70 +239,111 @@ html, body {
 }
 
 .top-mult-crown {
-  font-size: 18px;
+  font-size: 17px;
   filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.85));
 }
 
-/* ── Minimalist Bottom-Left Weapon Selector ─────────────────────────────────── */
+/* Dynamic Combo Streak Badge */
+.combo-streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(8, 18, 36, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid #f59e0b;
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-top: 2px;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.55);
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.22s ease;
+}
+
+.combo-streak-badge.bump {
+  transform: scale(1.16);
+}
+
+.combo-streak-badge.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+}
+
+.combo-bolt {
+  font-size: 11px;
+  color: #fbbf24;
+  filter: drop-shadow(0 0 6px #f59e0b);
+}
+
+.combo-streak-text {
+  font-family: var(--font-scifi-title);
+  font-size: 11px;
+  font-weight: 900;
+  color: #fbbf24;
+  letter-spacing: 0.8px;
+  text-shadow: 0 0 8px rgba(245, 158, 11, 0.85);
+}
+
+/* ── Minimalist Bottom-Left Weapon Selector (Compact & Sleek) ──────────────── */
 .weapon-selector-minimal {
   position: absolute;
-  bottom: 24px;
-  left: 20px;
+  bottom: 16px;
+  left: 16px;
   z-index: 20;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
+  gap: 8px;
 }
 
 .weapon-main-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
   background: rgba(8, 18, 36, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1.8px solid var(--cyber-cyan);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid var(--cyber-cyan);
   border-radius: 999px;
-  padding: 6px 14px 6px 6px;
+  padding: 4px 10px 4px 4px;
   color: #ffffff;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 245, 255, 0.35);
-  transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 12px rgba(0, 245, 255, 0.35);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .weapon-main-btn:hover {
-  transform: scale(1.06);
+  transform: scale(1.05);
   border-color: #38bdf8;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), 0 0 24px rgba(0, 245, 255, 0.55);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.75), 0 0 18px rgba(0, 245, 255, 0.5);
 }
 
 .weapon-main-btn:active {
-  transform: scale(0.94);
+  transform: scale(0.95);
 }
 
 .weapon-btn-thumb {
-  width: 38px;
-  height: 38px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background-size: cover;
   background-position: center;
-  border: 1.5px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 8px rgba(0, 245, 255, 0.4);
+  border: 1.2px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 6px rgba(0, 245, 255, 0.4);
 }
 
 .weapon-btn-name {
   font-family: var(--font-scifi-title);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   color: var(--cyber-cyan);
 }
 
 .weapon-btn-arrow {
-  font-size: 10px;
+  font-size: 8px;
   color: rgba(255, 255, 255, 0.65);
-  margin-left: 2px;
+  margin-left: 1px;
   transition: transform 0.2s ease;
 }
 
@@ -307,31 +355,31 @@ html, body {
 .weapon-drawer-vertical {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
   background: rgba(6, 16, 32, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1.5px solid var(--cyber-border);
-  border-radius: 18px;
-  padding: 8px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 245, 255, 0.25);
-  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1.4px solid var(--cyber-border);
+  border-radius: 14px;
+  padding: 5px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.8), 0 0 16px rgba(0, 245, 255, 0.25);
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   transform-origin: bottom left;
 }
 
 .weapon-drawer-vertical.hidden {
   opacity: 0;
   pointer-events: none;
-  transform: translateY(12px) scale(0.92);
+  transform: translateY(10px) scale(0.92);
   display: none !important;
 }
 
 .drawer-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 14px 6px 6px;
-  border-radius: 12px;
+  gap: 8px;
+  padding: 4px 10px 4px 4px;
+  border-radius: 9px;
   cursor: pointer;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid transparent;
@@ -341,13 +389,13 @@ html, body {
 .drawer-item:hover, .drawer-item.active {
   background: rgba(0, 245, 255, 0.15);
   border-color: var(--cyber-cyan);
-  box-shadow: 0 0 12px rgba(0, 245, 255, 0.3);
+  box-shadow: 0 0 10px rgba(0, 245, 255, 0.3);
 }
 
 .drawer-thumb {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   background-size: cover;
   background-position: center;
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -361,56 +409,89 @@ html, body {
 
 .drawer-title {
   font-family: var(--font-scifi-title);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.8px;
   color: #ffffff;
 }
 
 .drawer-sub {
-  font-size: 9px;
+  font-size: 8px;
   color: var(--cyber-text-muted);
 }
 
-/* ── Minimalist Bottom-Right Actions ────────────────────────────────────────── */
+/* ── Minimalist Bottom-Right Actions (Compact) ──────────────────────────────── */
 .bottom-right-actions {
   position: absolute;
-  bottom: 24px;
-  right: 20px;
+  bottom: 16px;
+  right: 16px;
   z-index: 20;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 9px;
 }
 
 .action-btn-circle {
-  width: 52px;
-  height: 52px;
+  position: relative;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  border: 1.8px solid rgba(255, 255, 255, 0.4);
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
   background: rgba(8, 18, 36, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   color: #ffffff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 14px rgba(0, 245, 255, 0.25);
-  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 12px rgba(0, 245, 255, 0.2);
+  transition: all 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .action-btn-circle:hover {
   transform: scale(1.08);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 245, 255, 0.5);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.75), 0 0 16px rgba(0, 245, 255, 0.45);
 }
 
 .action-btn-circle:active {
   transform: scale(0.92);
 }
 
+/* Meme Toggle Button */
+.meme-btn .btn-icon {
+  font-size: 15px;
+}
+
+.meme-btn.active {
+  border-color: var(--cyber-cyan);
+  box-shadow: 0 0 12px rgba(0, 245, 255, 0.4);
+}
+
+.meme-status-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #39ff14;
+  box-shadow: 0 0 6px #39ff14;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.meme-btn:not(.active) .meme-status-dot {
+  background: #64748b;
+  box-shadow: none;
+}
+
+.meme-btn:not(.active) {
+  opacity: 0.65;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
 .flip-btn .btn-icon {
-  font-size: 20px;
+  font-size: 16px;
   transition: transform 0.3s ease;
 }
 
@@ -420,11 +501,11 @@ html, body {
 
 .record-btn {
   border-color: #ef4444;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(239, 68, 68, 0.45);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6), 0 0 14px rgba(239, 68, 68, 0.4);
 }
 
 .rec-symbol {
-  font-size: 26px;
+  font-size: 20px;
   color: #ef4444;
   line-height: 1;
   transition: transform 0.15s ease, color 0.15s ease;
@@ -438,7 +519,7 @@ html, body {
 
 .record-btn.recording .rec-symbol {
   color: #ffffff;
-  font-size: 20px;
+  font-size: 15px;
 }
 
 @keyframes pulseRecordCircle {

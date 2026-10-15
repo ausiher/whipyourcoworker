@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Whip Your Coworker™ | Corporate Productivity AR</title>
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=9">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
 </head>
 <body>
@@ -50,12 +50,17 @@
       </div>
     </header>
 
-    <!-- Top-Right: Clean Productivity Multiplier (No floating card window) -->
-    <div class="top-multiplier-container">
+    <!-- Top-Right: Clean Productivity Multiplier (Visible on strike, auto-hides after 5s) -->
+    <div id="top-multiplier-container" class="top-multiplier-container hidden-inactive">
       <div class="top-mult-label">PRODUCTIVITY</div>
       <div class="top-mult-row">
         <span id="meter-multiplier-val" class="top-mult-val">x1.0</span>
         <span class="top-mult-crown">👑</span>
+      </div>
+      <!-- Dynamic Combo Streak Badge -->
+      <div id="combo-streak-badge" class="combo-streak-badge hidden">
+        <span class="combo-bolt">⚡</span>
+        <span id="combo-streak-text" class="combo-streak-text">COMBO x2</span>
       </div>
     </div>
 
@@ -87,20 +92,13 @@
     <!-- ── Minimalist Bottom HUD: Corner Controls ───────────────────────────── -->
     <!-- Bottom-Left: Expandable Weapon Selector -->
     <div id="weapon-selector" class="weapon-selector-minimal">
-      <!-- Vertical Pop-up Drawer -->
+      <!-- Vertical Pop-up Drawer (Pentung removed, 3 weapons: Whip, Chain, Taser) -->
       <div id="weapon-drawer" class="weapon-drawer-vertical hidden">
         <div class="drawer-item active" data-weapon="whip">
           <div class="drawer-thumb" style="background-image: url('assets/whip.jpg')"></div>
           <div class="drawer-info">
             <span class="drawer-title">WHIP</span>
             <span class="drawer-sub">Classic Brown</span>
-          </div>
-        </div>
-        <div class="drawer-item" data-weapon="pentung">
-          <div class="drawer-thumb" style="background-image: url('assets/baton.jpg')"></div>
-          <div class="drawer-info">
-            <span class="drawer-title">PENTUNG</span>
-            <span class="drawer-sub">Satpam Bash</span>
           </div>
         </div>
         <div class="drawer-item" data-weapon="chain">
@@ -127,8 +125,12 @@
       </button>
     </div>
 
-    <!-- Bottom-Right: Reverse Camera & Symbol-Only Record Button -->
+    <!-- Bottom-Right: Meme Toggle, Reverse Camera & Symbol-Only Record Button -->
     <div class="bottom-right-actions">
+      <button id="btn-toggle-meme" class="action-btn-circle meme-btn active" title="Toggle Indonesian Workplace Memes (ON/OFF)" aria-label="Toggle Memes">
+        <span class="btn-icon">💬</span>
+        <span class="meme-status-dot"></span>
+      </button>
       <button id="btn-flip-camera" class="action-btn-circle flip-btn" title="Switch Front/Back Camera" aria-label="Switch Camera">
         <span class="btn-icon">🔄</span>
       </button>
@@ -285,7 +287,7 @@
   <!-- Three.js 3D Library & GLTF Loader -->
   <script src="libs/three.min.js"></script>
   <script src="libs/GLTFLoader.js"></script>
-  <script src="whip-engine.js?v=8"></script>
+  <script src="whip-engine.js?v=11"></script>
 
   <script>
     const container = document.getElementById('app-container');
@@ -303,9 +305,22 @@
       if (topBranding) topBranding.classList.add('fade-out');
     }, 10000);
 
-    // HUD Elements
+    // Top Multiplier & Combo Elements (Auto-hides after 5s of inactivity)
+    const topMultiplierContainer = document.getElementById('top-multiplier-container');
     const multiplierVal = document.getElementById('meter-multiplier-val');
+    const comboStreakBadge = document.getElementById('combo-streak-badge');
+    const comboStreakText = document.getElementById('combo-streak-text');
     const screenFlash = document.getElementById('screen-flash');
+    let multHideTimer = null;
+
+    function revealMultiplier() {
+      if (!topMultiplierContainer) return;
+      topMultiplierContainer.classList.remove('hidden-inactive');
+      clearTimeout(multHideTimer);
+      multHideTimer = setTimeout(() => {
+        topMultiplierContainer.classList.add('hidden-inactive');
+      }, 5000);
+    }
 
     // Minimalist Weapon Selector Elements
     const weaponSelector = document.getElementById('weapon-selector');
@@ -316,6 +331,7 @@
     const drawerItems = document.querySelectorAll('.drawer-item');
 
     // Bottom Action Elements
+    const btnToggleMeme = document.getElementById('btn-toggle-meme');
     const btnFlipCamera = document.getElementById('btn-flip-camera');
     const btnRecord = document.getElementById('btn-record');
     const recIcon = document.getElementById('rec-icon');
@@ -377,6 +393,18 @@
         multiplierVal.textContent = info.formattedMultiplier;
       }
 
+      // Update Dynamic Combo Streak Badge
+      if (comboStreakBadge && comboStreakText) {
+        if (combo >= 2) {
+          comboStreakBadge.classList.remove('hidden');
+          comboStreakText.textContent = `COMBO x${combo}`;
+          comboStreakBadge.classList.add('bump');
+          setTimeout(() => comboStreakBadge.classList.remove('bump'), 140);
+        } else {
+          comboStreakBadge.classList.add('hidden');
+        }
+      }
+
       // Smooth color evolution based on cadence & intensity
       let glowColor = '#39ff14';
       let shadowColor = 'rgba(57, 255, 20, 0.85)';
@@ -406,6 +434,8 @@
     }
 
     engine.onWhipHit = (count, combo) => {
+      revealMultiplier();
+
       if (multiplierVal) {
         multiplierVal.classList.add('bump');
         setTimeout(() => multiplierVal.classList.remove('bump'), 140);
@@ -431,9 +461,13 @@
 
     engine.onFrenzyChange = (frenzy, combo) => {
       updateProductivityHUD(frenzy, combo);
+      if (combo >= 2) {
+        revealMultiplier();
+      }
     };
 
     engine.onSwingDetected = (mag) => {
+      revealMultiplier();
       if (crosshair) {
         crosshair.classList.add('active');
         setTimeout(() => crosshair.classList.remove('active'), 240);
@@ -476,24 +510,28 @@
       });
     }
 
+    function syncEquippedWeaponUI(weaponId) {
+      drawerItems.forEach(i => {
+        if (i.getAttribute('data-weapon') === weaponId) i.classList.add('active');
+        else i.classList.remove('active');
+      });
+      const thumbMap = {
+        whip: 'assets/whip.jpg',
+        chain: 'assets/chain.jpg',
+        taser: 'assets/taser.jpg'
+      };
+      const thumbUrl = thumbMap[weaponId] || 'assets/whip.jpg';
+      if (currentWeaponThumb) currentWeaponThumb.style.backgroundImage = `url('${thumbUrl}')`;
+      if (currentWeaponName) currentWeaponName.textContent = weaponId.toUpperCase();
+    }
+    engine.onWeaponChange = (weaponId) => syncEquippedWeaponUI(weaponId);
+
     drawerItems.forEach(item => {
       item.addEventListener('click', (e) => {
         e.stopPropagation();
-        drawerItems.forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
         const weaponId = item.getAttribute('data-weapon');
         engine.setWeapon(weaponId);
-
-        const thumbMap = {
-          whip: 'assets/whip.jpg',
-          pentung: 'assets/baton.jpg',
-          baton: 'assets/baton.jpg',
-          chain: 'assets/chain.jpg',
-          taser: 'assets/taser.jpg'
-        };
-        const thumbUrl = thumbMap[weaponId] || 'assets/whip.jpg';
-        if (currentWeaponThumb) currentWeaponThumb.style.backgroundImage = `url('${thumbUrl}')`;
-        if (currentWeaponName) currentWeaponName.textContent = weaponId.toUpperCase();
+        syncEquippedWeaponUI(weaponId);
 
         weaponDrawer.classList.add('hidden');
         weaponSelector.classList.remove('open');
@@ -507,6 +545,21 @@
         if (weaponSelector) weaponSelector.classList.remove('open');
       }
     });
+
+    // ── Bottom-Right Meme Popout Toggle ─────────────────────────────────────
+    if (btnToggleMeme) {
+      btnToggleMeme.addEventListener('click', (e) => {
+        e.stopPropagation();
+        engine.memesEnabled = !engine.memesEnabled;
+        if (engine.memesEnabled) {
+          btnToggleMeme.classList.add('active');
+          showToast('💬 Indonesian Workplace Memes: ON');
+        } else {
+          btnToggleMeme.classList.remove('active');
+          showToast('💬 Workplace Memes: OFF');
+        }
+      });
+    }
 
     // ── Bottom-Right Flip Camera ────────────────────────────────────────────
     if (btnFlipCamera) {
