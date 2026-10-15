@@ -111,6 +111,13 @@ html, body {
   align-items: flex-start;
   transform: rotate(-4deg);
   transform-origin: top left;
+  transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+}
+
+.top-branding.fade-out {
+  opacity: 0;
+  pointer-events: none;
+  transform: rotate(-4deg) translateY(-14px) scale(0.96);
 }
 
 .brand-crown-row {
@@ -213,9 +220,9 @@ html, body {
   font-family: var(--font-scifi-title);
   font-size: 34px;
   font-weight: 900;
-  color: #ea580c;
+  color: #39ff14;
   letter-spacing: -0.5px;
-  text-shadow: 0 0 16px rgba(234, 88, 12, 0.75);
+  text-shadow: 0 0 16px rgba(57, 255, 20, 0.85);
   transition: transform 0.12s ease, color 0.15s ease, text-shadow 0.15s ease;
   display: inline-block;
 }
@@ -229,28 +236,214 @@ html, body {
   filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.85));
 }
 
-/* ── Left & Right Edge Ambient Light Channels (Dynamic Responsive Glow) ─────── */
-.ambient-light-channel {
+/* ── Minimalist Bottom-Left Weapon Selector ─────────────────────────────────── */
+.weapon-selector-minimal {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 12px;
+  bottom: 24px;
+  left: 20px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.weapon-main-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(8, 18, 36, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.8px solid var(--cyber-cyan);
+  border-radius: 999px;
+  padding: 6px 14px 6px 6px;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(0, 245, 255, 0.35);
+  transition: all 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.weapon-main-btn:hover {
+  transform: scale(1.06);
+  border-color: #38bdf8;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), 0 0 24px rgba(0, 245, 255, 0.55);
+}
+
+.weapon-main-btn:active {
+  transform: scale(0.94);
+}
+
+.weapon-btn-thumb {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 8px rgba(0, 245, 255, 0.4);
+}
+
+.weapon-btn-name {
+  font-family: var(--font-scifi-title);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--cyber-cyan);
+}
+
+.weapon-btn-arrow {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.65);
+  margin-left: 2px;
+  transition: transform 0.2s ease;
+}
+
+.weapon-selector-minimal.open .weapon-btn-arrow {
+  transform: rotate(180deg);
+}
+
+/* Vertical Pop-up Drawer */
+.weapon-drawer-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(6, 16, 32, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid var(--cyber-border);
+  border-radius: 18px;
+  padding: 8px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 245, 255, 0.25);
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-origin: bottom left;
+}
+
+.weapon-drawer-vertical.hidden {
+  opacity: 0;
   pointer-events: none;
-  z-index: 4;
-  transition: width 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease, filter 0.1s ease;
-  opacity: 0.45;
+  transform: translateY(12px) scale(0.92);
+  display: none !important;
 }
 
-.ambient-light-channel.left {
-  left: 0;
-  background: linear-gradient(90deg, #ea580c 0%, transparent 100%);
-  box-shadow: 0 0 28px rgba(234, 88, 12, 0.55);
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 6px;
+  border-radius: 12px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
 }
 
-.ambient-light-channel.right {
-  right: 0;
-  background: linear-gradient(-90deg, #ea580c 0%, transparent 100%);
-  box-shadow: 0 0 28px rgba(234, 88, 12, 0.55);
+.drawer-item:hover, .drawer-item.active {
+  background: rgba(0, 245, 255, 0.15);
+  border-color: var(--cyber-cyan);
+  box-shadow: 0 0 12px rgba(0, 245, 255, 0.3);
+}
+
+.drawer-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.drawer-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.drawer-title {
+  font-family: var(--font-scifi-title);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+}
+
+.drawer-sub {
+  font-size: 9px;
+  color: var(--cyber-text-muted);
+}
+
+/* ── Minimalist Bottom-Right Actions ────────────────────────────────────────── */
+.bottom-right-actions {
+  position: absolute;
+  bottom: 24px;
+  right: 20px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.action-btn-circle {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 1.8px solid rgba(255, 255, 255, 0.4);
+  background: rgba(8, 18, 36, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 14px rgba(0, 245, 255, 0.25);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.action-btn-circle:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 245, 255, 0.5);
+}
+
+.action-btn-circle:active {
+  transform: scale(0.92);
+}
+
+.flip-btn .btn-icon {
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.flip-btn:hover .btn-icon {
+  transform: rotate(180deg);
+}
+
+.record-btn {
+  border-color: #ef4444;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(239, 68, 68, 0.45);
+}
+
+.rec-symbol {
+  font-size: 26px;
+  color: #ef4444;
+  line-height: 1;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.record-btn.recording {
+  background: #dc2626;
+  border-color: #ffffff;
+  animation: pulseRecordCircle 1.2s infinite ease-in-out;
+}
+
+.record-btn.recording .rec-symbol {
+  color: #ffffff;
+  font-size: 20px;
+}
+
+@keyframes pulseRecordCircle {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 18px rgba(239, 68, 68, 0.75); }
+  50% { transform: scale(1.08); box-shadow: 0 0 28px rgba(255, 255, 255, 0.9); }
 }
 
 /* ── 0.1s Impact Screen Flash Overlay ───────────────────────────────────────── */

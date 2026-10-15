@@ -38,14 +38,24 @@ class WhipEngine {
         sparkColors: ['#d97706', '#b45309', '#92400e', '#fef3c7', '#78350f'],
         phrases: []
       },
+      pentung: {
+        id: 'pentung',
+        name: 'PENTUNG',
+        sub: 'Satpam Bash',
+        themeColor: '#f59e0b',
+        coreColor: '#78350f',
+        glowColor: 'rgba(245, 158, 11, 0.65)',
+        sparkColors: ['#f59e0b', '#d97706', '#fbbf24', '#ffffff', '#78350f'],
+        phrases: []
+      },
       baton: {
-        id: 'baton',
-        name: 'RUYUNG',
-        sub: 'Satpam Nunchaku',
-        themeColor: '#ca8a04',
-        coreColor: '#451a03',
-        glowColor: 'rgba(202, 138, 4, 0.65)',
-        sparkColors: ['#ca8a04', '#eab308', '#ffffff', '#78350f', '#fef08a'],
+        id: 'pentung',
+        name: 'PENTUNG',
+        sub: 'Satpam Bash',
+        themeColor: '#f59e0b',
+        coreColor: '#78350f',
+        glowColor: 'rgba(245, 158, 11, 0.65)',
+        sparkColors: ['#f59e0b', '#d97706', '#fbbf24', '#ffffff', '#78350f'],
         phrases: []
       },
       chain: {
@@ -607,6 +617,7 @@ class WhipEngine {
     const pitchRate = Math.min(1.55, 0.95 + (this.frenzy - 1.0) * 0.16);
 
     switch (this.currentWeapon) {
+      case 'pentung':
       case 'baton':
         this.playBatonSound(pitchRate);
         break;
@@ -639,6 +650,7 @@ class WhipEngine {
 
   // ── Weapon Switching ──────────────────────────────────────────────────────
   setWeapon(weaponId) {
+    if (weaponId === 'baton') weaponId = 'pentung';
     if (!this.weaponConfigs[weaponId]) return;
     this.currentWeapon = weaponId;
     this.playWeaponSwitchSound();
@@ -760,9 +772,10 @@ class WhipEngine {
 
   update3DWeaponVisibility() {
     if (!this.weaponMeshes) return;
+    const meshKey = (this.currentWeapon === 'pentung') ? 'baton' : this.currentWeapon;
     for (const key of ['whip', 'baton', 'chain', 'taser']) {
       if (this.weaponMeshes[key]) {
-        this.weaponMeshes[key].visible = (this.currentWeapon === key);
+        this.weaponMeshes[key].visible = (meshKey === key);
       }
     }
 
@@ -770,7 +783,7 @@ class WhipEngine {
       const h = 2.85;
       const w = h / (1376 / 768);
       let u = 0.336, v = 0.249;
-      if (this.currentWeapon === 'baton') { u = 0.330; v = 0.160; }
+      if (this.currentWeapon === 'pentung' || this.currentWeapon === 'baton') { u = 0.330; v = 0.160; }
       else if (this.currentWeapon === 'chain') { u = 0.440; v = 0.120; }
       else if (this.currentWeapon === 'taser') { u = 0.340; v = 0.220; }
       this.whipEmitter.position.set((u - 0.5) * w, (0.5 - v) * h, 0.02);
@@ -778,7 +791,7 @@ class WhipEngine {
 
     if (this.rimLight) {
       const cfg = this.weaponConfigs[this.currentWeapon];
-      this.rimLight.color.set(cfg.themeColor);
+      if (cfg) this.rimLight.color.set(cfg.themeColor);
     }
   }
 
@@ -865,7 +878,7 @@ class WhipEngine {
       return;
     }
 
-    const baseDuration = this.currentWeapon === 'chain' ? 240 : (this.currentWeapon === 'baton' ? 170 : 200);
+    const baseDuration = (this.currentWeapon === 'chain') ? 240 : ((this.currentWeapon === 'pentung' || this.currentWeapon === 'baton') ? 180 : 200);
     const strikeDuration = Math.max(65, baseDuration / this.frenzy);
 
     this.strike = {
@@ -895,23 +908,11 @@ class WhipEngine {
       return;
     }
 
-    // Parabolic arc matching classic whip posture
-    const p0 = { x: origin.x, y: origin.y };
-    const p1 = { x: origin.x - this.W * 0.08, y: origin.y - this.H * 0.18 };
-    const p2 = { x: origin.x - this.W * 0.22, y: origin.y - this.H * 0.21 };
-    const p3 = { x: this.W * 0.43, y: origin.y - this.H * 0.13 };
-
+    // Natural hanging rope catenary curve for classic whip
     for (let i = 0; i < this.segments; i++) {
       const t = i / (this.segments - 1);
-      const oneMinusT = 1 - t;
-      const x = oneMinusT * oneMinusT * oneMinusT * p0.x +
-                3 * oneMinusT * oneMinusT * t * p1.x +
-                3 * oneMinusT * t * t * p2.x +
-                t * t * t * p3.x;
-      const y = oneMinusT * oneMinusT * oneMinusT * p0.y +
-                3 * oneMinusT * oneMinusT * t * p1.y +
-                3 * oneMinusT * t * t * p2.y +
-                t * t * t * p3.y;
+      const x = origin.x - t * (this.W * 0.16) + Math.sin(t * Math.PI) * (this.W * 0.05);
+      const y = origin.y + t * (this.H * 0.30) + Math.sin(t * Math.PI) * (this.H * 0.07);
       this.pts.push({ x, y, px: x, py: y });
     }
   }
@@ -934,11 +935,10 @@ class WhipEngine {
   update(dt) {
     this.time += dt;
 
-    // Decay Frenzy when idle (unless locked for reference match)
+    // Combo decays after idle, but Productivity Multiplier does NOT reset/decay to 1.0x when idle
     const timeSinceLastTap = performance.now() - this.lastTapTime;
-    if (!this.lockFrenzy && timeSinceLastTap > 750 && this.frenzy > 1.0) {
-      this.frenzy = Math.max(1.0, this.frenzy - dt * 1.6);
-      this.lastTierAlert = this.frenzy >= 3.8 ? 4 : (this.frenzy >= 2.8 ? 3 : (this.frenzy >= 1.8 ? 2 : 1));
+    if (timeSinceLastTap > 3200 && this.combo > 1) {
+      this.combo = 1;
       if (this.onFrenzyChange) {
         this.onFrenzyChange(this.frenzy, this.combo);
       }
@@ -969,43 +969,74 @@ class WhipEngine {
       const dy = this.strike.targetY - emitterScreen.y;
       strikeAimAngle = Math.atan2(dy, dx);
 
-      if (progress < 0.22) {
-        // Wind-up: Arm cocks backward with aim-aware wrist tension
-        const p = progress / 0.22;
-        armTargetX += 0.12 * Math.sin(p * Math.PI * 0.5);
-        armTargetY -= 0.10 * Math.sin(p * Math.PI * 0.5);
-        armTargetZ += 0.28 * Math.sin(p * Math.PI * 0.5);
-        armRotX -= 0.22 * Math.sin(p * Math.PI * 0.5);
-        armRotZ += 0.16 * Math.sin(p * Math.PI * 0.5);
-      } else if (progress < 0.65) {
-        // Forward strike lunge towards target
-        const p = (progress - 0.22) / 0.43;
-        const ease = p * p * (3 - 2 * p);
-        armTargetX -= 0.26 * ease;
-        armTargetY += 0.22 * ease;
-        armTargetZ -= 0.52 * ease;
-        armRotX += 0.44 * ease;
-        armRotZ = -Math.sin(strikeAimAngle) * 0.38;
+      const isPentung = (this.currentWeapon === 'pentung' || this.currentWeapon === 'baton');
 
-        strikeWavePhase = p;
-
-        tipTarget = {
-          x: this.pts[this.pts.length - 1].x + (this.strike.targetX - this.pts[this.pts.length - 1].x) * ease,
-          y: this.pts[this.pts.length - 1].y + (this.strike.targetY - this.pts[this.pts.length - 1].y) * ease,
-        };
-      } else if (!this.strike.impactFired) {
-        // Impact Moment
-        this.strike.impactFired = true;
-        tipTarget = { x: this.strike.targetX, y: this.strike.targetY };
-        this.triggerImpact(this.strike.targetX, this.strike.targetY);
+      if (isPentung) {
+        // Pentung: Overhead downward bash diagonally across screen
+        if (progress < 0.28) {
+          // Cock high overhead
+          const p = progress / 0.28;
+          armTargetX += 0.22 * Math.sin(p * Math.PI * 0.5);
+          armTargetY += 0.42 * Math.sin(p * Math.PI * 0.5);
+          armTargetZ += 0.22 * Math.sin(p * Math.PI * 0.5);
+          armRotX -= 0.65 * Math.sin(p * Math.PI * 0.5);
+          armRotZ += 0.42 * Math.sin(p * Math.PI * 0.5);
+        } else if (progress < 0.65) {
+          // Smash down diagonally across the whole screen
+          const p = (progress - 0.28) / 0.37;
+          const ease = p * p * (3 - 2 * p);
+          armTargetX -= 0.55 * ease;
+          armTargetY -= 0.65 * ease;
+          armTargetZ -= 0.35 * ease;
+          armRotX += 1.05 * ease;
+          armRotZ -= 0.75 * ease;
+        } else if (!this.strike.impactFired) {
+          this.strike.impactFired = true;
+          this.triggerImpact(this.strike.targetX, this.strike.targetY);
+        } else {
+          // Stiff blunt rebound
+          const p = (progress - 0.65) / 0.35;
+          const recoilOsc = Math.sin(p * Math.PI * 4) * Math.exp(-p * 5.5) * 0.16;
+          armTargetX += recoilOsc;
+          armTargetY += recoilOsc * 0.6;
+          armRotZ += recoilOsc * 0.5;
+        }
       } else {
-        // Kinetic spring recoil
-        const p = (progress - 0.65) / 0.35;
-        const recoilOsc = Math.sin(p * Math.PI * 3.5) * Math.exp(-p * 4.5) * 0.12;
-        armTargetX += 0.08 * (1 - p) + recoilOsc;
-        armTargetY -= 0.06 * (1 - p) - recoilOsc * 0.5;
-        armTargetZ += recoilOsc * 0.8;
-        armRotZ += recoilOsc * 0.4;
+        // Standard whip & flail arm kinematics
+        if (progress < 0.22) {
+          const p = progress / 0.22;
+          armTargetX += 0.12 * Math.sin(p * Math.PI * 0.5);
+          armTargetY -= 0.10 * Math.sin(p * Math.PI * 0.5);
+          armTargetZ += 0.28 * Math.sin(p * Math.PI * 0.5);
+          armRotX -= 0.22 * Math.sin(p * Math.PI * 0.5);
+          armRotZ += 0.16 * Math.sin(p * Math.PI * 0.5);
+        } else if (progress < 0.65) {
+          const p = (progress - 0.22) / 0.43;
+          const ease = p * p * (3 - 2 * p);
+          armTargetX -= 0.26 * ease;
+          armTargetY += 0.22 * ease;
+          armTargetZ -= 0.52 * ease;
+          armRotX += 0.44 * ease;
+          armRotZ = -Math.sin(strikeAimAngle) * 0.38;
+
+          strikeWavePhase = p;
+
+          tipTarget = {
+            x: this.pts[this.pts.length - 1].x + (this.strike.targetX - this.pts[this.pts.length - 1].x) * ease,
+            y: this.pts[this.pts.length - 1].y + (this.strike.targetY - this.pts[this.pts.length - 1].y) * ease,
+          };
+        } else if (!this.strike.impactFired) {
+          this.strike.impactFired = true;
+          tipTarget = { x: this.strike.targetX, y: this.strike.targetY };
+          this.triggerImpact(this.strike.targetX, this.strike.targetY);
+        } else {
+          const p = (progress - 0.65) / 0.35;
+          const recoilOsc = Math.sin(p * Math.PI * 3.5) * Math.exp(-p * 4.5) * 0.12;
+          armTargetX += 0.08 * (1 - p) + recoilOsc;
+          armTargetY -= 0.06 * (1 - p) - recoilOsc * 0.5;
+          armTargetZ += recoilOsc * 0.8;
+          armRotZ += recoilOsc * 0.4;
+        }
       }
 
       if (progress >= 1.0) {
@@ -1032,9 +1063,9 @@ class WhipEngine {
     // Get 3D Emitter screen coordinates
     const emitterScreen = this.getEmitterScreenPos();
 
-    // Classic Whip Physics (Verlet) with S-Curve Wave (Only active for Classic Whip)
+    // Natural Classic Whip Physics (Verlet Rope Dynamics)
     if (this.currentWeapon === 'whip') {
-      const gravity = 0.35;
+      const gravity = 1.15;
       const damping = 0.94;
 
       for (let i = 1; i < this.pts.length; i++) {
@@ -1046,26 +1077,11 @@ class WhipEngine {
         p.x += vx;
         p.y += vy + gravity;
 
+        // Natural idle rope sway (not pinned to a static bezier curve)
         if (!this.strike) {
-          // Poised leather whip internal tension & gentle breath sway
           const t = i / (this.pts.length - 1);
-          const breath = Math.sin(this.time * 2.2 + t * 2.5) * (3.5 * t);
-          const p0 = { x: emitterScreen.x, y: emitterScreen.y };
-          const p1 = { x: emitterScreen.x - this.W * 0.08, y: emitterScreen.y - this.H * 0.18 };
-          const p2 = { x: emitterScreen.x - this.W * 0.22, y: emitterScreen.y - this.H * 0.21 };
-          const p3 = { x: this.W * 0.43, y: emitterScreen.y - this.H * 0.13 };
-
-          const oneMinusT = 1 - t;
-          const targetX = oneMinusT * oneMinusT * oneMinusT * p0.x +
-                          3 * oneMinusT * oneMinusT * t * p1.x +
-                          3 * oneMinusT * t * t * p2.x +
-                          t * t * t * p3.x + breath;
-          const targetY = oneMinusT * oneMinusT * oneMinusT * p0.y +
-                          3 * oneMinusT * oneMinusT * t * p1.y +
-                          3 * oneMinusT * t * t * p2.y +
-                          t * t * t * p3.y + breath * 0.5;
-          p.x += (targetX - p.x) * 0.085;
-          p.y += (targetY - p.y) * 0.085;
+          const sway = Math.sin(this.time * 2.2 + t * 2.0) * (0.45 * t);
+          p.x += sway;
         }
 
         if (strikeWavePhase > 0) {
@@ -1094,7 +1110,7 @@ class WhipEngine {
       }
 
       // Distance constraint solver
-      const iters = 6;
+      const iters = 8;
       for (let iter = 0; iter < iters; iter++) {
         for (let i = 0; i < this.pts.length - 1; i++) {
           const a = this.pts[i], b = this.pts[i + 1];
@@ -1177,8 +1193,8 @@ class WhipEngine {
       });
     }
 
-    // 5. Taser / Baton Electric Lightning Arcs
-    if (this.currentWeapon === 'taser' || this.currentWeapon === 'baton') {
+    // 5. Taser Electric Lightning Arcs
+    if (this.currentWeapon === 'taser') {
       const emitter = this.getEmitterScreenPos();
       for (let a = 0; a < 3; a++) {
         this.lightningArcs.push({
@@ -1306,8 +1322,9 @@ class WhipEngine {
   // ── Draw Specific Weapon Visuals ──────────────────────────────────────────
   drawCurrentWeapon() {
     switch (this.currentWeapon) {
+      case 'pentung':
       case 'baton':
-        this.drawRuyungSatpam();
+        this.drawPentungVisual();
         break;
       case 'chain':
         this.drawChainVisual();
@@ -1468,155 +1485,140 @@ class WhipEngine {
     ctx.restore();
   }
 
-  // ── Traditional Indonesian Satpam Nunchuck (Ruyung Satpam) ───────────────
-  drawRuyungSatpam() {
+  // ── Traditional Indonesian Satpam Pentung (Tongkat Satpam Nightstick) ─────
+  drawPentungVisual() {
     const ctx = this.ctx;
     const origin = this.getEmitterScreenPos();
     ctx.save();
 
-    // Indonesian Satpam Ruyung (Double Stick)
-    // Stick 1: Main baton in hand
-    // Stick 2: Striking baton attached via steel swivel & chain links
-    const batonLen = Math.max(85, Math.min(130, this.H * 0.15));
-    const batonW = 13;
-
-    // Angle of held baton in hand
-    const baseAngle = -Math.PI * 0.56;
-
-    // 1. Draw Stick 1 (held in tactical hand)
-    ctx.save();
-    ctx.translate(origin.x, origin.y);
-    ctx.rotate(baseAngle);
-
-    // Teak / dark hardwood gradient
-    const woodGrad = ctx.createLinearGradient(0, -batonW * 0.5, 0, batonW * 0.5);
-    woodGrad.addColorStop(0, '#1c1917');
-    woodGrad.addColorStop(0.35, '#451a03');
-    woodGrad.addColorStop(0.7, '#29180d');
-    woodGrad.addColorStop(1, '#0c0a09');
-
-    ctx.fillStyle = woodGrad;
-    ctx.beginPath();
-    ctx.roundRect(-batonLen * 0.4, -batonW * 0.5, batonLen, batonW, 3);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-
-    // Steel swivel collar at tip
-    ctx.fillStyle = '#94a3b8';
-    ctx.beginPath();
-    ctx.roundRect(batonLen * 0.45, -batonW * 0.55, 12, batonW * 1.1, 2);
-    ctx.fill();
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 1.2;
-    ctx.stroke();
-
-    ctx.restore();
-
-    // 2. Swivel Point at top of stick 1
-    const swivelX = origin.x + Math.cos(baseAngle) * (batonLen * 0.55);
-    const swivelY = origin.y + Math.sin(baseAngle) * (batonLen * 0.55);
-
-    // Calculate position and angle of Stick 2 (free swinging stick)
-    let stick2Angle = 0;
+    const batonLen = Math.max(150, Math.min(240, this.H * 0.25));
+    const batonW = 16;
+    let swingAngle = -Math.PI * 0.58; // Idle guard angle pointing up-left
 
     if (this.strike) {
       const elapsed = performance.now() - this.strike.startTime;
       const progress = Math.min(1, Math.max(0, elapsed / this.strike.duration));
 
-      const dx = this.strike.targetX - swivelX;
-      const dy = this.strike.targetY - swivelY;
+      const dx = this.strike.targetX - origin.x;
+      const dy = this.strike.targetY - origin.y;
       const targetAngle = Math.atan2(dy, dx);
 
-      if (progress < 0.65) {
-        // Forward whipping rotation arc
-        const p = progress / 0.65;
+      const startAng = -Math.PI * 0.58 - 0.55;
+      const endAng = targetAngle + 0.45;
+
+      if (progress < 0.28) {
+        // Cock back overhead
+        const p = progress / 0.28;
+        swingAngle = -Math.PI * 0.58 - p * 0.55;
+      } else if (progress < 0.65) {
+        // Forward high-speed downward slash diagonally across the entire screen
+        const p = (progress - 0.28) / 0.37;
         const ease = p * p * (3 - 2 * p);
-        stick2Angle = baseAngle + (targetAngle - baseAngle) * ease + Math.sin(p * Math.PI) * 0.75;
+        swingAngle = startAng + (endAng - startAng) * ease;
+
+        // Draw Motion Blur Sweep Arc across screen
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(origin.x, origin.y, batonLen * 0.95, startAng, swingAngle, false);
+        ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
+        ctx.lineWidth = batonLen * 0.48;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(origin.x, origin.y, batonLen, startAng, swingAngle, false);
+        ctx.strokeStyle = 'rgba(254, 240, 138, 0.85)';
+        ctx.lineWidth = 6.5;
+        ctx.stroke();
+        ctx.restore();
       } else {
-        // Recoil back to resting hang
+        // Stiff blunt rebound back to guard
         const p = (progress - 0.65) / 0.35;
-        const restingAngle = Math.PI * 0.45;
-        stick2Angle = targetAngle + (restingAngle - targetAngle) * p + Math.sin(p * Math.PI * 3) * 0.18 * (1 - p);
+        const recoilOsc = Math.sin(p * Math.PI * 3.5) * Math.exp(-p * 5.2) * 0.22;
+        swingAngle = -Math.PI * 0.58 + recoilOsc;
       }
     } else {
-      // Idle resting hang with natural pendulum sway
-      const sway = Math.sin(this.time * 2.8) * 0.12;
-      stick2Angle = Math.PI * 0.42 + sway;
+      // Idle natural breathing sway
+      const sway = Math.sin(this.time * 2.2) * 0.04;
+      swingAngle += sway;
     }
 
-    // 3. Draw 4 Steel Chain Links from swivel to Stick 2
-    const chainLinks = 4;
-    const chainDist = 30;
-    for (let c = 0; c < chainLinks; c++) {
-      const ct = (c + 0.5) / chainLinks;
-      const lx = swivelX + Math.cos(stick2Angle) * (ct * chainDist);
-      const ly = swivelY + Math.sin(stick2Angle) * (ct * chainDist);
-
-      ctx.save();
-      ctx.translate(lx, ly);
-      ctx.rotate(stick2Angle + (c % 2 === 0 ? 0 : Math.PI * 0.5));
-      ctx.strokeStyle = '#94a3b8';
-      ctx.lineWidth = 3.5;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, 5, 3, 0, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.strokeStyle = '#f1f5f9';
-      ctx.lineWidth = 1.0;
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // 4. Draw Stick 2 (The striking ruyung baton)
-    const stick2PivotX = swivelX + Math.cos(stick2Angle) * chainDist;
-    const stick2PivotY = swivelY + Math.sin(stick2Angle) * chainDist;
-
+    // Draw the Stiff Satpam Pentung Body
     ctx.save();
-    ctx.translate(stick2PivotX, stick2PivotY);
-    ctx.rotate(stick2Angle);
+    ctx.translate(origin.x, origin.y);
+    ctx.rotate(swingAngle);
 
-    // Steel cap at swivel attachment
-    ctx.fillStyle = '#94a3b8';
+    // 1. Heavy Ribbed Hardwood / Black Rubber Cylinder
+    const batonGrad = ctx.createLinearGradient(0, -batonW * 0.5, 0, batonW * 0.5);
+    batonGrad.addColorStop(0, '#1c1917');
+    batonGrad.addColorStop(0.22, '#451a03');
+    batonGrad.addColorStop(0.5, '#78350f');
+    batonGrad.addColorStop(0.78, '#29180d');
+    batonGrad.addColorStop(1, '#0c0a09');
+
+    // Main shaft
+    ctx.fillStyle = batonGrad;
     ctx.beginPath();
-    ctx.roundRect(0, -batonW * 0.55, 12, batonW * 1.1, 2);
+    ctx.roundRect(-batonLen * 0.15, -batonW * 0.5, batonLen, batonW, 4);
     ctx.fill();
-    ctx.strokeStyle = '#e2e8f0';
+
+    // 2. Ribbed Non-Slip Grip Handle
+    const gripStart = -batonLen * 0.12;
+    const gripEnd = batonLen * 0.25;
+    const gripSteps = 8;
+    ctx.strokeStyle = '#0a0a0a';
+    ctx.lineWidth = 2.4;
+    for (let g = 0; g < gripSteps; g++) {
+      const gx = gripStart + (gripEnd - gripStart) * (g / (gripSteps - 1));
+      ctx.beginPath();
+      ctx.moveTo(gx, -batonW * 0.55);
+      ctx.lineTo(gx, batonW * 0.55);
+      ctx.stroke();
+    }
+
+    // 3. Satpam Indonesian Gold Accent Rings
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    ctx.moveTo(gripEnd + 4, -batonW * 0.55);
+    ctx.lineTo(gripEnd + 4, batonW * 0.55);
+    ctx.moveTo(gripEnd + 8, -batonW * 0.55);
+    ctx.lineTo(gripEnd + 8, batonW * 0.55);
+    ctx.moveTo(batonLen * 0.75, -batonW * 0.52);
+    ctx.lineTo(batonLen * 0.75, batonW * 0.52);
+    ctx.stroke();
+
+    // 4. Solid Rounded Tip Cap
+    ctx.fillStyle = '#292524';
+    ctx.beginPath();
+    ctx.arc(batonLen * 0.85, 0, batonW * 0.52, -Math.PI * 0.5, Math.PI * 0.5);
+    ctx.fill();
+    ctx.strokeStyle = '#78716c';
     ctx.lineWidth = 1.2;
     ctx.stroke();
 
-    // Main Teak / Black Hardwood Baton Body
-    ctx.fillStyle = woodGrad;
+    // 5. Pommel & Lanyard Wrist Loop at base
+    ctx.fillStyle = '#1c1917';
     ctx.beginPath();
-    ctx.roundRect(10, -batonW * 0.5, batonLen, batonW, 3);
+    ctx.arc(-batonLen * 0.14, 0, batonW * 0.65, 0, Math.PI * 2);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(250, 204, 21, 0.45)';
-    ctx.lineWidth = 1.2;
-    ctx.stroke();
-
-    // Indonesian Satpam Gold Inlay Rings
-    ctx.strokeStyle = '#eab308';
+    ctx.strokeStyle = '#d97706';
     ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(30, -batonW * 0.5);
-    ctx.lineTo(30, batonW * 0.5);
-    ctx.moveTo(34, -batonW * 0.5);
-    ctx.lineTo(34, batonW * 0.5);
-    ctx.moveTo(batonLen - 8, -batonW * 0.5);
-    ctx.lineTo(batonLen - 8, batonW * 0.5);
     ctx.stroke();
 
-    // Steel cap at strike tip
-    ctx.fillStyle = '#64748b';
+    // Lanyard cord hanging from pommel with natural physics sway
+    ctx.strokeStyle = '#78350f';
+    ctx.lineWidth = 2.4;
     ctx.beginPath();
-    ctx.roundRect(batonLen + 4, -batonW * 0.52, 6, batonW * 1.04, 2);
-    ctx.fill();
+    ctx.moveTo(-batonLen * 0.14, 0);
+    const cordSway = Math.sin(this.time * 3.5) * 8;
+    ctx.quadraticCurveTo(-batonLen * 0.22, 18 + cordSway, -batonLen * 0.12, 34);
+    ctx.stroke();
 
     ctx.restore();
     ctx.restore();
   }
 
-  // ── Heavy Iron Spiked Flail Chain Visual (Hurtles UP from bottom on strike, hidden in idle) ──
+  // ── Heavy Iron Spiked Flail Chain Visual (Dynamic Multi-Link Whip-Lash) ─────
   drawChainVisual() {
     if (this.currentWeapon !== 'chain') return;
     if (!this.strike) return; // HIDDEN in idle! Spiked ball never hovers on screen!
@@ -1634,7 +1636,7 @@ class WhipEngine {
     let ballX, ballY;
 
     if (progress < 0.58) {
-      // Phase 1: Hurling UP from bottom to target
+      // Phase 1: Hurling UP from bottom to target with whip-lash acceleration
       const p = progress / 0.58;
       const ease = p * p * (3 - 2 * p);
       ballX = bottomStartX + (targetX - bottomStartX) * ease;
@@ -1642,20 +1644,20 @@ class WhipEngine {
     } else {
       // Phase 2: Post-impact recoil - heavy morningstar drops back down off screen
       const p = (progress - 0.58) / 0.42;
-      ballX = targetX + Math.sin(p * Math.PI) * 25;
-      ballY = targetY + p * p * (this.H * 0.95); // Plunges down
+      ballX = targetX + Math.sin(p * Math.PI) * 28;
+      ballY = targetY + p * p * (this.H * 1.05); // Plunges down
     }
 
     ctx.save();
 
-    // Generate interpolated chain links between emitter and spiked ball
-    const chainLinksCount = 15;
+    // Dynamic Multi-Link Catenary Curve with Wave Sag & Inertia
+    const chainLinksCount = 18;
     const chainPoints = [];
     for (let c = 0; c <= chainLinksCount; c++) {
       const t = c / chainLinksCount;
-      // Quadratic curve sagging downward for heavy iron momentum
-      const sag = Math.sin(t * Math.PI) * (65 * (1 - progress * 0.5));
-      const cx = origin.x + (ballX - origin.x) * t;
+      const sag = Math.sin(t * Math.PI) * (70 * (1 - progress * 0.45));
+      const wave = Math.sin(t * Math.PI * 2 - progress * 8) * (14 * (1 - progress));
+      const cx = origin.x + (ballX - origin.x) * t + wave;
       const cy = origin.y + (ballY - origin.y) * t + sag;
       chainPoints.push({ x: cx, y: cy });
     }
@@ -1676,7 +1678,7 @@ class WhipEngine {
       if (i % 2 === 0) {
         // Flat oval chain link
         ctx.strokeStyle = '#475569';
-        ctx.lineWidth = 5.0;
+        ctx.lineWidth = 5.2;
         ctx.beginPath();
         ctx.ellipse(0, 0, Math.max(8, dist * 0.48), 7.5, 0, 0, Math.PI * 2);
         ctx.stroke();
@@ -1705,13 +1707,13 @@ class WhipEngine {
     const ballRadius = 26 + this.frenzy * 2.2;
     const spikeCount = 10;
 
-    // Conical spikes radiating from morningstar
+    // Conical spikes radiating from morningstar with high-velocity rotation
     ctx.fillStyle = '#1e293b';
     ctx.strokeStyle = '#cbd5e1';
     ctx.lineWidth = 1.5;
 
     for (let s = 0; s < spikeCount; s++) {
-      const ang = (s / spikeCount) * Math.PI * 2 + progress * 8.0; // Spins in flight
+      const ang = (s / spikeCount) * Math.PI * 2 + progress * 16.0; // Fast spin in flight
       const spikeLen = 15 + (s % 2 === 0 ? 7 : 0);
 
       ctx.save();
