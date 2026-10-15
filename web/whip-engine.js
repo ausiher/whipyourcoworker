@@ -25,79 +25,48 @@ class WhipEngine {
 
     // ── Current Weapon System ─────────────────────────────────────────────────
     this.currentWeapon = 'whip'; // 'whip' | 'baton' | 'chain' | 'taser'
+    this.taserLatch = null; // { x, y, startTime, lastTapTime, comboTaps, active }
 
     this.weaponConfigs = {
       whip: {
         id: 'whip',
         name: 'WHIP',
-        sub: 'Classic',
-        themeColor: '#ff1744',
-        coreColor: '#ff8a80',
-        glowColor: 'rgba(255, 23, 68, 0.85)',
-        sparkColors: ['#ff1744', '#ff5252', '#ffffff', '#ff8a80', '#d50000'],
-        phrases: [
-          'FOCUS NOW! ⚡',
-          'WORK HARDER! 🔥',
-          'OUCH! 💢',
-          'FASTER! 💨',
-          'DEADLINE TODAY! ⏰',
-          'NO SLACKING! 🚫',
-          'CRUSH THE OKR! 🎯'
-        ]
+        sub: 'Classic Brown',
+        themeColor: '#d97706',
+        coreColor: '#78350f',
+        glowColor: 'rgba(217, 119, 6, 0.65)',
+        sparkColors: ['#d97706', '#b45309', '#92400e', '#fef3c7', '#78350f'],
+        phrases: []
       },
       baton: {
         id: 'baton',
-        name: 'BATON',
-        sub: 'Stun',
-        themeColor: '#00f5ff',
-        coreColor: '#e0f7fa',
-        glowColor: 'rgba(0, 245, 255, 0.85)',
-        sparkColors: ['#00f5ff', '#00b4d8', '#ffffff', '#38bdf8', '#0077b6'],
-        phrases: [
-          'STUNNED! ⚡',
-          'SHOCK THERAPY! 🔌',
-          'WAKE UP! 🚨',
-          'MAX VOLTAGE! ⚡',
-          'OUCH! 💢',
-          'SYSTEM RESET! 🔄',
-          'ALERT LEVEL HIGH! ⚠️'
-        ]
+        name: 'RUYUNG',
+        sub: 'Satpam Nunchaku',
+        themeColor: '#ca8a04',
+        coreColor: '#451a03',
+        glowColor: 'rgba(202, 138, 4, 0.65)',
+        sparkColors: ['#ca8a04', '#eab308', '#ffffff', '#78350f', '#fef08a'],
+        phrases: []
       },
       chain: {
         id: 'chain',
         name: 'CHAIN',
-        sub: 'Heavy',
-        themeColor: '#f59e0b',
-        coreColor: '#fef3c7',
-        glowColor: 'rgba(245, 158, 11, 0.85)',
-        sparkColors: ['#f59e0b', '#fbbf24', '#ffffff', '#d97706', '#b45309'],
-        phrases: [
-          'CRUNCH! 💥',
-          'SMACK! 🔨',
-          'GET TO WORK! 💼',
-          'HEAVY DUTY! 🛡️',
-          'OUCH! 💢',
-          'PRESSURE APPLIED! 📈',
-          'NO EXCUSES! 🚫'
-        ]
+        sub: 'Heavy Flail',
+        themeColor: '#94a3b8',
+        coreColor: '#334155',
+        glowColor: 'rgba(148, 163, 184, 0.6)',
+        sparkColors: ['#94a3b8', '#cbd5e1', '#ffffff', '#475569', '#64748b'],
+        phrases: []
       },
       taser: {
         id: 'taser',
         name: 'TASER',
-        sub: 'Shock',
-        themeColor: '#38bdf8',
+        sub: 'Arc Latch',
+        themeColor: '#00f5ff',
         coreColor: '#ffffff',
-        glowColor: 'rgba(56, 189, 248, 0.95)',
-        sparkColors: ['#38bdf8', '#818cf8', '#ffffff', '#00f5ff', '#c084fc'],
-        phrases: [
-          'ZAP! ⚡',
-          'MAX VOLTAGE! ⚡',
-          'OVERCLOCK! 🚀',
-          '10X SPEED! 💻',
-          'OUCH! 💢',
-          'POWER SURGE! ⚡',
-          'HIGH CURRENT! 🔋'
-        ]
+        glowColor: 'rgba(0, 245, 255, 0.85)',
+        sparkColors: ['#00f5ff', '#38bdf8', '#ffffff', '#818cf8', '#67e8f9'],
+        phrases: []
       }
     };
 
@@ -459,6 +428,7 @@ class WhipEngine {
     } catch (e) {}
   }
 
+  // Indonesian Satpam Ruyung (Double Stick): Solid teak wood strike "TAK!" + metal chain rattle
   playBatonSound(pitchRate = 1.0) {
     if (!this.audioCtx || this.isMuted) return;
     try {
@@ -466,33 +436,53 @@ class WhipEngine {
       const ctx = this.audioCtx;
       const t = ctx.currentTime;
 
-      // Electric stun crackle + high voltage buzz
-      const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      osc1.type = 'sawtooth';
-      osc2.type = 'square';
-      osc1.frequency.setValueAtTime(880 * pitchRate, t);
-      osc1.frequency.exponentialRampToValueAtTime(110, t + 0.12);
-      osc2.frequency.setValueAtTime(1760 * pitchRate, t);
-      osc2.frequency.exponentialRampToValueAtTime(220, t + 0.1);
+      // 1. Resonant solid hardwood "TAK!" impact
+      const woodOsc = ctx.createOscillator();
+      woodOsc.type = 'triangle';
+      woodOsc.frequency.setValueAtTime(740 * pitchRate, t);
+      woodOsc.frequency.exponentialRampToValueAtTime(140, t + 0.045);
 
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'highpass';
-      filter.frequency.setValueAtTime(600, t);
+      const woodGain = ctx.createGain();
+      woodGain.gain.setValueAtTime(1.3, t);
+      woodGain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
 
-      const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0.95, t);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+      woodOsc.connect(woodGain);
+      woodGain.connect(this.sfxGain);
+      woodOsc.start(t);
+      woodOsc.stop(t + 0.065);
 
-      osc1.connect(filter);
-      osc2.connect(filter);
-      filter.connect(gain);
-      gain.connect(this.sfxGain);
+      // 2. High-frequency wood crack impulse (noise burst)
+      const bufferSize = Math.floor(ctx.sampleRate * 0.025);
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.2));
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      const nFilter = ctx.createBiquadFilter();
+      nFilter.type = 'bandpass';
+      nFilter.frequency.setValueAtTime(2200, t);
+      const nGain = ctx.createGain();
+      nGain.gain.setValueAtTime(1.1, t);
+      nGain.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+      noise.connect(nFilter);
+      nFilter.connect(nGain);
+      nGain.connect(this.sfxGain);
+      noise.start(t);
 
-      osc1.start(t);
-      osc2.start(t);
-      osc1.stop(t + 0.15);
-      osc2.stop(t + 0.15);
+      // 3. Steel chain swivel ring
+      const chainRing = ctx.createOscillator();
+      chainRing.type = 'sine';
+      chainRing.frequency.setValueAtTime(3200 * pitchRate, t);
+      chainRing.frequency.exponentialRampToValueAtTime(1800, t + 0.08);
+      const chainGain = ctx.createGain();
+      chainGain.gain.setValueAtTime(0.45, t);
+      chainGain.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+      chainRing.connect(chainGain);
+      chainGain.connect(this.sfxGain);
+      chainRing.start(t);
+      chainRing.stop(t + 0.095);
     } catch (e) {}
   }
 
@@ -529,29 +519,34 @@ class WhipEngine {
     } catch (e) {}
   }
 
-  playTaserSound(pitchRate = 1.0) {
+  // Tactical Taser: High-voltage electrical buzz discharge scaling with combo taps
+  playTaserSound(comboTaps = 1) {
     if (!this.audioCtx || this.isMuted) return;
     try {
       if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
       const ctx = this.audioCtx;
       const t = ctx.currentTime;
 
-      // Rapid high-voltage multi-spark discharge
-      for (let s = 0; s < 4; s++) {
-        const sparkTime = t + s * 0.025;
+      const combo = Math.min(8, comboTaps);
+      const sparkCount = Math.min(10, 3 + combo * 2);
+      const baseFreq = 950 + combo * 180;
+      const volume = Math.min(1.4, 0.75 + combo * 0.12);
+
+      for (let s = 0; s < sparkCount; s++) {
+        const sparkTime = t + s * (0.024 - Math.min(0.012, combo * 0.0015));
         const osc = ctx.createOscillator();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime((1200 + s * 400) * pitchRate, sparkTime);
-        osc.frequency.exponentialRampToValueAtTime(300, sparkTime + 0.022);
+        osc.type = s % 2 === 0 ? 'sawtooth' : 'square';
+        osc.frequency.setValueAtTime((baseFreq + s * 300) * (0.9 + Math.random() * 0.3), sparkTime);
+        osc.frequency.exponentialRampToValueAtTime(260, sparkTime + 0.026);
 
         const sparkGain = ctx.createGain();
-        sparkGain.gain.setValueAtTime(0.85, sparkTime);
-        sparkGain.gain.exponentialRampToValueAtTime(0.001, sparkTime + 0.024);
+        sparkGain.gain.setValueAtTime(volume, sparkTime);
+        sparkGain.gain.exponentialRampToValueAtTime(0.001, sparkTime + 0.028);
 
         osc.connect(sparkGain);
         sparkGain.connect(this.sfxGain);
         osc.start(sparkTime);
-        osc.stop(sparkTime + 0.026);
+        osc.stop(sparkTime + 0.03);
       }
     } catch (e) {}
   }
@@ -648,6 +643,11 @@ class WhipEngine {
     this.currentWeapon = weaponId;
     this.playWeaponSwitchSound();
     this.update3DWeaponVisibility();
+    this.strike = null;
+    if (this.taserLatch) {
+      this.taserLatch.active = false;
+    }
+    this.initWhipPoints();
   }
 
   // ── 3D Scene Initialization ───────────────────────────────────────────────
@@ -838,6 +838,33 @@ class WhipEngine {
       this.lastTierAlert = currentTier;
     }
 
+    // ── Taser Arc Latch Mode (No whip curve, latch to initial click, combo tap escalates intensity)
+    if (this.currentWeapon === 'taser') {
+      const isNewLatch = !this.taserLatch || !this.taserLatch.active || (now - this.taserLatch.lastTapTime > 1800);
+      if (isNewLatch) {
+        this.taserLatch = {
+          x: targetX,
+          y: targetY,
+          startTime: now,
+          lastTapTime: now,
+          comboTaps: 1,
+          active: true
+        };
+      } else {
+        // Tapped again! Remains latched to initial click coordinates, increasing voltage & combo sparks
+        this.taserLatch.comboTaps = Math.min(12, this.taserLatch.comboTaps + 1);
+        this.taserLatch.lastTapTime = now;
+        this.taserLatch.active = true;
+      }
+
+      this.triggerImpact(this.taserLatch.x, this.taserLatch.y);
+
+      if (this.onFrenzyChange) {
+        this.onFrenzyChange(this.frenzy, this.combo);
+      }
+      return;
+    }
+
     const baseDuration = this.currentWeapon === 'chain' ? 240 : (this.currentWeapon === 'baton' ? 170 : 200);
     const strikeDuration = Math.max(65, baseDuration / this.frenzy);
 
@@ -858,7 +885,17 @@ class WhipEngine {
     this.pts = [];
     const origin = this.getEmitterScreenPos();
 
-    // Parabolic arc matching reference image: poised gracefully above coworker head
+    // If chain weapon, park points far below screen so the spiked ball does NOT hover in idle
+    if (this.currentWeapon === 'chain') {
+      for (let i = 0; i < this.segments; i++) {
+        const x = this.W * 0.6;
+        const y = this.H + 220 + i * 12;
+        this.pts.push({ x, y, px: x, py: y });
+      }
+      return;
+    }
+
+    // Parabolic arc matching classic whip posture
     const p0 = { x: origin.x, y: origin.y };
     const p1 = { x: origin.x - this.W * 0.08, y: origin.y - this.H * 0.18 };
     const p2 = { x: origin.x - this.W * 0.22, y: origin.y - this.H * 0.21 };
@@ -976,6 +1013,14 @@ class WhipEngine {
       }
     }
 
+    // Taser active discharge recoil jitter
+    if (this.currentWeapon === 'taser' && this.taserLatch && this.taserLatch.active) {
+      const jitterAmp = 0.008 * Math.min(5, this.taserLatch.comboTaps);
+      armTargetX += (Math.random() - 0.5) * jitterAmp;
+      armTargetY += (Math.random() - 0.5) * jitterAmp;
+      armRotZ += (Math.random() - 0.5) * jitterAmp * 2.5;
+    }
+
     // Apply transforms to 3D Arm Root
     this.armRoot.position.x += (armTargetX - this.armRoot.position.x) * 0.48;
     this.armRoot.position.y += (armTargetY - this.armRoot.position.y) * 0.48;
@@ -987,86 +1032,87 @@ class WhipEngine {
     // Get 3D Emitter screen coordinates
     const emitterScreen = this.getEmitterScreenPos();
 
-    // Whip / Chain Physics (Verlet) with S-Curve Wave
-    const isWhip = this.currentWeapon === 'whip';
-    const gravity = isWhip ? 0.35 : (this.currentWeapon === 'chain' ? 2.2 : 1.25);
-    const damping = this.currentWeapon === 'chain' ? 0.91 : 0.94;
+    // Classic Whip Physics (Verlet) with S-Curve Wave (Only active for Classic Whip)
+    if (this.currentWeapon === 'whip') {
+      const gravity = 0.35;
+      const damping = 0.94;
 
-    for (let i = 1; i < this.pts.length; i++) {
-      const p = this.pts[i];
-      const vx = (p.x - p.px) * damping;
-      const vy = (p.y - p.py) * damping;
-      p.px = p.x;
-      p.py = p.y;
-      p.x += vx;
-      p.y += vy + gravity;
+      for (let i = 1; i < this.pts.length; i++) {
+        const p = this.pts[i];
+        const vx = (p.x - p.px) * damping;
+        const vy = (p.y - p.py) * damping;
+        p.px = p.x;
+        p.py = p.y;
+        p.x += vx;
+        p.y += vy + gravity;
 
-      if (!this.strike && isWhip) {
-        // Poised cyber-spine internal tension & gentle breath sway
-        const t = i / (this.pts.length - 1);
-        const breath = Math.sin(this.time * 2.2 + t * 2.5) * (3.5 * t);
-        const p0 = { x: emitterScreen.x, y: emitterScreen.y };
-        const p1 = { x: emitterScreen.x - this.W * 0.08, y: emitterScreen.y - this.H * 0.18 };
-        const p2 = { x: emitterScreen.x - this.W * 0.22, y: emitterScreen.y - this.H * 0.21 };
-        const p3 = { x: this.W * 0.43, y: emitterScreen.y - this.H * 0.13 };
+        if (!this.strike) {
+          // Poised leather whip internal tension & gentle breath sway
+          const t = i / (this.pts.length - 1);
+          const breath = Math.sin(this.time * 2.2 + t * 2.5) * (3.5 * t);
+          const p0 = { x: emitterScreen.x, y: emitterScreen.y };
+          const p1 = { x: emitterScreen.x - this.W * 0.08, y: emitterScreen.y - this.H * 0.18 };
+          const p2 = { x: emitterScreen.x - this.W * 0.22, y: emitterScreen.y - this.H * 0.21 };
+          const p3 = { x: this.W * 0.43, y: emitterScreen.y - this.H * 0.13 };
 
-        const oneMinusT = 1 - t;
-        const targetX = oneMinusT * oneMinusT * oneMinusT * p0.x +
-                        3 * oneMinusT * oneMinusT * t * p1.x +
-                        3 * oneMinusT * t * t * p2.x +
-                        t * t * t * p3.x + breath;
-        const targetY = oneMinusT * oneMinusT * oneMinusT * p0.y +
-                        3 * oneMinusT * oneMinusT * t * p1.y +
-                        3 * oneMinusT * t * t * p2.y +
-                        t * t * t * p3.y + breath * 0.5;
-        p.x += (targetX - p.x) * 0.085;
-        p.y += (targetY - p.y) * 0.085;
+          const oneMinusT = 1 - t;
+          const targetX = oneMinusT * oneMinusT * oneMinusT * p0.x +
+                          3 * oneMinusT * oneMinusT * t * p1.x +
+                          3 * oneMinusT * t * t * p2.x +
+                          t * t * t * p3.x + breath;
+          const targetY = oneMinusT * oneMinusT * oneMinusT * p0.y +
+                          3 * oneMinusT * oneMinusT * t * p1.y +
+                          3 * oneMinusT * t * t * p2.y +
+                          t * t * t * p3.y + breath * 0.5;
+          p.x += (targetX - p.x) * 0.085;
+          p.y += (targetY - p.y) * 0.085;
+        }
+
+        if (strikeWavePhase > 0) {
+          const segT = i / (this.pts.length - 1);
+          const distFromWave = segT - strikeWavePhase;
+          const waveAmp = Math.sin(distFromWave * Math.PI * 3) * Math.exp(-distFromWave * distFromWave * 14) * 55 * (1 - strikeWavePhase);
+          const perpX = -Math.sin(strikeAimAngle) * waveAmp;
+          const perpY = Math.cos(strikeAimAngle) * waveAmp;
+          p.x += perpX * 0.38;
+          p.y += perpY * 0.38;
+        }
       }
 
-      if (strikeWavePhase > 0) {
-        const segT = i / (this.pts.length - 1);
-        const distFromWave = segT - strikeWavePhase;
-        const waveAmp = Math.sin(distFromWave * Math.PI * 3) * Math.exp(-distFromWave * distFromWave * 14) * 55 * (1 - strikeWavePhase);
-        const perpX = -Math.sin(strikeAimAngle) * waveAmp;
-        const perpY = Math.cos(strikeAimAngle) * waveAmp;
-        p.x += perpX * 0.38;
-        p.y += perpY * 0.38;
+      // Pin whip root to 3D handle tip
+      this.pts[0].x = emitterScreen.x;
+      this.pts[0].y = emitterScreen.y;
+      this.pts[0].px = emitterScreen.x;
+      this.pts[0].py = emitterScreen.y;
+
+      if (tipTarget) {
+        const tip = this.pts[this.pts.length - 1];
+        tip.x = tipTarget.x;
+        tip.y = tipTarget.y;
+        tip.px = tipTarget.x;
+        tip.py = tipTarget.y;
       }
-    }
 
-    // Pin whip root to 3D handle tip
-    this.pts[0].x = emitterScreen.x;
-    this.pts[0].y = emitterScreen.y;
-    this.pts[0].px = emitterScreen.x;
-    this.pts[0].py = emitterScreen.y;
+      // Distance constraint solver
+      const iters = 6;
+      for (let iter = 0; iter < iters; iter++) {
+        for (let i = 0; i < this.pts.length - 1; i++) {
+          const a = this.pts[i], b = this.pts[i + 1];
+          const dx = b.x - a.x, dy = b.y - a.y;
+          const dist = Math.hypot(dx, dy) || 0.0001;
+          const diff = (dist - this.segmentLength) / dist * 0.5;
+          const ox = dx * diff, oy = dy * diff;
 
-    if (tipTarget) {
-      const tip = this.pts[this.pts.length - 1];
-      tip.x = tipTarget.x;
-      tip.y = tipTarget.y;
-      tip.px = tipTarget.x;
-      tip.py = tipTarget.y;
-    }
-
-    // Distance constraint solver
-    const iters = 6;
-    for (let iter = 0; iter < iters; iter++) {
-      for (let i = 0; i < this.pts.length - 1; i++) {
-        const a = this.pts[i], b = this.pts[i + 1];
-        const dx = b.x - a.x, dy = b.y - a.y;
-        const dist = Math.hypot(dx, dy) || 0.0001;
-        const diff = (dist - this.segmentLength) / dist * 0.5;
-        const ox = dx * diff, oy = dy * diff;
-
-        if (i === 0) {
-          b.x -= ox * 2;
-          b.y -= oy * 2;
-        } else if (i === this.pts.length - 2 && tipTarget) {
-          a.x += ox * 2;
-          a.y += oy * 2;
-        } else {
-          a.x += ox; a.y += oy;
-          b.x -= ox; b.y -= oy;
+          if (i === 0) {
+            b.x -= ox * 2;
+            b.y -= oy * 2;
+          } else if (i === this.pts.length - 2 && tipTarget) {
+            a.x += ox * 2;
+            a.y += oy * 2;
+          } else {
+            a.x += ox; a.y += oy;
+            b.x -= ox; b.y -= oy;
+          }
         }
       }
     }
@@ -1077,7 +1123,11 @@ class WhipEngine {
   // ── Impact Trigger ────────────────────────────────────────────────────────
   triggerImpact(x, y) {
     this.whipCount++;
-    this.playWeaponSound();
+    if (this.currentWeapon === 'taser' && this.taserLatch) {
+      this.playTaserSound(this.taserLatch.comboTaps);
+    } else {
+      this.playWeaponSound();
+    }
 
     if ('vibrate' in navigator) {
       try {
@@ -1088,22 +1138,6 @@ class WhipEngine {
 
     this.screenShake = 16 + this.frenzy * 5;
     const cfg = this.weaponConfigs[this.currentWeapon];
-
-    // 1. Comic Speech Bubble Callout ("FOCUS NOW!", "WORK HARDER!", etc.)
-    const phrases = cfg.phrases;
-    const chosenText = phrases[Math.floor(Math.random() * phrases.length)];
-    this.callouts.push({
-      x: x + (Math.random() * 40 - 20),
-      y: y - 50 + (Math.random() * 20 - 10),
-      text: chosenText,
-      rotation: (Math.random() - 0.5) * 0.22, // Dynamic angled comic style
-      scale: 0.3,
-      targetScale: 1.05 + this.frenzy * 0.1,
-      alpha: 1.0,
-      age: 0,
-      life: 1.25,
-      color: cfg.themeColor,
-    });
 
     // 2. Curved Crimson / Electric Slash Streaks radiating outwards
     const slashCount = 5;
@@ -1266,11 +1300,6 @@ class WhipEngine {
       this.ctx.restore();
     }
 
-    // 7. Draw Comic Speech Bubbles ("FOCUS NOW!", "WORK HARDER!", etc.)
-    for (const c of this.callouts) {
-      this.drawComicCallout(c);
-    }
-
     this.ctx.restore();
   }
 
@@ -1278,7 +1307,7 @@ class WhipEngine {
   drawCurrentWeapon() {
     switch (this.currentWeapon) {
       case 'baton':
-        this.drawBatonVisual();
+        this.drawRuyungSatpam();
         break;
       case 'chain':
         this.drawChainVisual();
@@ -1288,212 +1317,353 @@ class WhipEngine {
         break;
       case 'whip':
       default:
-        this.drawCyberSpineWhip();
+        this.drawClassicBrownWhip();
         break;
     }
   }
 
-  // ── Articulated Mechanical Cyber-Spine Whip (Matches Reference Image) ──────
-  drawCyberSpineWhip() {
+  // ── Classic Braided Brown Leather Whip ────────────────────────────────────
+  drawClassicBrownWhip() {
     if (this.pts.length < 2) return;
     const ctx = this.ctx;
     ctx.save();
 
     const n = this.pts.length;
 
-    // 1. Underlying Glowing Tendon/Spine Core (Flexible Crimson Synthetic Muscle)
+    // 1. Draw tapered braided leather body
+    // Outer leather shadow & depth
     ctx.beginPath();
     ctx.moveTo(this.pts[0].x, this.pts[0].y);
     for (let i = 0; i < n - 1; i++) {
       const b = this.getBezier(i);
       ctx.bezierCurveTo(b.cp1x, b.cp1y, b.cp2x, b.cp2y, b.x2, b.y2);
     }
-    ctx.strokeStyle = '#ff1744';
-    ctx.lineWidth = 4.0 + this.frenzy * 0.8;
-    ctx.shadowColor = '#ff1744';
-    ctx.shadowBlur = 8;
+    ctx.strokeStyle = '#271105'; // dark leather crease
+    ctx.lineWidth = 10.0 + this.frenzy * 0.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
     ctx.stroke();
 
-    // Inner bright core
+    // Main rich saddle-brown braided core
     ctx.beginPath();
     ctx.moveTo(this.pts[0].x, this.pts[0].y);
     for (let i = 0; i < n - 1; i++) {
       const b = this.getBezier(i);
       ctx.bezierCurveTo(b.cp1x, b.cp1y, b.cp2x, b.cp2y, b.x2, b.y2);
     }
-    ctx.strokeStyle = '#ffcdd2';
-    ctx.lineWidth = 1.4;
-    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#78350f'; // rich warm brown
+    ctx.lineWidth = 7.0 + this.frenzy * 0.4;
     ctx.stroke();
 
-    // 2. Articulated Mechanical Vertebrae Segments (Gunmetal Shell + Specular Rim)
+    // Inner tan highlight ridge
+    ctx.beginPath();
+    ctx.moveTo(this.pts[0].x, this.pts[0].y);
+    for (let i = 0; i < n - 1; i++) {
+      const b = this.getBezier(i);
+      ctx.bezierCurveTo(b.cp1x, b.cp1y, b.cp2x, b.cp2y, b.x2, b.y2);
+    }
+    ctx.strokeStyle = '#d97706'; // tan leather sheen
+    ctx.lineWidth = 3.0;
+    ctx.stroke();
+
+    // 2. Leather Braiding Segments along the lash
     for (let i = 0; i < n; i++) {
-      const t = i / (n - 1); // 0 at base, 1 at tip
+      const t = i / (n - 1);
       const p = this.pts[i];
-
-      // Tangent direction along spine
       const prev = this.pts[Math.max(0, i - 1)];
       const next = this.pts[Math.min(n - 1, i + 1)];
       const angle = Math.atan2(next.y - prev.y, next.x - prev.x);
 
-      // Vertebra dimensions: tapering from base to tip
-      const w = 32 * (1 - t * 0.60) + 6; // Width across spine
-      const h = 13 * (1 - t * 0.38) + 4; // Length along spine
+      const w = 18 * (1 - t * 0.65) + 3; // Tapers from base to tip
+      const h = 8 * (1 - t * 0.35) + 2;
 
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(angle);
 
-      // Backwards-pointing mechanical spinal process ridges (top & bottom flanges)
-      ctx.fillStyle = '#1c222b';
-      ctx.strokeStyle = '#374151';
-      ctx.lineWidth = 1.0;
-      ctx.beginPath();
-      ctx.moveTo(-h * 0.45, -w * 0.46);
-      ctx.lineTo(-h * 0.82, -w * 0.56);
-      ctx.lineTo(h * 0.22, -w * 0.42);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(-h * 0.45, w * 0.46);
-      ctx.lineTo(-h * 0.82, w * 0.56);
-      ctx.lineTo(h * 0.22, w * 0.42);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      // Main Armored Gunmetal Vertebra Shell
+      // Braided leather weave segment
       const grad = ctx.createLinearGradient(-h * 0.5, 0, h * 0.5, 0);
-      grad.addColorStop(0, '#101418');
-      grad.addColorStop(0.35, '#28303c');
-      grad.addColorStop(0.7, '#1a1f26');
-      grad.addColorStop(1, '#0e1115');
+      grad.addColorStop(0, '#451a03');
+      grad.addColorStop(0.35, '#b45309');
+      grad.addColorStop(0.7, '#78350f');
+      grad.addColorStop(1, '#290f02');
 
       ctx.fillStyle = grad;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.32)';
-      ctx.lineWidth = 1.2;
-      ctx.shadowBlur = 0;
-
       ctx.beginPath();
-      ctx.roundRect(-h * 0.5, -w * 0.5, h, w, Math.min(4, h * 0.35));
+      ctx.roundRect(-h * 0.5, -w * 0.5, h, w, 2);
       ctx.fill();
-      ctx.stroke();
 
-      // Specular Top Rim Highlight
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.42)';
+      // Alternating diagonal chevron braid seam
+      ctx.strokeStyle = (i % 2 === 0) ? '#d97706' : '#290f02';
       ctx.lineWidth = 1.0;
       ctx.beginPath();
-      ctx.moveTo(-h * 0.35, -w * 0.44);
-      ctx.lineTo(h * 0.35, -w * 0.44);
+      ctx.moveTo(-h * 0.4, -w * 0.45);
+      ctx.lineTo(h * 0.4, w * 0.45);
       ctx.stroke();
-
-      // Center Glowing Crimson LED Reactor Core Slot
-      ctx.fillStyle = '#ff1744';
-      ctx.shadowColor = '#ff1744';
-      ctx.shadowBlur = 6;
-      ctx.beginPath();
-      ctx.roundRect(-h * 0.24, -w * 0.18, h * 0.48, w * 0.36, 1.5);
-      ctx.fill();
-
-      // White-hot inner core slit
-      ctx.fillStyle = '#ffffff';
-      ctx.shadowBlur = 0;
-      ctx.fillRect(-h * 0.10, -w * 0.08, h * 0.20, w * 0.16);
 
       ctx.restore();
     }
 
-    // 3. Glowing Rounded Emitter Cap at Tip (with radiating sparks)
+    // 3. Brass Ferrule at whip root
+    const root = this.pts[0];
+    const rootNext = this.pts[1];
+    const rootAngle = Math.atan2(rootNext.y - root.y, rootNext.x - root.x);
+    ctx.save();
+    ctx.translate(root.x, root.y);
+    ctx.rotate(rootAngle);
+    const brassGrad = ctx.createLinearGradient(-8, 0, 8, 0);
+    brassGrad.addColorStop(0, '#78350f');
+    brassGrad.addColorStop(0.4, '#fde047');
+    brassGrad.addColorStop(0.8, '#d4af37');
+    brassGrad.addColorStop(1, '#78350f');
+    ctx.fillStyle = brassGrad;
+    ctx.beginPath();
+    ctx.roundRect(-8, -12, 16, 24, 3);
+    ctx.fill();
+    ctx.strokeStyle = '#fef08a';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.restore();
+
+    // 4. Genuine Leather Fall & Red/White Cracker Knot at Tip
     const tip = this.pts[n - 1];
+    const tipPrev = this.pts[n - 2];
+    const tipAngle = Math.atan2(tip.y - tipPrev.y, tip.x - tipPrev.x);
     ctx.save();
     ctx.translate(tip.x, tip.y);
+    ctx.rotate(tipAngle);
 
-    const radGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, 14);
-    radGrad.addColorStop(0, '#ffffff');
-    radGrad.addColorStop(0.35, '#ff1744');
-    radGrad.addColorStop(1, 'rgba(255, 23, 68, 0)');
-
-    ctx.fillStyle = radGrad;
+    // Leather Fall thong (narrow strip extending beyond last point)
+    ctx.strokeStyle = '#78350f';
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.arc(0, 0, 14 + this.frenzy * 2, 0, Math.PI * 2);
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(15, Math.sin(this.time * 5) * 6, 28, 0);
+    ctx.stroke();
+
+    // Red yarn cracker/popper at the extreme end
+    ctx.strokeStyle = '#dc2626';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(28, 0);
+    ctx.lineTo(38, Math.sin(this.time * 8) * 8);
+    ctx.stroke();
+
+    // Knot bead
+    ctx.fillStyle = '#fef2f2';
+    ctx.beginPath();
+    ctx.arc(28, 0, 3, 0, Math.PI * 2);
     ctx.fill();
 
-    // Radiating dynamic crimson energy slash sparks at tip (as in reference image)
-    const sparks = [-1.1, -0.6, -0.1, 0.4, 0.9];
-    ctx.strokeStyle = '#ff1744';
-    ctx.lineWidth = 2.5;
-    ctx.shadowColor = '#ff1744';
-    ctx.shadowBlur = 10;
-    sparks.forEach((angOffset, idx) => {
-      ctx.save();
-      ctx.rotate(angOffset + Math.sin(this.time * 4.0 + idx) * 0.15);
+    // Supersonic crack shockwave if striking
+    if (this.strike && this.strike.impactFired) {
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(12, 0);
-      ctx.quadraticCurveTo(24, (idx % 2 === 0 ? 8 : -8), 42 + (idx % 3) * 12, 0);
+      ctx.arc(32, 0, 16, 0, Math.PI * 2);
       ctx.stroke();
-
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.0;
-      ctx.beginPath();
-      ctx.moveTo(12, 0);
-      ctx.quadraticCurveTo(20, (idx % 2 === 0 ? 4 : -4), 30, 0);
-      ctx.stroke();
-      ctx.restore();
-    });
+    }
 
     ctx.restore();
     ctx.restore();
   }
 
-  // ── Riot Stun Baton Visual ────────────────────────────────────────────────
-  drawBatonVisual() {
+  // ── Traditional Indonesian Satpam Nunchuck (Ruyung Satpam) ───────────────
+  drawRuyungSatpam() {
     const ctx = this.ctx;
     const origin = this.getEmitterScreenPos();
-    const tip = this.pts[this.pts.length - 1];
-
     ctx.save();
 
-    // Draw electrical lightning aura around baton line
+    // Indonesian Satpam Ruyung (Double Stick)
+    // Stick 1: Main baton in hand
+    // Stick 2: Striking baton attached via steel swivel & chain links
+    const batonLen = Math.max(85, Math.min(130, this.H * 0.15));
+    const batonW = 13;
+
+    // Angle of held baton in hand
+    const baseAngle = -Math.PI * 0.56;
+
+    // 1. Draw Stick 1 (held in tactical hand)
+    ctx.save();
+    ctx.translate(origin.x, origin.y);
+    ctx.rotate(baseAngle);
+
+    // Teak / dark hardwood gradient
+    const woodGrad = ctx.createLinearGradient(0, -batonW * 0.5, 0, batonW * 0.5);
+    woodGrad.addColorStop(0, '#1c1917');
+    woodGrad.addColorStop(0.35, '#451a03');
+    woodGrad.addColorStop(0.7, '#29180d');
+    woodGrad.addColorStop(1, '#0c0a09');
+
+    ctx.fillStyle = woodGrad;
     ctx.beginPath();
-    ctx.moveTo(origin.x, origin.y);
-    ctx.lineTo(tip.x, tip.y);
-    ctx.strokeStyle = '#00f5ff';
-    ctx.lineWidth = 10;
-    ctx.shadowColor = '#00f5ff';
-    ctx.shadowBlur = 18;
+    ctx.roundRect(-batonLen * 0.4, -batonW * 0.5, batonLen, batonW, 3);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
+    ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Inner bright plasma core
+    // Steel swivel collar at tip
+    ctx.fillStyle = '#94a3b8';
     ctx.beginPath();
-    ctx.moveTo(origin.x, origin.y);
-    ctx.lineTo(tip.x, tip.y);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 4;
+    ctx.roundRect(batonLen * 0.45, -batonW * 0.55, 12, batonW * 1.1, 2);
+    ctx.fill();
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1.2;
     ctx.stroke();
 
-    // Electrical sparks at baton tip
-    ctx.fillStyle = '#00f5ff';
+    ctx.restore();
+
+    // 2. Swivel Point at top of stick 1
+    const swivelX = origin.x + Math.cos(baseAngle) * (batonLen * 0.55);
+    const swivelY = origin.y + Math.sin(baseAngle) * (batonLen * 0.55);
+
+    // Calculate position and angle of Stick 2 (free swinging stick)
+    let stick2Angle = 0;
+
+    if (this.strike) {
+      const elapsed = performance.now() - this.strike.startTime;
+      const progress = Math.min(1, Math.max(0, elapsed / this.strike.duration));
+
+      const dx = this.strike.targetX - swivelX;
+      const dy = this.strike.targetY - swivelY;
+      const targetAngle = Math.atan2(dy, dx);
+
+      if (progress < 0.65) {
+        // Forward whipping rotation arc
+        const p = progress / 0.65;
+        const ease = p * p * (3 - 2 * p);
+        stick2Angle = baseAngle + (targetAngle - baseAngle) * ease + Math.sin(p * Math.PI) * 0.75;
+      } else {
+        // Recoil back to resting hang
+        const p = (progress - 0.65) / 0.35;
+        const restingAngle = Math.PI * 0.45;
+        stick2Angle = targetAngle + (restingAngle - targetAngle) * p + Math.sin(p * Math.PI * 3) * 0.18 * (1 - p);
+      }
+    } else {
+      // Idle resting hang with natural pendulum sway
+      const sway = Math.sin(this.time * 2.8) * 0.12;
+      stick2Angle = Math.PI * 0.42 + sway;
+    }
+
+    // 3. Draw 4 Steel Chain Links from swivel to Stick 2
+    const chainLinks = 4;
+    const chainDist = 30;
+    for (let c = 0; c < chainLinks; c++) {
+      const ct = (c + 0.5) / chainLinks;
+      const lx = swivelX + Math.cos(stick2Angle) * (ct * chainDist);
+      const ly = swivelY + Math.sin(stick2Angle) * (ct * chainDist);
+
+      ctx.save();
+      ctx.translate(lx, ly);
+      ctx.rotate(stick2Angle + (c % 2 === 0 ? 0 : Math.PI * 0.5));
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 5, 3, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.lineWidth = 1.0;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // 4. Draw Stick 2 (The striking ruyung baton)
+    const stick2PivotX = swivelX + Math.cos(stick2Angle) * chainDist;
+    const stick2PivotY = swivelY + Math.sin(stick2Angle) * chainDist;
+
+    ctx.save();
+    ctx.translate(stick2PivotX, stick2PivotY);
+    ctx.rotate(stick2Angle);
+
+    // Steel cap at swivel attachment
+    ctx.fillStyle = '#94a3b8';
     ctx.beginPath();
-    ctx.arc(tip.x, tip.y, 10 + this.frenzy * 2, 0, Math.PI * 2);
+    ctx.roundRect(0, -batonW * 0.55, 12, batonW * 1.1, 2);
+    ctx.fill();
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // Main Teak / Black Hardwood Baton Body
+    ctx.fillStyle = woodGrad;
+    ctx.beginPath();
+    ctx.roundRect(10, -batonW * 0.5, batonLen, batonW, 3);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(250, 204, 21, 0.45)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // Indonesian Satpam Gold Inlay Rings
+    ctx.strokeStyle = '#eab308';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(30, -batonW * 0.5);
+    ctx.lineTo(30, batonW * 0.5);
+    ctx.moveTo(34, -batonW * 0.5);
+    ctx.lineTo(34, batonW * 0.5);
+    ctx.moveTo(batonLen - 8, -batonW * 0.5);
+    ctx.lineTo(batonLen - 8, batonW * 0.5);
+    ctx.stroke();
+
+    // Steel cap at strike tip
+    ctx.fillStyle = '#64748b';
+    ctx.beginPath();
+    ctx.roundRect(batonLen + 4, -batonW * 0.52, 6, batonW * 1.04, 2);
     ctx.fill();
 
     ctx.restore();
+    ctx.restore();
   }
 
-  // ── Heavy Iron Spiked Flail Chain Visual ──────────────────────────────────
+  // ── Heavy Iron Spiked Flail Chain Visual (Hurtles UP from bottom on strike, hidden in idle) ──
   drawChainVisual() {
-    if (this.pts.length < 2) return;
+    if (this.currentWeapon !== 'chain') return;
+    if (!this.strike) return; // HIDDEN in idle! Spiked ball never hovers on screen!
+
     const ctx = this.ctx;
+    const origin = this.getEmitterScreenPos();
+    const elapsed = performance.now() - this.strike.startTime;
+    const progress = Math.min(1, Math.max(0, elapsed / this.strike.duration));
+
+    const targetX = this.strike.targetX;
+    const targetY = this.strike.targetY;
+    const bottomStartX = this.W * 0.62;
+    const bottomStartY = this.H + 190;
+
+    let ballX, ballY;
+
+    if (progress < 0.58) {
+      // Phase 1: Hurling UP from bottom to target
+      const p = progress / 0.58;
+      const ease = p * p * (3 - 2 * p);
+      ballX = bottomStartX + (targetX - bottomStartX) * ease;
+      ballY = bottomStartY + (targetY - bottomStartY) * ease;
+    } else {
+      // Phase 2: Post-impact recoil - heavy morningstar drops back down off screen
+      const p = (progress - 0.58) / 0.42;
+      ballX = targetX + Math.sin(p * Math.PI) * 25;
+      ballY = targetY + p * p * (this.H * 0.95); // Plunges down
+    }
+
     ctx.save();
 
-    const n = this.pts.length;
+    // Generate interpolated chain links between emitter and spiked ball
+    const chainLinksCount = 15;
+    const chainPoints = [];
+    for (let c = 0; c <= chainLinksCount; c++) {
+      const t = c / chainLinksCount;
+      // Quadratic curve sagging downward for heavy iron momentum
+      const sag = Math.sin(t * Math.PI) * (65 * (1 - progress * 0.5));
+      const cx = origin.x + (ballX - origin.x) * t;
+      const cy = origin.y + (ballY - origin.y) * t + sag;
+      chainPoints.push({ x: cx, y: cy });
+    }
 
-    // 1. Interlocking Dark Iron Chain Links
-    for (let i = 0; i < n - 1; i++) {
-      const p1 = this.pts[i];
-      const p2 = this.pts[i + 1];
+    // 1. Draw Interlocking Heavy Dark Iron Chain Links
+    for (let i = 0; i < chainPoints.length - 1; i++) {
+      const p1 = chainPoints[i];
+      const p2 = chainPoints[i + 1];
       const dx = p2.x - p1.x;
       const dy = p2.y - p1.y;
       const ang = Math.atan2(dy, dx);
@@ -1506,48 +1676,50 @@ class WhipEngine {
       if (i % 2 === 0) {
         // Flat oval chain link
         ctx.strokeStyle = '#475569';
-        ctx.lineWidth = 4.5;
+        ctx.lineWidth = 5.0;
         ctx.beginPath();
-        ctx.ellipse(0, 0, dist * 0.48, 7, 0, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, Math.max(8, dist * 0.48), 7.5, 0, 0, Math.PI * 2);
         ctx.stroke();
 
-        ctx.strokeStyle = '#94a3b8'; // Specular sheen
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#cbd5e1'; // Specular sheen
+        ctx.lineWidth = 1.6;
         ctx.stroke();
       } else {
         // Edge-profile link
         ctx.fillStyle = '#334155';
         ctx.beginPath();
-        ctx.roundRect(-dist * 0.35, -3.5, dist * 0.7, 7, 3);
+        ctx.roundRect(-dist * 0.35, -4, dist * 0.7, 8, 3);
         ctx.fill();
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1.0;
+        ctx.stroke();
       }
 
       ctx.restore();
     }
 
-    // 2. Heavy Spiked Morningstar Iron Ball at Tip
-    const tip = this.pts[n - 1];
+    // 2. Heavy Spiked Morningstar Iron Ball
     ctx.save();
-    ctx.translate(tip.x, tip.y);
+    ctx.translate(ballX, ballY);
 
-    const ballRadius = 24 + this.frenzy * 2;
-
-    // 12 Conical Spikes around the perimeter
+    const ballRadius = 26 + this.frenzy * 2.2;
     const spikeCount = 10;
+
+    // Conical spikes radiating from morningstar
     ctx.fillStyle = '#1e293b';
-    ctx.strokeStyle = '#94a3b8';
+    ctx.strokeStyle = '#cbd5e1';
     ctx.lineWidth = 1.5;
 
     for (let s = 0; s < spikeCount; s++) {
-      const ang = (s / spikeCount) * Math.PI * 2 + this.time * 0.5;
-      const spikeLen = 14 + (s % 2 === 0 ? 6 : 0);
+      const ang = (s / spikeCount) * Math.PI * 2 + progress * 8.0; // Spins in flight
+      const spikeLen = 15 + (s % 2 === 0 ? 7 : 0);
 
       ctx.save();
       ctx.rotate(ang);
       ctx.beginPath();
-      ctx.moveTo(-5, ballRadius * 0.85);
+      ctx.moveTo(-5.5, ballRadius * 0.82);
       ctx.lineTo(0, ballRadius + spikeLen);
-      ctx.lineTo(5, ballRadius * 0.85);
+      ctx.lineTo(5.5, ballRadius * 0.82);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
@@ -1555,10 +1727,10 @@ class WhipEngine {
     }
 
     // Iron Sphere Body with Specular Highlight
-    const sphereGrad = ctx.createRadialGradient(-6, -6, 2, 0, 0, ballRadius);
-    sphereGrad.addColorStop(0, '#94a3b8');
-    sphereGrad.addColorStop(0.3, '#334155');
-    sphereGrad.addColorStop(0.85, '#0f172a');
+    const sphereGrad = ctx.createRadialGradient(-7, -7, 2, 0, 0, ballRadius);
+    sphereGrad.addColorStop(0, '#e2e8f0');
+    sphereGrad.addColorStop(0.25, '#64748b');
+    sphereGrad.addColorStop(0.7, '#1e293b');
     sphereGrad.addColorStop(1, '#020617');
 
     ctx.fillStyle = sphereGrad;
@@ -1567,49 +1739,127 @@ class WhipEngine {
     ctx.fill();
 
     ctx.strokeStyle = '#cbd5e1';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2.2;
     ctx.stroke();
 
     ctx.restore();
     ctx.restore();
   }
 
-  // ── Tactical Dual-Prong Taser Visual ──────────────────────────────────────
+  // ── Tactical Dual-Prong Taser Arc Latch (Latches to click, escalates with combo) ──
   drawTaserVisual() {
+    if (this.currentWeapon !== 'taser') return;
+    if (!this.taserLatch || !this.taserLatch.active) return;
+
     const ctx = this.ctx;
     const origin = this.getEmitterScreenPos();
-    const tip = this.pts[this.pts.length - 1];
+    const target = { x: this.taserLatch.x, y: this.taserLatch.y };
+    const combo = this.taserLatch.comboTaps || 1;
+
+    const elapsedSinceTap = performance.now() - this.taserLatch.lastTapTime;
+    if (elapsedSinceTap > 1800) {
+      this.taserLatch.active = false;
+      return;
+    }
+
+    const intensityFade = Math.max(0, 1 - (elapsedSinceTap / 1800));
 
     ctx.save();
 
-    // Dual electrified dart wires with high-frequency jitter
-    const wires = [-6, 6];
-    wires.forEach(offset => {
+    // 1. Dual Dart Wires (Thin copper wires connecting muzzle to latched darts)
+    const offsets = [-8, 8];
+    offsets.forEach(off => {
       ctx.beginPath();
-      ctx.moveTo(origin.x + offset, origin.y + offset);
-
-      const segments = 12;
-      for (let s = 1; s <= segments; s++) {
-        const t = s / segments;
-        const x = origin.x + offset + (tip.x - origin.x - offset) * t;
-        const y = origin.y + offset + (tip.y - origin.y - offset) * t;
-        const jitterX = (Math.random() - 0.5) * 8 * (1 - t * 0.5);
-        const jitterY = (Math.random() - 0.5) * 8 * (1 - t * 0.5);
-        ctx.lineTo(x + jitterX, y + jitterY);
+      ctx.moveTo(origin.x + off, origin.y);
+      const wireSteps = 16;
+      for (let s = 1; s <= wireSteps; s++) {
+        const t = s / wireSteps;
+        const wx = origin.x + off + (target.x - (origin.x + off)) * t;
+        const sag = Math.sin(t * Math.PI) * (18 / (1 + combo * 0.3)); // Tightens as voltage increases
+        const wy = origin.y + (target.y - origin.y) * t + sag;
+        const jitterX = (Math.random() - 0.5) * (2 + combo * 0.8);
+        const jitterY = (Math.random() - 0.5) * (2 + combo * 0.8);
+        ctx.lineTo(wx + jitterX, wy + jitterY);
       }
-
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 2.5;
-      ctx.shadowColor = '#00f5ff';
-      ctx.shadowBlur = 10;
+      ctx.strokeStyle = `rgba(180, 220, 255, ${0.45 * intensityFade})`;
+      ctx.lineWidth = 1.2;
       ctx.stroke();
     });
 
-    // Electrified dart node at target
-    ctx.fillStyle = '#ffffff';
+    // 2. High-Voltage Primary Lightning Arcs scaling with combo
+    const boltCount = Math.min(7, 2 + Math.floor(combo * 0.7));
+    for (let b = 0; b < boltCount; b++) {
+      ctx.beginPath();
+      ctx.moveTo(origin.x + (b % 2 === 0 ? -6 : 6), origin.y);
+
+      const steps = 18;
+      let curX = origin.x;
+      let curY = origin.y;
+      for (let s = 1; s <= steps; s++) {
+        const t = s / steps;
+        const tx = origin.x + (target.x - origin.x) * t;
+        const ty = origin.y + (target.y - origin.y) * t;
+
+        const maxJitter = (8 + combo * 3.5) * Math.sin(t * Math.PI);
+        const jx = (Math.random() - 0.5) * maxJitter;
+        const jy = (Math.random() - 0.5) * maxJitter;
+
+        ctx.lineTo(tx + jx, ty + jy);
+        curX = tx + jx;
+        curY = ty + jy;
+
+        // Erratic branching sub-sparks
+        if (s % 4 === 0 && Math.random() < (0.35 + combo * 0.08)) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(curX, curY);
+          const branchLen = (12 + combo * 4) * (Math.random() > 0.5 ? 1 : -1);
+          ctx.lineTo(curX + branchLen, curY + (Math.random() - 0.5) * branchLen);
+          ctx.strokeStyle = '#00f5ff';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+      ctx.lineTo(target.x, target.y);
+
+      ctx.strokeStyle = (b === 0) ? '#ffffff' : (b % 2 === 0 ? '#00f5ff' : '#38bdf8');
+      ctx.lineWidth = (b === 0 ? 3.5 : 2.0) + Math.min(3, combo * 0.4);
+      ctx.shadowColor = '#00f5ff';
+      ctx.shadowBlur = 12 + combo * 3;
+      ctx.stroke();
+    }
+
+    // 3. Stun Electrode Node at target coordinate (latch site)
+    const glowRadius = 16 + combo * 4;
+    const radialGrad = ctx.createRadialGradient(target.x, target.y, 2, target.x, target.y, glowRadius);
+    radialGrad.addColorStop(0, '#ffffff');
+    radialGrad.addColorStop(0.35, '#00f5ff');
+    radialGrad.addColorStop(0.7, 'rgba(0, 245, 255, 0.45)');
+    radialGrad.addColorStop(1, 'rgba(0, 245, 255, 0)');
+
+    ctx.fillStyle = radialGrad;
     ctx.beginPath();
-    ctx.arc(tip.x, tip.y, 8, 0, Math.PI * 2);
+    ctx.arc(target.x, target.y, glowRadius, 0, Math.PI * 2);
     ctx.fill();
+
+    // Dual barbed darts stuck in target
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.arc(target.x - 7, target.y, 4, 0, Math.PI * 2);
+    ctx.arc(target.x + 7, target.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // High frequency electric sparks around latch site
+    const sparkCount = 4 + combo * 2;
+    for (let sp = 0; sp < sparkCount; sp++) {
+      const spAng = Math.random() * Math.PI * 2;
+      const spDist = Math.random() * (glowRadius * 1.2);
+      ctx.fillStyle = sp % 2 === 0 ? '#ffffff' : '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(target.x + Math.cos(spAng) * spDist, target.y + Math.sin(spAng) * spDist, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     ctx.restore();
   }

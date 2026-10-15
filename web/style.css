@@ -63,6 +63,7 @@ html, body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  background-color: #000000;
   z-index: 1;
 }
 
@@ -180,102 +181,99 @@ html, body {
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9));
 }
 
-/* Top-Right: "🔴 LIVE" Pill & Subtitle */
-.top-live-group {
+/* ── Top-Right: Clean Productivity Multiplier (No Floating Box) ────────────── */
+.top-multiplier-container {
   position: absolute;
   top: 14px;
-  right: 14px;
+  right: 18px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
-  z-index: 10;
-  pointer-events: auto;
-}
-
-.live-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(6, 18, 36, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid var(--cyber-cyan);
-  padding: 6px 14px;
-  border-radius: 999px;
-  box-shadow: 0 0 14px rgba(0, 245, 255, 0.35);
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-.live-pill:hover {
-  transform: scale(1.04);
-  box-shadow: 0 0 20px rgba(0, 245, 255, 0.55);
-}
-
-.live-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #ff1744;
-  box-shadow: 0 0 10px #ff1744;
-  animation: liveBlink 1.4s infinite ease-in-out;
-}
-
-@keyframes liveBlink {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.35; transform: scale(0.85); }
-}
-
-.live-text {
-  font-family: var(--font-scifi-title);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 1.2px;
-  color: #ffffff;
-}
-
-.live-cam-svg {
-  filter: drop-shadow(0 0 6px var(--cyber-cyan));
-}
-
-.live-subtitles {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  font-family: var(--font-scifi-title);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  color: var(--cyber-cyan);
-  line-height: 1.35;
-  text-shadow: 0 0 8px rgba(0, 245, 255, 0.5);
-}
-
-.hud-crown-mini {
-  vertical-align: middle;
-  margin-left: 2px;
-  filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8));
-}
-
-/* ── Left HUD: Cyber Productivity Gauge ────────────────────────────────────── */
-.cyber-productivity-panel {
-  position: absolute;
-  top: 125px;
-  left: 16px;
-  width: 140px;
-  background: var(--cyber-panel-bg);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1.5px solid var(--cyber-border);
-  border-radius: 14px;
-  padding: 12px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
   z-index: 10;
   pointer-events: none;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65), 0 0 20px rgba(0, 245, 255, 0.18);
+}
+
+.top-mult-label {
+  font-family: var(--font-scifi-title);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.7);
+  text-shadow: 0 0 8px rgba(0, 245, 255, 0.4);
+}
+
+.top-mult-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: -2px;
+}
+
+.top-mult-val {
+  font-family: var(--font-scifi-title);
+  font-size: 34px;
+  font-weight: 900;
+  color: #ea580c;
+  letter-spacing: -0.5px;
+  text-shadow: 0 0 16px rgba(234, 88, 12, 0.75);
+  transition: transform 0.12s ease, color 0.15s ease, text-shadow 0.15s ease;
+  display: inline-block;
+}
+
+.top-mult-val.bump {
+  transform: scale(1.18);
+}
+
+.top-mult-crown {
+  font-size: 18px;
+  filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.85));
+}
+
+/* ── Left & Right Edge Ambient Light Channels (Dynamic Responsive Glow) ─────── */
+.ambient-light-channel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 12px;
+  pointer-events: none;
+  z-index: 4;
+  transition: width 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease, filter 0.1s ease;
+  opacity: 0.45;
+}
+
+.ambient-light-channel.left {
+  left: 0;
+  background: linear-gradient(90deg, #ea580c 0%, transparent 100%);
+  box-shadow: 0 0 28px rgba(234, 88, 12, 0.55);
+}
+
+.ambient-light-channel.right {
+  right: 0;
+  background: linear-gradient(-90deg, #ea580c 0%, transparent 100%);
+  box-shadow: 0 0 28px rgba(234, 88, 12, 0.55);
+}
+
+/* ── 0.1s Impact Screen Flash Overlay ───────────────────────────────────────── */
+.screen-impact-flash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 50;
+  transition: opacity 0.1s ease-out;
+}
+
+.screen-impact-flash.flash-active {
+  opacity: 0.85;
+  transition: none;
+}
+
+.cyber-productivity-panel {
+  display: none !important;
 }
 
 /* Panel Header */
@@ -666,7 +664,7 @@ html, body {
 .bottom-actions-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
   max-width: 396px;
   padding: 4px 4px 0 4px;
@@ -674,73 +672,63 @@ html, body {
   box-sizing: border-box;
 }
 
-.bottom-action-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: rgba(6, 16, 32, 0.88);
-  border: 1.5px solid var(--cyber-cyan);
+.record-tactical-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(6, 18, 36, 0.94);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  border: 1.8px solid var(--cyber-cyan);
+  border-radius: 999px;
+  padding: 9px 24px;
   color: #ffffff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 18px;
   cursor: pointer;
-  box-shadow: 0 0 14px rgba(0, 245, 255, 0.35);
-  transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 0 16px rgba(0, 245, 255, 0.35);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.bottom-action-btn:hover {
-  background: rgba(10, 28, 54, 0.95);
-  box-shadow: 0 0 20px rgba(0, 245, 255, 0.6);
+.record-tactical-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 24px rgba(0, 245, 255, 0.65);
+  background: rgba(10, 28, 56, 0.98);
 }
 
-.bottom-action-btn:active {
-  transform: scale(0.92);
+.record-tactical-btn:active {
+  transform: scale(0.95);
 }
 
-.bottom-action-btn.recording {
-  background: #ff1744;
+.record-tactical-btn.recording {
+  background: #dc2626;
   border-color: #ffffff;
-  color: #ffffff;
-  animation: pulseRecord 1s infinite alternate;
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.8);
+  animation: pulseRecordBtn 1.2s infinite ease-in-out;
 }
 
-@keyframes pulseRecord {
-  from { transform: scale(1); box-shadow: 0 0 10px #ff1744; }
-  to { transform: scale(1.1); box-shadow: 0 0 24px #ff1744; }
+@keyframes pulseRecordBtn {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 16px rgba(239, 68, 68, 0.7); }
+  50% { transform: scale(1.06); box-shadow: 0 0 28px rgba(255, 255, 255, 0.9); }
 }
 
-.bottom-slogan-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  justify-content: center;
+.rec-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
 }
 
-.slogan-line {
-  flex: 1;
-  max-width: 32px;
-  height: 1px;
-  background: rgba(0, 245, 255, 0.4);
-  box-shadow: 0 0 4px rgba(0, 245, 255, 0.4);
+.record-tactical-btn.recording .rec-dot {
+  background: #ffffff;
+  box-shadow: 0 0 8px #ffffff;
 }
 
-.bottom-slogan {
+.rec-label {
   font-family: var(--font-scifi-title);
-  font-size: 10.5px;
+  font-size: 13px;
   font-weight: 800;
-  letter-spacing: 2.0px;
-  color: rgba(255, 255, 255, 0.75);
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-  white-space: nowrap;
-}
-
-.action-btn-svg {
-  display: block;
+  letter-spacing: 1.5px;
+  color: #ffffff;
 }
 
 /* ── Corporate Tactical AR Reticle ─────────────────────────────────────────── */

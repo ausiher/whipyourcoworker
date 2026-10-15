@@ -50,113 +50,21 @@
       </div>
     </header>
 
-    <!-- Top-Right: Cyber "🔴 LIVE" Pill & Subtitle -->
-    <aside class="top-live-group" aria-label="Live Status">
-      <div id="live-pill-toggle" class="live-pill" role="button" tabindex="0" title="Click to Record / Stop Live Video">
-        <span class="live-dot"></span>
-        <span class="live-text">LIVE</span>
-        <svg class="live-cam-svg" viewBox="0 0 20 16" width="16" height="13" fill="#00f5ff">
-          <rect x="1" y="2" width="12" height="12" rx="2.5"/>
-          <path d="M13.5 6.5L18.5 3.5V12.5L13.5 9.5V6.5Z"/>
-        </svg>
-      </div>
-      <div class="live-subtitles">
-        <div>WORK HARDER.</div>
-        <div>TOGETHER.</div>
-      </div>
-    </aside>
-
-    <!-- ── Left HUD: Cyber Productivity Gauge ────────────────────────────────── -->
-    <div class="cyber-productivity-panel">
-      <!-- Header -->
-      <div class="hud-header">
-        <div class="hud-label">PRODUCTIVITY</div>
-        <div class="hud-readout-row">
-          <span id="meter-multiplier-val" class="hud-readout">x2.8</span>
-        </div>
-        <div class="hud-sub">MULTIPLIER <svg class="hud-crown-mini" viewBox="0 0 20 15" width="13" height="10"><path d="M2 13L4 4L8 8L10 2L12 8L16 4L18 13H2Z" fill="#F59E0B" stroke="#FDE047" stroke-width="1.2"/></svg></div>
-      </div>
-
-      <!-- Gauge Section: Vertical Capsule LED Thermometer + Milestones -->
-      <div class="gauge-section">
-        <!-- Thermometer Capsule with 18 segmented LED bars -->
-        <div class="thermometer-capsule">
-          <div class="capsule-bolt">⚡</div>
-          <div id="thermometer-track" class="capsule-track">
-            <!-- Dynamically populated 18 segments -->
-          </div>
-        </div>
-
-        <!-- Milestone Tick Markers -->
-        <div class="milestone-ticks">
-          <div class="tick-item max" data-tier="4.0">
-            <div class="tick-line"></div>
-            <div class="tick-content">
-              <div class="tick-title">MAX <svg class="hud-crown-mini" viewBox="0 0 20 15" width="12" height="9"><path d="M2 13L4 4L8 8L10 2L12 8L16 4L18 13H2Z" fill="#F59E0B" stroke="#FDE047" stroke-width="1.2"/></svg></div>
-              <div class="tick-val">x4.0</div>
-            </div>
-          </div>
-          <div class="tick-item peak" data-tier="3.0">
-            <div class="tick-line"></div>
-            <div class="tick-content">
-              <div class="tick-title">PEAK <svg class="hud-crown-mini" viewBox="0 0 20 15" width="12" height="9"><path d="M2 13L4 4L8 8L10 2L12 8L16 4L18 13H2Z" fill="#F59E0B" stroke="#FDE047" stroke-width="1.2"/></svg></div>
-              <div class="tick-val">x3.0</div>
-            </div>
-          </div>
-          <div class="tick-item good" data-tier="2.0">
-            <div class="tick-line"></div>
-            <div class="tick-content">
-              <div class="tick-title">GOOD</div>
-              <div class="tick-val">x2.0</div>
-            </div>
-          </div>
-          <div class="tick-item ok" data-tier="1.0">
-            <div class="tick-line"></div>
-            <div class="tick-content">
-              <div class="tick-title">OK</div>
-              <div class="tick-val">x1.0</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Combo Burst Badge -->
-      <div id="combo-burst-badge" class="combo-burst-badge">
-        <svg class="combo-burst-svg" viewBox="0 0 140 60">
-          <polygon points="10,30 20,12 40,16 65,5 90,14 115,8 128,25 138,36 124,48 102,46 80,56 55,48 30,54 18,42" fill="#040c1a" stroke="#ea580c" stroke-width="3.2" stroke-linejoin="round"/>
-          <polygon points="14,30 23,15 41,18 64,8 88,16 112,11 124,26 132,36 121,45 100,43 79,52 56,45 32,50 21,40" fill="none" stroke="#fbbf24" stroke-width="1.8" stroke-linejoin="round"/>
-        </svg>
-        <div class="combo-burst-content">
-          <div class="combo-text">COMBO</div>
-          <div id="combo-count-val" class="combo-val">x5</div>
-        </div>
-      </div>
-
-      <!-- Dynamic Buffs List -->
-      <div class="buffs-list">
-        <div class="buff-item">
-          <div class="buff-icon-circle">⚡</div>
-          <div class="buff-info">
-            <span class="buff-val">+0.4</span>
-            <span class="buff-name">Focus Boost</span>
-          </div>
-        </div>
-        <div class="buff-item">
-          <div class="buff-icon-circle">🏃</div>
-          <div class="buff-info">
-            <span class="buff-val">+0.3</span>
-            <span class="buff-name">Speed Up</span>
-          </div>
-        </div>
-        <div class="buff-item">
-          <div class="buff-icon-circle">🎯</div>
-          <div class="buff-info">
-            <span class="buff-val">+0.2</span>
-            <span class="buff-name">No Distraction</span>
-          </div>
-        </div>
+    <!-- Top-Right: Clean Productivity Multiplier (No floating card window) -->
+    <div class="top-multiplier-container">
+      <div class="top-mult-label">PRODUCTIVITY</div>
+      <div class="top-mult-row">
+        <span id="meter-multiplier-val" class="top-mult-val">x1.0</span>
+        <span class="top-mult-crown">👑</span>
       </div>
     </div>
+
+    <!-- Left & Right Edge Ambient Light Channels (Reactive to strike cadence) -->
+    <div id="ambient-light-left" class="ambient-light-channel left"></div>
+    <div id="ambient-light-right" class="ambient-light-channel right"></div>
+
+    <!-- 0.1s Impact Screen Flash Overlay -->
+    <div id="screen-flash" class="screen-impact-flash"></div>
 
     <!-- ── Center Reticle & Tap Hint ─────────────────────────────────────────── -->
     <div id="target-crosshair" class="target-crosshair">
@@ -189,64 +97,51 @@
       </div>
 
       <div class="weapon-cards-carousel">
-        <!-- 1. WHIP (Classic) -->
+        <!-- 1. WHIP (Classic Brown Leather) -->
         <div class="weapon-card active" data-weapon="whip">
           <div class="card-thumb" style="background-image: url('assets/whip.jpg')"></div>
           <div class="card-label">
             <span class="card-title">WHIP</span>
-            <span class="card-sub">Classic</span>
+            <span class="card-sub">Classic Brown</span>
           </div>
         </div>
 
-        <!-- 2. BATON (Stun) -->
+        <!-- 2. RUYUNG (Traditional Indonesian Satpam Nunchuck) -->
         <div class="weapon-card" data-weapon="baton">
           <div class="card-thumb" style="background-image: url('assets/baton.jpg')"></div>
           <div class="card-label">
-            <span class="card-title">BATON</span>
-            <span class="card-sub">Stun</span>
+            <span class="card-title">RUYUNG</span>
+            <span class="card-sub">Satpam</span>
           </div>
         </div>
 
-        <!-- 3. CHAIN (Heavy) -->
+        <!-- 3. CHAIN (Heavy Iron Flail - Comes from bottom on strike) -->
         <div class="weapon-card" data-weapon="chain">
           <div class="card-thumb" style="background-image: url('assets/chain.jpg')"></div>
           <div class="card-label">
             <span class="card-title">CHAIN</span>
-            <span class="card-sub">Heavy</span>
+            <span class="card-sub">Heavy Flail</span>
           </div>
         </div>
 
-        <!-- 4. TASER (Shock) -->
+        <!-- 4. TASER (Dual-Prong Arc Latch - Scales with combo tap) -->
         <div class="weapon-card" data-weapon="taser">
           <div class="card-thumb" style="background-image: url('assets/taser.jpg')"></div>
           <div class="card-label">
             <span class="card-title">TASER</span>
-            <span class="card-sub">Shock</span>
+            <span class="card-sub">Arc Latch</span>
           </div>
         </div>
       </div>
 
-      <!-- Bottom Actions Bar -->
+      <!-- Bottom Actions Bar: Focused Tactical Record Button -->
       <div class="bottom-actions-row">
-        <button id="btn-settings" class="bottom-action-btn" title="Settings & Audio Controls" aria-label="Settings">
-          <svg class="action-btn-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#00f5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
+        <button id="btn-record" class="record-tactical-btn" title="Record Performance Clip (Video + Mic + SFX)" aria-label="Record Clip">
+          <span class="rec-dot"></span>
+          <span id="rec-label" class="rec-label">RECORD CLIP</span>
         </button>
-        <div class="bottom-slogan-wrap">
-          <div class="slogan-line"></div>
-          <div class="bottom-slogan">SMALL HITS. BIGGER RESULTS.</div>
-          <div class="slogan-line"></div>
-        </div>
-        <button id="btn-pause" class="bottom-action-btn" title="Pause / Resume" aria-label="Pause / Resume">
-          <svg id="pause-icon-svg" class="action-btn-svg" viewBox="0 0 24 24" width="18" height="18" fill="#00f5ff">
-            <rect x="5" y="4" width="4.5" height="16" rx="2"/>
-            <rect x="14.5" y="4" width="4.5" height="16" rx="2"/>
-          </svg>
-        </button>
-        <button id="btn-record" style="display: none;" aria-hidden="true"></button>
       </div>
+    </div>
     </div>
 
     <!-- ── Settings Modal ────────────────────────────────────────────────────── -->
@@ -408,18 +303,19 @@
     const recordTimer = document.getElementById('record-timer');
     const recordTimeText = document.getElementById('record-time-text');
 
-    // Left HUD Elements
+    // HUD Elements
     const multiplierVal = document.getElementById('meter-multiplier-val');
-    const thermometerTrack = document.getElementById('thermometer-track');
-    const comboBurstBadge = document.getElementById('combo-burst-badge');
-    const comboCountVal = document.getElementById('combo-count-val');
+    const ambientLeft = document.getElementById('ambient-light-left');
+    const ambientRight = document.getElementById('ambient-light-right');
+    const screenFlash = document.getElementById('screen-flash');
 
     // Weapon Deck Cards
     const weaponCards = document.querySelectorAll('.weapon-card');
 
-    // Bottom Controls
-    const btnSettings = document.getElementById('btn-settings');
+    // Bottom Tactical Record Button
     const btnRecord = document.getElementById('btn-record');
+    const recLabel = document.getElementById('rec-label');
+    const btnSettings = document.getElementById('btn-settings');
     const btnPause = document.getElementById('btn-pause');
     const livePillToggle = document.getElementById('live-pill-toggle');
 
@@ -466,55 +362,62 @@
       }, 2600);
     }
 
-    // Initialize 18 Segment LED Thermometer
-    const TOTAL_SEGMENTS = 18;
-    const segmentColors = [
-      '#ea580c', '#ea580c', '#f97316', '#f97316', // 0-3: Warm Amber/Orange
-      '#eab308', '#eab308', '#facc15', '#facc15', // 4-7: Golden Yellow
-      '#84cc16', '#22c55e', '#22c55e', '#39ff14', '#39ff14', '#39ff14', // 8-13: Lime Green
-      '#06b6d4', '#06b6d4', '#00f5ff', '#00f5ff'  // 14-17: Neon Electric Cyan
-    ];
-
-    const segmentElements = [];
-    for (let i = 0; i < TOTAL_SEGMENTS; i++) {
-      const seg = document.createElement('div');
-      seg.className = 'capsule-seg';
-      seg.style.color = segmentColors[i];
-      thermometerTrack.appendChild(seg);
-      segmentElements.push(seg);
-    }
-
     // Initialize 3D Whip Engine
     const engine = new WhipEngine(canvas, threeCanvas);
     window.engine = engine;
 
     let peakMultiplierDuringRecording = 1.0;
 
-    // ── Update Productivity HUD ─────────────────────────────────────────────
+    // ── Update Productivity HUD (Left & Right Edge Ambient Light Glows) ─────
     function updateProductivityHUD(frenzy, combo) {
       const info = engine.getProductivityInfo();
-      multiplierVal.textContent = info.formattedMultiplier;
-
-      // Update 18-Segment LED Thermometer
-      const activeCount = Math.round(info.progress * TOTAL_SEGMENTS);
-      for (let i = 0; i < TOTAL_SEGMENTS; i++) {
-        const seg = segmentElements[i];
-        if (i < activeCount || (i === 0 && frenzy >= 1.0)) {
-          seg.classList.add('active');
-          seg.style.backgroundColor = segmentColors[i];
-          seg.style.boxShadow = `0 0 8px ${segmentColors[i]}`;
-        } else {
-          seg.classList.remove('active');
-          seg.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-          seg.style.boxShadow = 'none';
-        }
+      if (multiplierVal) {
+        multiplierVal.textContent = info.formattedMultiplier;
       }
 
-      // Update Combo Burst Badge
-      comboCountVal.textContent = `x${combo}`;
-      if (combo > 1) {
-        comboBurstBadge.style.opacity = '1';
-        comboBurstBadge.style.transform = 'scale(1)';
+      // Smooth color evolution based on cadence & intensity
+      let glowColor = '#ea580c';
+      let shadowColor = 'rgba(234, 88, 12, 0.65)';
+      let barWidth = 12;
+      let barOpacity = 0.45;
+
+      if (frenzy >= 3.8) {
+        glowColor = '#00f5ff';
+        shadowColor = 'rgba(0, 245, 255, 0.95)';
+        barWidth = 28;
+        barOpacity = 0.95;
+      } else if (frenzy >= 2.8) {
+        glowColor = '#39ff14';
+        shadowColor = 'rgba(57, 255, 20, 0.85)';
+        barWidth = 22;
+        barOpacity = 0.80;
+      } else if (frenzy >= 1.8) {
+        glowColor = '#facc15';
+        shadowColor = 'rgba(250, 204, 21, 0.75)';
+        barWidth = 16;
+        barOpacity = 0.65;
+      } else {
+        glowColor = '#ea580c';
+        shadowColor = 'rgba(234, 88, 12, 0.55)';
+        barWidth = Math.max(10, 10 + (frenzy - 1.0) * 6);
+        barOpacity = Math.min(0.65, 0.35 + (frenzy - 1.0) * 0.25);
+      }
+
+      if (ambientLeft && ambientRight) {
+        ambientLeft.style.width = `${barWidth}px`;
+        ambientLeft.style.opacity = barOpacity;
+        ambientLeft.style.background = `linear-gradient(90deg, ${glowColor} 0%, transparent 100%)`;
+        ambientLeft.style.boxShadow = `0 0 28px ${shadowColor}`;
+
+        ambientRight.style.width = `${barWidth}px`;
+        ambientRight.style.opacity = barOpacity;
+        ambientRight.style.background = `linear-gradient(-90deg, ${glowColor} 0%, transparent 100%)`;
+        ambientRight.style.boxShadow = `0 0 28px ${shadowColor}`;
+      }
+
+      if (multiplierVal) {
+        multiplierVal.style.color = glowColor;
+        multiplierVal.style.textShadow = `0 0 18px ${shadowColor}`;
       }
 
       if (frenzy > peakMultiplierDuringRecording) {
@@ -523,11 +426,30 @@
     }
 
     engine.onWhipHit = (count, combo) => {
-      multiplierVal.classList.add('bump');
-      setTimeout(() => multiplierVal.classList.remove('bump'), 150);
+      if (multiplierVal) {
+        multiplierVal.classList.add('bump');
+        setTimeout(() => multiplierVal.classList.remove('bump'), 140);
+      }
 
-      comboBurstBadge.classList.add('bump');
-      setTimeout(() => comboBurstBadge.classList.remove('bump'), 160);
+      // 0.1s Impact Screen Flash!
+      if (screenFlash) {
+        screenFlash.classList.add('flash-active');
+        setTimeout(() => {
+          screenFlash.classList.remove('flash-active');
+        }, 100);
+      }
+
+      // Left & Right Ambient Light Brightness Flare on Strike
+      if (ambientLeft && ambientRight) {
+        ambientLeft.style.filter = 'brightness(2.2)';
+        ambientRight.style.filter = 'brightness(2.2)';
+        setTimeout(() => {
+          if (ambientLeft && ambientRight) {
+            ambientLeft.style.filter = 'none';
+            ambientRight.style.filter = 'none';
+          }
+        }, 110);
+      }
 
       if (crosshair) {
         crosshair.classList.add('active');
@@ -579,55 +501,72 @@
     });
 
     // ── Settings Modal Controls ─────────────────────────────────────────────
-    btnSettings.addEventListener('click', (e) => {
-      e.stopPropagation();
-      settingsModal.classList.remove('hidden');
-    });
+    if (btnSettings) {
+      btnSettings.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (settingsModal) settingsModal.classList.remove('hidden');
+      });
+    }
 
-    btnCloseSettings.addEventListener('click', () => {
-      settingsModal.classList.add('hidden');
-    });
+    if (btnCloseSettings) {
+      btnCloseSettings.addEventListener('click', () => {
+        if (settingsModal) settingsModal.classList.add('hidden');
+      });
+    }
 
-    optFlipCamera.addEventListener('click', () => {
-      facingMode = (facingMode === 'environment') ? 'user' : 'environment';
-      labelCameraMode.textContent = facingMode === 'environment' ? 'Back (Environment)' : 'Front (Selfie)';
-      startCamera(facingMode);
-    });
+    if (optFlipCamera) {
+      optFlipCamera.addEventListener('click', () => {
+        facingMode = (facingMode === 'environment') ? 'user' : 'environment';
+        if (labelCameraMode) labelCameraMode.textContent = facingMode === 'environment' ? 'Back (Environment)' : 'Front (Selfie)';
+        startCamera(facingMode);
+      });
+    }
 
-    optSoundToggle.addEventListener('click', () => {
-      engine.unlockAudio();
-      engine.isMuted = !engine.isMuted;
-      labelSoundMode.textContent = engine.isMuted ? 'Muted (Silent)' : 'Enabled';
-    });
+    if (optSoundToggle) {
+      optSoundToggle.addEventListener('click', () => {
+        engine.unlockAudio();
+        engine.isMuted = !engine.isMuted;
+        if (labelSoundMode) labelSoundMode.textContent = engine.isMuted ? 'Muted (Silent)' : 'Enabled';
+      });
+    }
 
-    optMicToggle.addEventListener('click', () => {
-      showToast('🎙️ Live microphone is mixed into video recordings!');
-    });
+    if (optMicToggle) {
+      optMicToggle.addEventListener('click', () => {
+        showToast('🎙️ Live microphone is mixed into video recordings!');
+      });
+    }
 
-    optFullscreenToggle.addEventListener('click', () => {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        document.exitFullscreen().catch(() => {});
-      }
-    });
+    if (optFullscreenToggle) {
+      optFullscreenToggle.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+    }
 
     function activateDemoMode(showNotification = false) {
-      cameraModal.classList.add('hidden');
+      if (cameraModal) cameraModal.classList.add('hidden');
       isMockMode = true;
       video.pause();
       video.srcObject = null;
-      video.style.background = "url('assets/coworker.jpg') center center / cover no-repeat";
+      video.style.background = '#000000';
+      video.style.backgroundColor = '#000000';
       if (showNotification) {
-        showToast('🎬 Demo mode enabled with office coworker feed');
+        showToast('⬛ Tactical black screen active');
       }
     }
 
-    btnMockCamera.addEventListener('click', () => activateDemoMode(true));
-    optMockDemo.addEventListener('click', () => {
-      settingsModal.classList.add('hidden');
-      activateDemoMode(true);
-    });
+    if (btnMockCamera) {
+      btnMockCamera.addEventListener('click', () => activateDemoMode(true));
+    }
+    if (optMockDemo) {
+      optMockDemo.addEventListener('click', () => {
+        if (settingsModal) settingsModal.classList.add('hidden');
+        activateDemoMode(true);
+      });
+    }
 
     // ── Camera Streaming ────────────────────────────────────────────────────
     let currentStream = null;
@@ -670,7 +609,7 @@
             return await startCamera('user');
           } catch (e2) {}
         }
-        showCameraModal();
+        activateDemoMode(false);
       }
     }
 
@@ -722,91 +661,41 @@
       ctx.fillRect(10, 80, 150, 2);
       ctx.restore();
 
-      // Top-Right: LIVE Badge
+      // Top-Right: Clean Productivity Multiplier (No floating card)
       ctx.save();
-      ctx.translate(W - 134, 26);
-      ctx.fillStyle = 'rgba(6, 18, 36, 0.88)';
-      ctx.strokeStyle = '#00f5ff';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.roundRect(0, 0, 110, 32, 16);
-      ctx.fill();
-      ctx.stroke();
-
-      // Red blinking dot
-      ctx.fillStyle = '#ff1744';
-      ctx.beginPath();
-      ctx.arc(16, 16, 4.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      // LIVE text
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '800 12px "Orbitron", sans-serif';
-      ctx.fillText('LIVE', 28, 20);
-
-      // Camera SVG Icon
-      ctx.fillStyle = '#00f5ff';
-      ctx.beginPath();
-      ctx.roundRect(68, 10, 13, 11, 2);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(82, 13);
-      ctx.lineTo(89, 10);
-      ctx.lineTo(89, 21);
-      ctx.lineTo(82, 18);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.fillStyle = '#00f5ff';
-      ctx.font = '800 8.5px "Orbitron", sans-serif';
-      ctx.fillText('WORK HARDER.', 10, 46);
-      ctx.fillText('TOGETHER.', 28, 57);
-      ctx.restore();
-
-      // Left HUD Productivity Card Watermark
-      const cardX = 24;
-      const cardY = 120;
-      const cardW = 120;
-      const cardH = 135;
-
-      ctx.fillStyle = 'rgba(5, 14, 28, 0.88)';
-      ctx.strokeStyle = 'rgba(0, 245, 255, 0.45)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.roundRect(cardX, cardY, cardW, cardH, 12);
-      ctx.fill();
-      ctx.stroke();
-
+      ctx.translate(W - 130, 26);
       ctx.fillStyle = '#00f5ff';
       ctx.font = '800 9px "Orbitron", sans-serif';
-      ctx.fillText('PRODUCTIVITY', cardX + 10, cardY + 20);
+      ctx.fillText('PRODUCTIVITY', 0, 10);
 
-      ctx.fillStyle = '#39ff14';
-      ctx.font = '900 32px "Orbitron", sans-serif';
-      ctx.fillText(info.formattedMultiplier, cardX + 10, cardY + 56);
+      let glowCol = '#ea580c';
+      if (eng.frenzy >= 3.8) glowCol = '#00f5ff';
+      else if (eng.frenzy >= 2.8) glowCol = '#39ff14';
+      else if (eng.frenzy >= 1.8) glowCol = '#facc15';
 
-      ctx.fillStyle = '#ffd700';
-      ctx.font = '800 9.5px "Orbitron", sans-serif';
-      ctx.fillText('MULTIPLIER 👑', cardX + 10, cardY + 74);
+      ctx.fillStyle = glowCol;
+      ctx.font = '900 28px "Orbitron", sans-serif';
+      ctx.shadowColor = glowCol;
+      ctx.shadowBlur = 12;
+      ctx.fillText(info.formattedMultiplier, 0, 36);
 
-      // Mini 10-segment power bar
-      const barY = cardY + 86;
-      const segW = 8;
-      const segH = 14;
-      const totalSegs = 10;
-      const activeSegs = Math.round(info.progress * totalSegs);
+      ctx.font = '22px sans-serif';
+      ctx.fillText('👑', ctx.measureText(info.formattedMultiplier).width + 6, 34);
+      ctx.restore();
 
-      for (let s = 0; s < totalSegs; s++) {
-        const sx = cardX + 10 + s * 10;
-        ctx.fillStyle = s < activeSegs ? '#39ff14' : 'rgba(255, 255, 255, 0.12)';
-        ctx.fillRect(sx, barY, segW, segH);
-      }
+      // Left & Right Ambient Glow Channels on Recorded Video
+      const glowW = Math.min(24, 8 + (eng.frenzy - 1.0) * 5);
+      const glowGradL = ctx.createLinearGradient(0, 0, glowW, 0);
+      glowGradL.addColorStop(0, glowCol);
+      glowGradL.addColorStop(1, 'transparent');
+      ctx.fillStyle = glowGradL;
+      ctx.fillRect(0, 0, glowW, H);
 
-      if (info.combo > 1) {
-        ctx.fillStyle = '#f59e0b';
-        ctx.font = '900 12px "Permanent Marker", sans-serif';
-        ctx.fillText(`🔥 COMBO x${info.combo}`, cardX + 10, cardY + 120);
-      }
+      const glowGradR = ctx.createLinearGradient(W, 0, W - glowW, 0);
+      glowGradR.addColorStop(0, glowCol);
+      glowGradR.addColorStop(1, 'transparent');
+      ctx.fillStyle = glowGradR;
+      ctx.fillRect(W - glowW, 0, glowW, H);
 
       // Bottom Right Watermark Stamp
       const stampText = `OpenWhip™ AR • ${info.weaponName} • SMALL HITS. BIGGER RESULTS.`;
@@ -1005,7 +894,7 @@
 
       btnRecord.disabled = false;
       btnRecord.classList.add('recording');
-      btnRecord.textContent = '⏹️';
+      if (recLabel) recLabel.textContent = 'STOP RECORDING';
       recordTimer.classList.remove('hidden');
 
       const micPill = recordTimer.querySelector('.mic-status-pill');
@@ -1033,7 +922,7 @@
         mediaRecorder.stop();
       }
       btnRecord.classList.remove('recording');
-      btnRecord.textContent = '🔴';
+      if (recLabel) recLabel.textContent = 'RECORD CLIP';
       recordTimer.classList.add('hidden');
       if (recordInterval) clearInterval(recordInterval);
     }
@@ -1137,20 +1026,6 @@
         engine.combo = 5;
         engine.whipCount = 14;
         updateProductivityHUD(2.8, 5);
-        setTimeout(() => {
-          engine.callouts.push({
-            x: window.innerWidth * 0.80,
-            y: window.innerHeight * 0.28,
-            text: 'FOCUS NOW!',
-            rotation: -0.15,
-            scale: 1.05,
-            targetScale: 1.05,
-            alpha: 1.0,
-            age: 0,
-            life: 9999,
-            color: '#00f5ff',
-          });
-        }, 80);
       } else {
         setTimeout(() => {
           engine.strikeAt(window.innerWidth * 0.5, window.innerHeight * 0.38);
@@ -1159,7 +1034,7 @@
     } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       startCamera(facingMode);
     } else {
-      showCameraModal();
+      activateDemoMode(false);
     }
   </script>
 </body>
