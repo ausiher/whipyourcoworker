@@ -93,7 +93,7 @@ class WhipEngine {
     this.calloutsEnabled = true;
 
     // Multilingual Workplace Gaslighting Boss Quotes (30 per language: EN, ID, ZH, RU)
-    this.currentLang = 'en';
+    this.currentLang = 'id';
     this.langPhrases = {
       en: [
         'WE ARE A FAMILY HERE!',
@@ -224,7 +224,7 @@ class WhipEngine {
         'СОН ДЛЯ ТЕХ, У КОГО НЕТ АМБИЦИЙ!'
       ]
     };
-    this.calloutPhrases = this.langPhrases[this.currentLang] || this.langPhrases.en;
+    this.calloutPhrases = this.langPhrases[this.currentLang] || this.langPhrases.id;
     this.memePhrases = this.calloutPhrases; // backward compatibility
 
     // Property alias for backward compatibility
@@ -1086,10 +1086,16 @@ class WhipEngine {
       return;
     }
 
+    // If a previous strike is still active and hasn't fired its impact, resolve it immediately so rapid burst hits never drop
+    if (this.strike && !this.strike.impactFired) {
+      this.strike.impactFired = true;
+      this.triggerImpact(this.strike.targetX, this.strike.targetY);
+    }
+
     // Chain Flail has distinct swing trajectory, inertia weight & freeze frame per strike
     const isChain = (this.currentWeapon === 'chain');
-    const baseDuration = isChain ? (360 + Math.random() * 80) : 200;
-    const strikeDuration = Math.max(95, baseDuration / Math.pow(this.frenzy, 0.45));
+    const baseDuration = isChain ? (360 + Math.random() * 80) : 180;
+    const strikeDuration = Math.max(75, baseDuration / Math.pow(this.frenzy, 0.5));
 
     this.strike = {
       startTime: now,
