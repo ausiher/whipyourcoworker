@@ -101,20 +101,22 @@ class WhipEngine {
     this.callouts = []; // Indonesian satire comic meme popouts
     this.memesEnabled = true;
     this.memePhrases = [
-      'BURUAN ACC!',
-      'LEMBUR GA DIBAYAR!',
-      'ASAP YA KAK!',
-      'BUKAN JOBDESK SAYA!',
-      'SENIN LAGI SENIN LAGI?!',
-      'FOLLOW UP DULU GA SIH?!',
-      'KERJA KERJA KERJA TIPES!',
-      'GA SESUAI KPI!',
-      'SCALLING UP KELAS PEKERJA!',
-      'TANGGAL TUA MENGGILA!',
-      'OTW MEETING ZOOM DULU!',
-      'REVISI SAMPE SUBUH!',
-      'GAUSAH BANYAK ALASAN!',
-      'SIAP BAPAK/IBU!'
+      'KITA DI SINI KELUARGA!',
+      'DEMI PENGALAMAN KAMU!',
+      'KERJA IKHLAS ITU BERKAH!',
+      'LOYALITAS TANPA BATAS!',
+      'JANGAN HITUNG-HITUNGAN!',
+      'MASIH UNTUNG DIGAJI!',
+      'DI LUAR BANYAK YG NGANTRI!',
+      'MENTAL KAMU TEMPE!',
+      'OVERTIME DEMI MASA DEPAN!',
+      'BUKTIKAN DEDIKASI KAMU!',
+      'PASSION NOMOR SATU!',
+      'INVESTASI LEHER KE ATAS!',
+      'ANGGAP AJA BELAJAR!',
+      'KURANG BERSYUKUR KAMU!',
+      'SAYA DULU LEBIH PARAH!',
+      'KERJA CERDAS DONG!'
     ];
     this.lightningArcs = [];
     this.screenShake = 0;
@@ -206,8 +208,9 @@ class WhipEngine {
     const deltaMag = Math.hypot(dx, dy, dz);
     const totalMag = Math.hypot(ax, ay, az);
 
-    if (deltaMag >= 13.0 || totalMag >= 20.0) {
+    if (deltaMag >= 10.5 || totalMag >= 16.5) {
       this.lastSwingTime = now;
+      this.unlockAudio();
 
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
         try { navigator.vibrate([40, 25, 80]); } catch {}
@@ -276,6 +279,12 @@ class WhipEngine {
         keepAliveOsc.start();
 
         this.audioBuffers = [];
+        this.chainSoundFiles = [
+          'sounds/chain_hit_1.wav',
+          'sounds/chain_hit_2.wav',
+          'sounds/chain_hit_3.wav'
+        ];
+        this.chainBuffers = [];
         this.loadAudioBuffers();
       } catch (e) {
         console.warn('Web Audio init note:', e);
@@ -295,6 +304,21 @@ class WhipEngine {
         }
       } catch (e) {
         // Fallback to procedural synthesis
+      }
+    }
+
+    if (this.chainSoundFiles) {
+      for (const src of this.chainSoundFiles) {
+        try {
+          const resp = await fetch(src);
+          if (resp.ok) {
+            const arrayBuffer = await resp.arrayBuffer();
+            const decoded = await this.audioCtx.decodeAudioData(arrayBuffer);
+            this.chainBuffers.push(decoded);
+          }
+        } catch (e) {
+          // Fallback to procedural synthesis
+        }
       }
     }
   }
@@ -493,16 +517,28 @@ class WhipEngine {
     } catch (e) {}
   }
 
-  // Heavy Forged Iron Spiked Flail: Massive sub-bass thud, inharmonic iron clang & link rattle cascade
+  // Heavy Forged Iron Spiked Flail / Mace Strike
   playChainSound(pitchRate = 1.0) {
     if (!this.audioCtx || this.isMuted) return;
     try {
       if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
       const ctx = this.audioCtx;
       const t = ctx.currentTime;
+      const varPitch = pitchRate * (0.92 + Math.random() * 0.16);
 
-      // Randomize pitch and timbre variance on every strike (0.88x - 1.15x)
-      const varPitch = pitchRate * (0.88 + Math.random() * 0.26);
+      // Play authentic cast iron mace clank WAV if available
+      if (this.chainBuffers && this.chainBuffers.length > 0) {
+        const buf = this.chainBuffers[Math.floor(Math.random() * this.chainBuffers.length)];
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.playbackRate.value = varPitch;
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(1.4, t);
+        src.connect(gain);
+        gain.connect(this.sfxGain);
+        src.start(t);
+        return;
+      }
 
       // 1. Heavy Mass Kinetic Thud (Deep physical morningstar weight)
       const thudOsc = ctx.createOscillator();
@@ -898,11 +934,15 @@ class WhipEngine {
 
     // ── Taser Arc Latch Mode (No whip curve, latch to initial click, combo tap escalates intensity)
     if (this.currentWeapon === 'taser') {
-      const isNewLatch = !this.taserLatch || !this.taserLatch.active || (now - this.taserLatch.lastTapTime > 1800);
+      const isNewLatch = !this.taserLatch || !this.taserLatch.active || (now - this.taserLatch.lastTapTime > 2200);
       if (isNewLatch) {
         this.taserLatch = {
+          screenX: targetX,
+          screenY: targetY,
           x: targetX,
           y: targetY,
+          initialGyroX: this.gyroTilt.x,
+          initialGyroY: this.gyroTilt.y,
           startTime: now,
           lastTapTime: now,
           comboTaps: 1,
@@ -915,7 +955,7 @@ class WhipEngine {
         this.taserLatch.active = true;
       }
 
-      this.triggerImpact(this.taserLatch.x, this.taserLatch.y);
+      this.triggerImpact(this.taserLatch.screenX || this.taserLatch.x, this.taserLatch.screenY || this.taserLatch.y);
 
       if (this.onFrenzyChange) {
         this.onFrenzyChange(this.frenzy, this.combo);
@@ -1254,15 +1294,20 @@ class WhipEngine {
       }
     }
 
-    // 6. Indonesian Satire Workplace Meme Popout
+    // 6. Indonesian Satire Workplace Meme Popout (manipulative gaslighting boss quotes)
     if (this.memesEnabled && this.memePhrases && this.memePhrases.length > 0) {
       const phrase = this.memePhrases[Math.floor(Math.random() * this.memePhrases.length)];
-      const calloutY = Math.max(70, y - 55);
+      // Spawn at a random position across the screen so they pop up dynamically everywhere
+      const marginX = Math.min(130, this.W * 0.20);
+      const marginY = Math.min(110, this.H * 0.16);
+      const randX = marginX + Math.random() * (this.W - marginX * 2);
+      const randY = marginY + Math.random() * (this.H * 0.50);
+
       this.callouts.push({
         text: phrase,
-        x,
-        y: calloutY,
-        rotation: (Math.random() - 0.5) * 0.16,
+        x: randX,
+        y: randY,
+        rotation: (Math.random() - 0.5) * 0.18,
         scale: 0.15,
         targetScale: 1.0,
         alpha: 1.0,
@@ -1827,16 +1872,25 @@ class WhipEngine {
 
     const ctx = this.ctx;
     const origin = this.getEmitterScreenPos();
-    const target = { x: this.taserLatch.x, y: this.taserLatch.y };
+
+    // Fixed in physical world space relative to camera/gyro orientation:
+    // As the phone pans or turns, the taser darts stay anchored to the subject in space!
+    const deltaYaw = this.gyroTilt.y - (this.taserLatch.initialGyroY || 0);
+    const deltaPitch = this.gyroTilt.x - (this.taserLatch.initialGyroX || 0);
+    const baseX = (this.taserLatch.screenX !== undefined ? this.taserLatch.screenX : this.taserLatch.x);
+    const baseY = (this.taserLatch.screenY !== undefined ? this.taserLatch.screenY : this.taserLatch.y);
+    const targetX = baseX - deltaYaw * (this.W * 1.6);
+    const targetY = baseY + deltaPitch * (this.H * 1.6);
+    const target = { x: targetX, y: targetY };
     const combo = this.taserLatch.comboTaps || 1;
 
     const elapsedSinceTap = performance.now() - this.taserLatch.lastTapTime;
-    if (elapsedSinceTap > 1800) {
+    if (elapsedSinceTap > 2200) {
       this.taserLatch.active = false;
       return;
     }
 
-    const intensityFade = Math.max(0, 1 - (elapsedSinceTap / 1800));
+    const intensityFade = Math.max(0, 1 - (elapsedSinceTap / 2200));
 
     ctx.save();
 
@@ -1945,7 +1999,8 @@ class WhipEngine {
     const isFocusNow = (c.text === 'FOCUS NOW!' || c.text.startsWith('FOCUS NOW'));
     const lines = isFocusNow ? ['FOCUS', 'NOW!'] : (c.text.includes('\n') ? c.text.split('\n') : [c.text]);
 
-    ctx.font = '900 24px "Permanent Marker", "Bangers", Impact, sans-serif';
+    // Smaller, sharper comic font
+    ctx.font = '900 17px "Permanent Marker", "Bangers", Impact, sans-serif';
     let maxLineWidth = 0;
     lines.forEach(l => {
       const w = ctx.measureText(l).width;
@@ -1953,63 +2008,58 @@ class WhipEngine {
     });
 
     const isMultiLine = lines.length > 1;
-    const bubbleW = isMultiLine ? Math.max(116, maxLineWidth + 32) : Math.max(130, maxLineWidth + 32);
-    const bubbleH = isMultiLine ? 66 : 50;
-    const r = 12;
+    const bubbleW = isMultiLine ? Math.max(105, maxLineWidth + 26) : Math.max(115, maxLineWidth + 26);
+    const bubbleH = isMultiLine ? 48 : 36;
+    const r = 10;
 
     // Boundary clamp: keep bubble within screen margins
     const clampedX = Math.min(this.W - bubbleW * 0.5 - 14, Math.max(bubbleW * 0.5 + 14, c.x));
     const clampedY = Math.min(this.H - bubbleH - 120, Math.max(bubbleH * 0.5 + 40, c.y));
 
     ctx.translate(clampedX, clampedY);
-    ctx.rotate(c.rotation || -0.12);
+    ctx.rotate(c.rotation || -0.10);
     ctx.scale(c.scale, c.scale);
     ctx.globalAlpha = Math.max(0, c.alpha);
 
-    // Jagged / Angled Comic Speech Balloon
-    ctx.fillStyle = 'rgba(6, 16, 32, 0.94)';
+    // Dark sleek comic balloon
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
     ctx.beginPath();
     ctx.roundRect(-bubbleW * 0.5, -bubbleH * 0.5, bubbleW, bubbleH, r);
     ctx.fill();
 
-    // Pointed Tail pointing toward coworker target
+    // Pointed Tail
     ctx.beginPath();
-    ctx.moveTo(-14, bubbleH * 0.5);
-    ctx.lineTo(-26, bubbleH * 0.5 + 18);
+    ctx.moveTo(-10, bubbleH * 0.5);
+    ctx.lineTo(-20, bubbleH * 0.5 + 14);
     ctx.lineTo(-2, bubbleH * 0.5);
     ctx.closePath();
     ctx.fill();
 
-    // Glowing Neon Cyan Border
-    ctx.strokeStyle = '#00f5ff';
-    ctx.lineWidth = 3.0;
-    ctx.shadowColor = '#00f5ff';
-    ctx.shadowBlur = 14;
+    // Executive blue border
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2.0;
+    ctx.shadowColor = 'rgba(59, 130, 246, 0.5)';
+    ctx.shadowBlur = 8;
     ctx.beginPath();
     ctx.roundRect(-bubbleW * 0.5, -bubbleH * 0.5, bubbleW, bubbleH, r);
     ctx.stroke();
 
     ctx.beginPath();
-    ctx.moveTo(-14, bubbleH * 0.5);
-    ctx.lineTo(-26, bubbleH * 0.5 + 18);
+    ctx.moveTo(-10, bubbleH * 0.5);
+    ctx.lineTo(-20, bubbleH * 0.5 + 14);
     ctx.lineTo(-2, bubbleH * 0.5);
     ctx.stroke();
 
-    // Radiating red action marks around comic bubble (reference image detail)
-    ctx.strokeStyle = '#ff1744';
-    ctx.lineWidth = 2.4;
-    ctx.shadowColor = '#ff1744';
-    ctx.shadowBlur = 8;
+    // Radiating red action marks
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 2.0;
+    ctx.shadowColor = '#ef4444';
+    ctx.shadowBlur = 6;
     ctx.beginPath();
-    // Top right tick
-    ctx.moveTo(bubbleW * 0.5 + 4, -bubbleH * 0.35);
-    ctx.lineTo(bubbleW * 0.5 + 15, -bubbleH * 0.48);
-    // Right middle tick
-    ctx.moveTo(bubbleW * 0.5 + 5, 2);
-    ctx.lineTo(bubbleW * 0.5 + 17, 4);
-    // Top tick
-    ctx.moveTo(2, -bubbleH * 0.5 - 4);
-    ctx.lineTo(-2, -bubbleH * 0.5 - 14);
+    ctx.moveTo(bubbleW * 0.5 + 3, -bubbleH * 0.35);
+    ctx.lineTo(bubbleW * 0.5 + 12, -bubbleH * 0.48);
+    ctx.moveTo(bubbleW * 0.5 + 4, 2);
+    ctx.lineTo(bubbleW * 0.5 + 14, 4);
     ctx.stroke();
 
     // Dynamic Comic Text
@@ -2019,13 +2069,13 @@ class WhipEngine {
     ctx.fillStyle = '#ffffff';
 
     if (isMultiLine) {
-      ctx.font = '900 24px "Permanent Marker", "Bangers", Impact, sans-serif';
-      ctx.fillText(lines[0], 0, -14);
-      ctx.font = '900 26px "Permanent Marker", "Bangers", Impact, sans-serif';
-      ctx.fillText(lines[1], 0, 15);
+      ctx.font = '900 16px "Permanent Marker", "Bangers", Impact, sans-serif';
+      ctx.fillText(lines[0], 0, -10);
+      ctx.font = '900 17px "Permanent Marker", "Bangers", Impact, sans-serif';
+      ctx.fillText(lines[1], 0, 11);
     } else {
-      ctx.font = '900 24px "Permanent Marker", "Bangers", Impact, sans-serif';
-      ctx.fillText(lines[0], 0, -2);
+      ctx.font = '900 17px "Permanent Marker", "Bangers", Impact, sans-serif';
+      ctx.fillText(lines[0], 0, -1);
     }
 
     ctx.restore();

@@ -98,21 +98,18 @@
           <div class="drawer-thumb" style="background-image: url('assets/whip.jpg')"></div>
           <div class="drawer-info">
             <span class="drawer-title">WHIP</span>
-            <span class="drawer-sub">Classic Brown</span>
           </div>
         </div>
         <div class="drawer-item" data-weapon="chain">
           <div class="drawer-thumb" style="background-image: url('assets/chain.jpg')"></div>
           <div class="drawer-info">
             <span class="drawer-title">CHAIN</span>
-            <span class="drawer-sub">Heavy Flail</span>
           </div>
         </div>
         <div class="drawer-item" data-weapon="taser">
           <div class="drawer-thumb" style="background-image: url('assets/taser.jpg')"></div>
           <div class="drawer-info">
             <span class="drawer-title">TASER</span>
-            <span class="drawer-sub">Arc Latch</span>
           </div>
         </div>
       </div>
@@ -125,21 +122,39 @@
       </button>
     </div>
 
-    <!-- Bottom-Right: Flashlight Strobe, Meme Toggle, Reverse Camera & Symbol-Only Record Button -->
-    <div class="bottom-right-actions">
-      <button id="btn-toggle-flashlight" class="action-btn-circle torch-btn" title="Flashlight Strobe on Whip (ON/OFF)" aria-label="Toggle Flashlight Strobe">
-        <span class="btn-icon">🔦</span>
-        <span class="torch-status-dot"></span>
-      </button>
-      <button id="btn-toggle-meme" class="action-btn-circle meme-btn active" title="Toggle Indonesian Workplace Memes (ON/OFF)" aria-label="Toggle Memes">
-        <span class="btn-icon">💬</span>
-        <span class="meme-status-dot"></span>
-      </button>
-      <button id="btn-flip-camera" class="action-btn-circle flip-btn" title="Switch Front/Back Camera" aria-label="Switch Camera">
-        <span class="btn-icon">🔄</span>
-      </button>
-      <button id="btn-record" class="action-btn-circle record-btn" title="Record Performance Clip (Video + Mic + SFX)" aria-label="Record Clip">
-        <span id="rec-icon" class="rec-symbol">⏺</span>
+    <!-- Bottom-Right: Expandable Action / Controls Selector -->
+    <div id="action-selector" class="action-selector-minimal">
+      <!-- Vertical Pop-up Drawer for Controls -->
+      <div id="action-drawer" class="action-drawer-vertical hidden">
+        <button id="btn-record" class="drawer-action-btn record-action-btn" title="Record Performance Clip (Video + Mic + SFX)" aria-label="Record Clip">
+          <span id="rec-icon" class="action-icon rec-symbol">⏺</span>
+          <span id="rec-label" class="action-label">RECORD</span>
+        </button>
+        <button id="btn-replay-last" class="drawer-action-btn replay-action-btn" title="Replay Last Recorded Clip" aria-label="Replay Clip">
+          <span class="action-icon">🔁</span>
+          <span class="action-label">REPLAY</span>
+        </button>
+        <button id="btn-toggle-flashlight" class="drawer-action-btn torch-action-btn" title="Flashlight Strobe on Whip (ON/OFF)" aria-label="Toggle Flashlight Strobe">
+          <span class="action-icon">🔦</span>
+          <span class="action-label">FLASH</span>
+          <span class="action-status-dot torch-dot"></span>
+        </button>
+        <button id="btn-toggle-meme" class="drawer-action-btn meme-action-btn active" title="Toggle Workplace Gaslighting Memes (ON/OFF)" aria-label="Toggle Memes">
+          <span class="action-icon">💬</span>
+          <span class="action-label">MEMES</span>
+          <span class="action-status-dot meme-dot"></span>
+        </button>
+        <button id="btn-flip-camera" class="drawer-action-btn flip-action-btn" title="Switch Front/Back Camera" aria-label="Switch Camera">
+          <span class="action-icon">🔄</span>
+          <span class="action-label">FLIP CAM</span>
+        </button>
+      </div>
+
+      <!-- Main Action Drawer Trigger Button -->
+      <button id="btn-action-toggle" class="action-main-btn" aria-label="Controls & Recording" title="Open Controls">
+        <span id="action-main-icon" class="action-btn-icon">⚡</span>
+        <span id="action-main-name" class="action-btn-name">CONTROLS</span>
+        <span class="action-btn-arrow">▲</span>
       </button>
     </div>
   </div>
@@ -202,40 +217,22 @@
       </div>
     </div>
 
-    <!-- ── Video Preview & Share Modal (Compact Executive Single-Bar) ──────────── -->
+    <!-- ── Video Preview & Share Modal (Minimalist Device Aspect Ratio) ──────────── -->
     <div id="preview-modal" class="modal-overlay hidden">
-      <div class="modal-card preview-card">
-        <button id="btn-close-preview-x" class="modal-close-x" title="Close Preview (Dismiss)" aria-label="Close">✕</button>
-        <div class="modal-header compact">
-          <div class="modal-badge-row">
-            <span class="corp-badge">OFFICIAL AUDIT</span>
-            <span class="modal-subtitle">PERFORMANCE REVIEW LOGGED</span>
-          </div>
-          <h2 class="modal-title">Executive Performance Clip</h2>
-        </div>
-
+      <div class="modal-card preview-card minimalist">
         <div class="preview-video-container">
           <video id="preview-video" playsinline autoplay loop></video>
         </div>
 
-        <!-- Metric highlights -->
-        <div class="preview-metric-pills">
-          <div class="metric-pill">
-            <span class="metric-label">PEAK MAXX</span>
-            <span id="preview-peak-mult" class="metric-value">3.8x</span>
-          </div>
-          <div class="metric-pill">
-            <span class="metric-label">ACTIONS</span>
-            <span id="preview-actions" class="metric-value">18 Hits</span>
-          </div>
-          <div class="metric-pill">
-            <span class="metric-label">WEAPON</span>
-            <span id="preview-weapon" class="metric-value">WHIP</span>
-          </div>
-          <div class="metric-pill">
-            <span class="metric-label">AUDIO MIX</span>
-            <span id="preview-audio" class="metric-value">🎙️ Mic + SFX</span>
-          </div>
+        <!-- Metric highlights (clean minimalist bar) -->
+        <div class="preview-metric-summary">
+          <span id="preview-peak-mult" class="summary-highlight">3.8x</span>
+          <span class="summary-sep">•</span>
+          <span id="preview-actions">18 Hits</span>
+          <span class="summary-sep">•</span>
+          <span id="preview-weapon">WHIP</span>
+          <span class="summary-sep">•</span>
+          <span id="preview-audio">🎙️ Mic + SFX</span>
         </div>
 
         <!-- SINGLE BAR - ONLY ICONS: Play/Pause, Replay, Download, Share, Dismiss -->
@@ -326,10 +323,17 @@
     const drawerItems = document.querySelectorAll('.drawer-item');
 
     // Bottom Action Elements
+    const actionSelector = document.getElementById('action-selector');
+    const btnActionToggle = document.getElementById('btn-action-toggle');
+    const actionDrawer = document.getElementById('action-drawer');
+    const actionMainIcon = document.getElementById('action-main-icon');
+    const actionMainName = document.getElementById('action-main-name');
+    const btnReplayLast = document.getElementById('btn-replay-last');
     const btnToggleMeme = document.getElementById('btn-toggle-meme');
     const btnFlipCamera = document.getElementById('btn-flip-camera');
     const btnRecord = document.getElementById('btn-record');
     const recIcon = document.getElementById('rec-icon');
+    const recLabel = document.getElementById('rec-label');
 
     // Settings Modal Elements
     const btnSettings = document.getElementById('btn-settings');
@@ -490,7 +494,7 @@
         video.play().catch(() => {});
       }
 
-      if (e.target.closest('#weapon-selector') || e.target.closest('.bottom-right-actions') || e.target.closest('.modal-card')) {
+      if (e.target.closest('#weapon-selector') || e.target.closest('#action-selector') || e.target.closest('.modal-card')) {
         return;
       }
       engine.strikeAt(e.clientX, e.clientY);
@@ -540,10 +544,53 @@
       });
     });
 
+    // ── Expandable Action Controls Drawer (Bottom-Right) ─────────────────────
+    if (btnActionToggle) {
+      btnActionToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        engine.unlockAudio();
+        engine.requestMotionPermission();
+        const isHidden = actionDrawer.classList.contains('hidden');
+        if (isHidden) {
+          actionDrawer.classList.remove('hidden');
+          actionSelector.classList.add('open');
+        } else {
+          actionDrawer.classList.add('hidden');
+          actionSelector.classList.remove('open');
+        }
+      });
+    }
+
+    if (btnReplayLast) {
+      btnReplayLast.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (actionDrawer) actionDrawer.classList.add('hidden');
+        if (actionSelector) actionSelector.classList.remove('open');
+        if (recordedUrl) {
+          previewVideo.src = recordedUrl;
+          previewVideo.currentTime = 0;
+          previewVideo.muted = false;
+          previewVideo.volume = 1.0;
+          previewModal.classList.remove('hidden');
+          previewVideo.play().catch(() => {
+            previewVideo.muted = true;
+            previewVideo.play().catch(() => {});
+          });
+          showToast('🔁 Replaying last recorded clip...');
+        } else {
+          showToast('⚠️ No clip recorded yet. Hit RECORD first!');
+        }
+      });
+    }
+
     document.addEventListener('click', (e) => {
       if (!e.target.closest('#weapon-selector')) {
         if (weaponDrawer) weaponDrawer.classList.add('hidden');
         if (weaponSelector) weaponSelector.classList.remove('open');
+      }
+      if (!e.target.closest('#action-selector')) {
+        if (actionDrawer) actionDrawer.classList.add('hidden');
+        if (actionSelector) actionSelector.classList.remove('open');
       }
     });
 
@@ -746,40 +793,6 @@
       const info = eng.getProductivityInfo();
       ctx.save();
 
-      // Top-Left Branding Watermark: Crown + WHIP YOUR COWORKER
-      ctx.save();
-      ctx.translate(24, 26);
-      ctx.rotate(-0.04);
-
-      // Gold Crown
-      ctx.fillStyle = '#f59e0b';
-      ctx.strokeStyle = '#fde047';
-      ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      ctx.moveTo(32, 19);
-      ctx.lineTo(36, 6);
-      ctx.lineTo(43, 12);
-      ctx.lineTo(47, 4);
-      ctx.lineTo(51, 12);
-      ctx.lineTo(58, 6);
-      ctx.lineTo(62, 19);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.font = '900 23px "Permanent Marker", "Bangers", Impact, sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-      ctx.shadowBlur = 8;
-      ctx.fillText('— WHIP YOUR /', 0, 42);
-      ctx.font = '900 28px "Permanent Marker", "Bangers", Impact, sans-serif';
-      ctx.fillText('/// COWORKER //', 0, 70);
-      // Double Brush underline
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 75, 175, 3.5);
-      ctx.fillRect(10, 80, 150, 2);
-      ctx.restore();
-
       // Top-Right: Clean Productivity Multiplier (No floating card)
       ctx.save();
       ctx.translate(W - 130, 26);
@@ -854,6 +867,10 @@
     async function startRecording() {
       if (mediaRecorder && mediaRecorder.state === 'recording') return;
       btnRecord.disabled = true;
+
+      // Ensure audio and motion permissions are immediately activated
+      engine.unlockAudio();
+      engine.requestMotionPermission();
 
       recordedChunks = [];
       peakMultiplierDuringRecording = engine.frenzy;
@@ -987,7 +1004,11 @@
 
       btnRecord.disabled = false;
       btnRecord.classList.add('recording');
+      if (btnActionToggle) btnActionToggle.classList.add('recording');
       if (recIcon) recIcon.textContent = '⏹';
+      if (recLabel) recLabel.textContent = 'STOP';
+      if (actionMainIcon) actionMainIcon.textContent = '⏹';
+      if (actionMainName) actionMainName.textContent = 'REC';
       recordTimer.classList.remove('hidden');
 
       const micPill = recordTimer.querySelector('.mic-status-pill');
@@ -1015,7 +1036,11 @@
         mediaRecorder.stop();
       }
       btnRecord.classList.remove('recording');
+      if (btnActionToggle) btnActionToggle.classList.remove('recording');
       if (recIcon) recIcon.textContent = '⏺';
+      if (recLabel) recLabel.textContent = 'RECORD';
+      if (actionMainIcon) actionMainIcon.textContent = '⚡';
+      if (actionMainName) actionMainName.textContent = 'CONTROLS';
       recordTimer.classList.add('hidden');
       if (recordInterval) clearInterval(recordInterval);
     }
