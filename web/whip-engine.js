@@ -493,6 +493,7 @@ class WhipEngine {
     } catch (e) {}
   }
 
+  // Heavy Forged Iron Spiked Flail: Massive sub-bass thud, inharmonic iron clang & link rattle cascade
   playChainSound(pitchRate = 1.0) {
     if (!this.audioCtx || this.isMuted) return;
     try {
@@ -500,29 +501,73 @@ class WhipEngine {
       const ctx = this.audioCtx;
       const t = ctx.currentTime;
 
-      // Heavy iron impact clang + metal resonance
-      const metalOsc = ctx.createOscillator();
-      metalOsc.type = 'triangle';
-      metalOsc.frequency.setValueAtTime(440 * pitchRate, t);
-      metalOsc.frequency.exponentialRampToValueAtTime(70, t + 0.22);
+      // Randomize pitch and timbre variance on every strike (0.88x - 1.15x)
+      const varPitch = pitchRate * (0.88 + Math.random() * 0.26);
 
-      const ringOsc = ctx.createOscillator();
-      ringOsc.type = 'sine';
-      ringOsc.frequency.setValueAtTime(1420 * pitchRate, t);
-      ringOsc.frequency.exponentialRampToValueAtTime(320, t + 0.18);
+      // 1. Heavy Mass Kinetic Thud (Deep physical morningstar weight)
+      const thudOsc = ctx.createOscillator();
+      thudOsc.type = 'triangle';
+      thudOsc.frequency.setValueAtTime(125 * varPitch, t);
+      thudOsc.frequency.exponentialRampToValueAtTime(26, t + 0.17);
 
-      const metalGain = ctx.createGain();
-      metalGain.gain.setValueAtTime(1.1, t);
-      metalGain.gain.exponentialRampToValueAtTime(0.001, t + 0.24);
+      const thudGain = ctx.createGain();
+      thudGain.gain.setValueAtTime(1.4, t);
+      thudGain.gain.exponentialRampToValueAtTime(0.001, t + 0.19);
 
-      metalOsc.connect(metalGain);
-      ringOsc.connect(metalGain);
-      metalGain.connect(this.sfxGain);
+      thudOsc.connect(thudGain);
+      thudGain.connect(this.sfxGain);
+      thudOsc.start(t);
+      thudOsc.stop(t + 0.20);
 
-      metalOsc.start(t);
-      ringOsc.start(t);
-      metalOsc.stop(t + 0.25);
-      ringOsc.stop(t + 0.25);
+      // 2. Multi-Part Inharmonic Iron Plate CLANG ("KLAAANG!")
+      const partialFreqs = [640, 1120, 1680, 2740, 3950];
+      partialFreqs.forEach((baseF, idx) => {
+        const osc = ctx.createOscillator();
+        osc.type = (idx % 2 === 0) ? 'sawtooth' : 'square';
+        const f = baseF * varPitch * (0.94 + Math.random() * 0.12);
+        osc.frequency.setValueAtTime(f, t);
+        osc.frequency.exponentialRampToValueAtTime(f * 0.70, t + 0.26);
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(f, t);
+        filter.Q.setValueAtTime(9 + idx * 2.5, t);
+
+        const gain = ctx.createGain();
+        const initialAmp = (1.2 / (idx + 1)) * 0.70;
+        gain.gain.setValueAtTime(initialAmp, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.20 + idx * 0.035);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.sfxGain);
+
+        osc.start(t);
+        osc.stop(t + 0.27);
+      });
+
+      // 3. Cascading Iron Chain Links Clinking / Chattering (4-6 staggered link impacts)
+      const rattleLinks = 4 + Math.floor(Math.random() * 3);
+      for (let r = 0; r < rattleLinks; r++) {
+        const linkDelay = 0.028 + r * (0.022 + Math.random() * 0.016);
+        const linkTime = t + linkDelay;
+        const linkFreq = (2200 + Math.random() * 2800) * varPitch;
+
+        const linkOsc = ctx.createOscillator();
+        linkOsc.type = 'sine';
+        linkOsc.frequency.setValueAtTime(linkFreq, linkTime);
+        linkOsc.frequency.exponentialRampToValueAtTime(linkFreq * 0.42, linkTime + 0.042);
+
+        const linkGain = ctx.createGain();
+        linkGain.gain.setValueAtTime(0.48 * (1 - r * 0.14), linkTime);
+        linkGain.gain.exponentialRampToValueAtTime(0.001, linkTime + 0.045);
+
+        linkOsc.connect(linkGain);
+        linkGain.connect(this.sfxGain);
+
+        linkOsc.start(linkTime);
+        linkOsc.stop(linkTime + 0.048);
+      }
     } catch (e) {}
   }
 
@@ -830,12 +875,17 @@ class WhipEngine {
 
     const now = performance.now();
     const timeSinceLastTap = now - this.lastTapTime;
-    // Frenzy Speed Escalation & Combo Building (1400ms combo window)
-    if (timeSinceLastTap < 1400) {
+
+    // Bishi Bashi / Tap Tap Intensity Engine:
+    // Taps rapidly pump up intensity (+0.28 per tap up to 4.0x) and combo streak
+    if (timeSinceLastTap < 1100) {
       this.combo++;
-      this.frenzy = Math.min(4.0, this.frenzy + 0.25);
+      this._comboFloat = this.combo;
+      this.frenzy = Math.min(4.0, this.frenzy + 0.28);
     } else {
       this.combo = 1;
+      this._comboFloat = 1;
+      this.frenzy = Math.min(4.0, Math.max(1.0, this.frenzy + 0.25));
     }
     this.lastTapTime = now;
 
@@ -873,9 +923,10 @@ class WhipEngine {
       return;
     }
 
-    // Chain Flail has 380ms duration for dramatic impact freeze frame
-    const baseDuration = (this.currentWeapon === 'chain') ? 380 : 200;
-    const strikeDuration = Math.max(90, baseDuration / this.frenzy);
+    // Chain Flail has distinct swing trajectory, inertia weight & freeze frame per strike
+    const isChain = (this.currentWeapon === 'chain');
+    const baseDuration = isChain ? (360 + Math.random() * 80) : 200;
+    const strikeDuration = Math.max(95, baseDuration / Math.pow(this.frenzy, 0.45));
 
     this.strike = {
       startTime: now,
@@ -883,6 +934,13 @@ class WhipEngine {
       targetX,
       targetY,
       impactFired: false,
+      // Chain physics variations per strike (heavier feeling, different trajectories)
+      swingStyle: Math.floor(Math.random() * 3), // 0: Overhead arc slam, 1: Lateral centrifugal slash, 2: Deep catapult surge
+      sagAmp: (50 + Math.random() * 45), // varying chain sag weight
+      waveAmp: (10 + Math.random() * 12),
+      chainLinks: 16 + Math.floor(Math.random() * 6),
+      impactAngle: (Math.random() - 0.5) * 1.5,
+      weightTremor: 3.5 + Math.random() * 2.5
     };
 
     if (this.onFrenzyChange) {
@@ -931,11 +989,26 @@ class WhipEngine {
   update(dt) {
     this.time += dt;
 
-    // Combo decays after idle (1400ms combo window), Multiplier stays at peak
+    // ── Bishi Bashi / Tap Tap Continuous Intensity & Combo Decay ────────────
+    // If player pauses or stops tapping, intensity immediately begins draining in real time
     const timeSinceLastTap = performance.now() - this.lastTapTime;
-    if (timeSinceLastTap > 1400 && this.combo > 1) {
-      this.combo = 1;
-      if (this.onFrenzyChange) {
+    if (timeSinceLastTap > 320 && !this.lockFrenzy) {
+      // Drain rate accelerates at higher tiers to force intense tapping to retain MAX 👑
+      const decaySpeed = 0.52 + (this.frenzy - 1.0) * 0.42;
+      const oldFrenzy = this.frenzy;
+      this.frenzy = Math.max(1.0, this.frenzy - decaySpeed * dt);
+
+      // Combo also bleeds down when intensity drops or user pauses > 750ms
+      if (this.combo > 1 && timeSinceLastTap > 750) {
+        if (!this._comboFloat) this._comboFloat = this.combo;
+        this._comboFloat = Math.max(1.0, this._comboFloat - 3.2 * dt);
+        const newCombo = Math.floor(this._comboFloat);
+        if (newCombo !== this.combo) {
+          this.combo = newCombo;
+        }
+      }
+
+      if (this.onFrenzyChange && (Math.abs(oldFrenzy - this.frenzy) > 0.02 || this.frenzy === 1.0)) {
         this.onFrenzyChange(this.frenzy, this.combo);
       }
     }
@@ -1125,7 +1198,7 @@ class WhipEngine {
       } catch {}
     }
 
-    this.screenShake = 16 + this.frenzy * 5;
+    this.screenShake = (this.currentWeapon === 'chain' ? 26 : 16) + this.frenzy * 6;
     const cfg = this.weaponConfigs[this.currentWeapon];
 
     // 2. Curved Crimson / Electric Slash Streaks radiating outwards
@@ -1538,27 +1611,54 @@ class WhipEngine {
     const bottomStartX = this.W * 0.62;
     const bottomStartY = this.H + 200;
 
+    const swingStyle = (this.strike && this.strike.swingStyle !== undefined) ? this.strike.swingStyle : 0;
+    const sagWeight = (this.strike && this.strike.sagAmp) ? this.strike.sagAmp : 65;
+    const waveWeight = (this.strike && this.strike.waveAmp) ? this.strike.waveAmp : 12;
+    const numLinks = (this.strike && this.strike.chainLinks) ? this.strike.chainLinks : 18;
+    const tremorWeight = (this.strike && this.strike.weightTremor) ? this.strike.weightTremor : 4.2;
+
     let ballX, ballY;
     let isFreezeFrame = false;
 
     if (progress < 0.40) {
-      // Phase 1 (0.00 - 0.40): Hurling UP from bottom to target with whip-lash acceleration
       const p = progress / 0.40;
-      const ease = p * p * (3 - 2 * p);
-      ballX = bottomStartX + (targetX - bottomStartX) * ease;
-      ballY = bottomStartY + (targetY - bottomStartY) * ease;
+      if (swingStyle === 0) {
+        // High Overhead Loop & Slam: catapults high into the air and crashes vertically down
+        const t = p * p * (3 - 2 * p);
+        const p0x = bottomStartX, p0y = bottomStartY;
+        const p1x = targetX + (origin.x - targetX) * 0.25;
+        const p1y = Math.min(targetY - 150, this.H * 0.16);
+        const p2x = targetX, p2y = targetY;
+        const oneMinusT = 1 - t;
+        ballX = oneMinusT * oneMinusT * p0x + 2 * oneMinusT * t * p1x + t * t * p2x;
+        ballY = oneMinusT * oneMinusT * p0y + 2 * oneMinusT * t * p1y + t * t * p2y;
+      } else if (swingStyle === 1) {
+        // Lateral Centrifugal Swoop: sweeps across from the left flank
+        const t = p * p * (3 - 2 * p);
+        const p0x = -60, p0y = targetY + 110;
+        const p1x = targetX * 0.45, p1y = targetY - 60;
+        const p2x = targetX, p2y = targetY;
+        const oneMinusT = 1 - t;
+        ballX = oneMinusT * oneMinusT * p0x + 2 * oneMinusT * t * p1x + t * t * p2x;
+        ballY = oneMinusT * oneMinusT * p0y + 2 * oneMinusT * t * p1y + t * t * p2y;
+      } else {
+        // Deep Catapult Surge: straight upward surge from bottom-right
+        const ease = p * p * (3 - 2 * p);
+        ballX = bottomStartX + (targetX - bottomStartX) * ease;
+        ballY = bottomStartY + (targetY - bottomStartY) * ease;
+      }
     } else if (progress < 0.72) {
       // Phase 2 (0.40 - 0.72): HIT FREEZE FRAME! Spiked ball locks on target with micro-tremor
       isFreezeFrame = true;
       const p = (progress - 0.40) / 0.32; // 0 to 1 during freeze
-      const tremorAmp = (1 - p) * 4.2;
+      const tremorAmp = (1 - p) * tremorWeight;
       ballX = targetX + Math.sin(this.time * 85) * tremorAmp;
       ballY = targetY + Math.cos(this.time * 95) * tremorAmp;
     } else {
       // Phase 3 (0.72 - 1.00): Heavy Recoil Plunge - massive morningstar plunges down off-screen
       const p = (progress - 0.72) / 0.28;
-      ballX = targetX + Math.sin(p * Math.PI) * 32;
-      ballY = targetY + p * p * (this.H * 1.25);
+      ballX = targetX + Math.sin(p * Math.PI) * 28;
+      ballY = targetY + p * p * (this.H * 1.35);
     }
 
     ctx.save();
@@ -1589,13 +1689,13 @@ class WhipEngine {
     }
 
     // 2. Interlocking Heavy Steel Chain Links
-    const chainLinksCount = 18;
+    const chainLinksCount = numLinks;
     const chainPoints = [];
     for (let c = 0; c <= chainLinksCount; c++) {
       const t = c / chainLinksCount;
-      const sagAmp = isFreezeFrame ? 18 : 65 * (1 - progress * 0.45);
-      const sag = Math.sin(t * Math.PI) * sagAmp;
-      const wave = Math.sin(t * Math.PI * 2 - progress * 9) * (12 * (1 - progress));
+      const currentSagAmp = isFreezeFrame ? 20 : sagWeight * (1 - progress * 0.42);
+      const sag = Math.sin(t * Math.PI) * currentSagAmp;
+      const wave = Math.sin(t * Math.PI * 2 - progress * 8) * (waveWeight * (1 - progress));
       const cx = origin.x + (ballX - origin.x) * t + wave;
       const cy = origin.y + (ballY - origin.y) * t + sag;
       chainPoints.push({ x: cx, y: cy });
@@ -1642,14 +1742,14 @@ class WhipEngine {
     ctx.save();
     ctx.translate(ballX, ballY);
 
-    const ballRadius = 30 + this.frenzy * 2.5;
+    const ballRadius = 32 + this.frenzy * 2.8;
     const spikeCount = 12;
 
     // Draw 12 Sharp Steel Conical Spikes
     for (let s = 0; s < spikeCount; s++) {
       // Rotation: frozen during freeze frame, spinning during travel
       const ang = (s / spikeCount) * Math.PI * 2 + (isFreezeFrame ? 0.35 : progress * 16.0);
-      const spikeLen = 18 + (s % 2 === 0 ? 8 : 0);
+      const spikeLen = 19 + (s % 2 === 0 ? 8 : 0);
 
       ctx.save();
       ctx.rotate(ang);

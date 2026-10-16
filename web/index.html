@@ -125,8 +125,12 @@
       </button>
     </div>
 
-    <!-- Bottom-Right: Meme Toggle, Reverse Camera & Symbol-Only Record Button -->
+    <!-- Bottom-Right: Flashlight Strobe, Meme Toggle, Reverse Camera & Symbol-Only Record Button -->
     <div class="bottom-right-actions">
+      <button id="btn-toggle-flashlight" class="action-btn-circle torch-btn" title="Flashlight Strobe on Whip (ON/OFF)" aria-label="Toggle Flashlight Strobe">
+        <span class="btn-icon">🔦</span>
+        <span class="torch-status-dot"></span>
+      </button>
       <button id="btn-toggle-meme" class="action-btn-circle meme-btn active" title="Toggle Indonesian Workplace Memes (ON/OFF)" aria-label="Toggle Memes">
         <span class="btn-icon">💬</span>
         <span class="meme-status-dot"></span>
@@ -198,20 +202,20 @@
       </div>
     </div>
 
-    <!-- ── Video Preview & Share Modal ───────────────────────────────────────── -->
+    <!-- ── Video Preview & Share Modal (Compact Executive Single-Bar) ──────────── -->
     <div id="preview-modal" class="modal-overlay hidden">
-      <div class="modal-card">
-        <div class="modal-header">
+      <div class="modal-card preview-card">
+        <button id="btn-close-preview-x" class="modal-close-x" title="Close Preview (Dismiss)" aria-label="Close">✕</button>
+        <div class="modal-header compact">
           <div class="modal-badge-row">
-            <span class="cyber-mini-badge">RECORDED</span>
+            <span class="corp-badge">OFFICIAL AUDIT</span>
             <span class="modal-subtitle">PERFORMANCE REVIEW LOGGED</span>
           </div>
-          <h2 class="modal-title">📢 Review Broadcast Ready!</h2>
-          <p class="modal-desc">Clip recorded with microphone audio, weapon SFX & cyber productivity metrics.</p>
+          <h2 class="modal-title">Executive Performance Clip</h2>
         </div>
 
         <div class="preview-video-container">
-          <video id="preview-video" controls playsinline autoplay loop></video>
+          <video id="preview-video" playsinline autoplay loop></video>
         </div>
 
         <!-- Metric highlights -->
@@ -234,31 +238,22 @@
           </div>
         </div>
 
-        <div class="modal-actions">
-          <button id="btn-share-video" class="modal-btn share-btn">
-            📲 Share Clip to Messaging Apps (WhatsApp / Slack / LinkedIn)
+        <!-- SINGLE BAR - ONLY ICONS: Play/Pause, Replay, Download, Share, Dismiss -->
+        <div class="preview-single-bar">
+          <button id="btn-play-pause-video" class="icon-bar-btn" title="Play / Pause" aria-label="Play or Pause">
+            <span class="bar-icon">⏯️</span>
           </button>
-
-          <div class="share-shortcuts-row">
-            <button id="btn-share-whatsapp" class="modal-btn shortcut-btn whatsapp" title="Share via WhatsApp">
-              💬 WhatsApp
-            </button>
-            <button id="btn-share-linkedin" class="modal-btn shortcut-btn linkedin" title="Post to LinkedIn">
-              💼 LinkedIn
-            </button>
-            <button id="btn-download-video" class="modal-btn shortcut-btn download" title="Save Video File (.mp4)">
-              💾 Save .MP4
-            </button>
-          </div>
-
-          <button id="btn-copy-post" class="modal-btn secondary">
-            📋 Copy Motivation Announcement
+          <button id="btn-replay-video" class="icon-bar-btn" title="Replay from Start" aria-label="Replay">
+            <span class="bar-icon">🔁</span>
           </button>
-          <button id="btn-replay-video" class="modal-btn secondary">
-            🔁 Replay Video with Audio
+          <button id="btn-download-video" class="icon-bar-btn highlight-btn" title="Download .MP4" aria-label="Download Video">
+            <span class="bar-icon">💾</span>
           </button>
-          <button id="btn-close-preview" class="modal-btn tertiary">
-            Dismiss
+          <button id="btn-share-video" class="icon-bar-btn" title="Share Clip to Messaging" aria-label="Share">
+            <span class="bar-icon">📤</span>
+          </button>
+          <button id="btn-close-preview" class="icon-bar-btn close-btn" title="Dismiss & Return to Camera" aria-label="Dismiss">
+            <span class="bar-icon">✕</span>
           </button>
         </div>
       </div>
@@ -355,13 +350,16 @@
     const previewActions = document.getElementById('preview-actions');
     const previewWeapon = document.getElementById('preview-weapon');
     const previewAudio = document.getElementById('preview-audio');
+    const btnPlayPauseVideo = document.getElementById('btn-play-pause-video');
+    const btnReplayVideo = document.getElementById('btn-replay-video');
+    const btnDownloadVideo = document.getElementById('btn-download-video');
     const btnShareVideo = document.getElementById('btn-share-video');
+    const btnClosePreview = document.getElementById('btn-close-preview');
+    const btnClosePreviewX = document.getElementById('btn-close-preview-x');
     const btnShareWhatsapp = document.getElementById('btn-share-whatsapp');
     const btnShareLinkedin = document.getElementById('btn-share-linkedin');
-    const btnDownloadVideo = document.getElementById('btn-download-video');
     const btnCopyPost = document.getElementById('btn-copy-post');
-    const btnReplayVideo = document.getElementById('btn-replay-video');
-    const btnClosePreview = document.getElementById('btn-close-preview');
+    const btnToggleFlashlight = document.getElementById('btn-toggle-flashlight');
 
     const cameraModal = document.getElementById('camera-modal');
     const btnEnableCamera = document.getElementById('btn-enable-camera');
@@ -440,6 +438,9 @@
         multiplierVal.classList.add('bump');
         setTimeout(() => multiplierVal.classList.remove('bump'), 140);
       }
+
+      // Hardware phone flashlight strobe (split-second 90ms)
+      flashHardwareTorch(90);
 
       // 0.1s Impact Screen Flash!
       if (screenFlash) {
@@ -545,6 +546,52 @@
         if (weaponSelector) weaponSelector.classList.remove('open');
       }
     });
+
+    // ── Bottom-Right Flashlight (Torch) Strobe Toggle ────────────────────────
+    let torchEnabled = false;
+    let hasTorch = false;
+
+    function checkTorchCapability() {
+      if (currentStream) {
+        const track = currentStream.getVideoTracks()[0];
+        if (track && track.getCapabilities) {
+          const caps = track.getCapabilities();
+          hasTorch = !!caps.torch;
+        }
+      }
+    }
+
+    if (btnToggleFlashlight) {
+      btnToggleFlashlight.addEventListener('click', (e) => {
+        e.stopPropagation();
+        torchEnabled = !torchEnabled;
+        if (torchEnabled) {
+          btnToggleFlashlight.classList.add('active');
+          showToast('🔦 Flashlight Strobe: ON');
+        } else {
+          btnToggleFlashlight.classList.remove('active');
+          showToast('🔦 Flashlight Strobe: OFF');
+        }
+      });
+    }
+
+    function flashHardwareTorch(durationMs = 90) {
+      if (!torchEnabled || !currentStream) return;
+      try {
+        const track = currentStream.getVideoTracks()[0];
+        if (track && track.getCapabilities && track.getCapabilities().torch) {
+          track.applyConstraints({ advanced: [{ torch: true }] })
+            .then(() => {
+              setTimeout(() => {
+                try {
+                  track.applyConstraints({ advanced: [{ torch: false }] }).catch(() => {});
+                } catch (e) {}
+              }, durationMs);
+            })
+            .catch(() => {});
+        }
+      } catch (e) {}
+    }
 
     // ── Bottom-Right Meme Popout Toggle ─────────────────────────────────────
     if (btnToggleMeme) {
@@ -664,6 +711,7 @@
         currentStream = stream;
         video.srcObject = stream;
         await video.play();
+        checkTorchCapability();
 
         if (mode === 'user') {
           video.classList.add('mirrored');
@@ -972,66 +1020,98 @@
       if (recordInterval) clearInterval(recordInterval);
     }
 
-    // ── Preview Modal Actions ───────────────────────────────────────────────
-    btnReplayVideo.addEventListener('click', () => {
-      previewVideo.currentTime = 0;
-      previewVideo.muted = false;
-      previewVideo.volume = 1.0;
-      previewVideo.play().catch(() => {});
-      showToast('🔁 Replaying clip with audio...');
+    // ── Preview Modal Actions (Single-Bar Icon Controls) ───────────────────
+    function dismissPreview() {
+      previewModal.classList.add('hidden');
+      previewVideo.pause();
+      previewVideo.src = '';
+    }
+
+    if (btnClosePreview) btnClosePreview.addEventListener('click', dismissPreview);
+    if (btnClosePreviewX) btnClosePreviewX.addEventListener('click', dismissPreview);
+
+    // Backdrop click dismisses modal immediately
+    previewModal.addEventListener('click', (e) => {
+      if (e.target === previewModal) dismissPreview();
     });
 
-    btnDownloadVideo.addEventListener('click', () => {
-      if (!recordedBlob) return;
-      const isMp4 = isMp4Recording || recordedBlob.type.includes('mp4');
-      const ext = isMp4 ? 'mp4' : 'webm';
-      const filename = `WhipYourCoworker-Productivity-${Date.now()}.${ext}`;
-
-      const a = document.createElement('a');
-      a.href = recordedUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      showToast('💾 Video saved to downloads!');
-    });
-
-    btnShareVideo.addEventListener('click', async () => {
-      if (!recordedBlob) return;
-      const isMp4 = isMp4Recording || recordedBlob.type.includes('mp4');
-      const ext = isMp4 ? 'mp4' : 'webm';
-      const filename = `WhipYourCoworker-Productivity-${Date.now()}.${ext}`;
-      const file = new File([recordedBlob], filename, { type: recordedBlob.type });
-
-      const shareText = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity to my coworkers with Whip Your Coworker! 👑⚡`;
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            title: 'Whip Your Coworker - Productivity Review 👑⚡',
-            text: shareText,
-            files: [file],
-          });
-          showToast('✅ Clip shared successfully!');
-          return;
-        } catch (err) {
-          if (err.name !== 'AbortError') console.warn('Share error:', err);
+    if (btnPlayPauseVideo) {
+      btnPlayPauseVideo.addEventListener('click', () => {
+        if (previewVideo.paused) {
+          previewVideo.play().catch(() => {});
+          showToast('▶️ Video Playing');
+        } else {
+          previewVideo.pause();
+          showToast('⏸️ Video Paused');
         }
-      }
+      });
+    }
 
-      const a = document.createElement('a');
-      a.href = recordedUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+    if (btnReplayVideo) {
+      btnReplayVideo.addEventListener('click', () => {
+        previewVideo.currentTime = 0;
+        previewVideo.muted = false;
+        previewVideo.volume = 1.0;
+        previewVideo.play().catch(() => {});
+        showToast('🔁 Replaying clip with audio...');
+      });
+    }
 
-      const postCopy = `${shareText} Motivating workplace productivity at ${window.location.href}`;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(postCopy);
-      }
-      showToast('✅ Clip downloaded & announcement copied! Paste into Slack or WhatsApp.');
-    });
+    if (btnDownloadVideo) {
+      btnDownloadVideo.addEventListener('click', () => {
+        if (!recordedBlob) return;
+        const isMp4 = isMp4Recording || recordedBlob.type.includes('mp4');
+        const ext = isMp4 ? 'mp4' : 'webm';
+        const filename = `WhipYourCoworker-Productivity-${Date.now()}.${ext}`;
+
+        const a = document.createElement('a');
+        a.href = recordedUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast('💾 Video saved to downloads!');
+      });
+    }
+
+    if (btnShareVideo) {
+      btnShareVideo.addEventListener('click', async () => {
+        if (!recordedBlob) return;
+        const isMp4 = isMp4Recording || recordedBlob.type.includes('mp4');
+        const ext = isMp4 ? 'mp4' : 'webm';
+        const filename = `WhipYourCoworker-Productivity-${Date.now()}.${ext}`;
+        const file = new File([recordedBlob], filename, { type: recordedBlob.type });
+
+        const shareText = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity to my coworkers with Whip Your Coworker! 👑⚡`;
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              title: 'Whip Your Coworker - Productivity Review 👑⚡',
+              text: shareText,
+              files: [file],
+            });
+            showToast('✅ Clip shared successfully!');
+            return;
+          } catch (err) {
+            if (err.name !== 'AbortError') console.warn('Share error:', err);
+          }
+        }
+
+        const a = document.createElement('a');
+        a.href = recordedUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        const postCopy = `${shareText} Motivating workplace productivity at ${window.location.href}`;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(postCopy);
+        }
+        showToast('✅ Clip downloaded & link copied! Paste into WhatsApp or Slack.');
+      });
+    }
 
     if (btnShareWhatsapp) {
       btnShareWhatsapp.addEventListener('click', () => {
@@ -1047,19 +1127,15 @@
       });
     }
 
-    btnCopyPost.addEventListener('click', () => {
-      const postText = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity to my team! 👑⚡ Disciplining workplace inefficiency with Whip Your Coworker. #WhipYourCoworker #ProductivityMaxx #WorkplaceSynergy`;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(postText);
-        showToast('📋 Announcement copied to clipboard!');
-      }
-    });
-
-    btnClosePreview.addEventListener('click', () => {
-      previewModal.classList.add('hidden');
-      previewVideo.pause();
-      previewVideo.src = '';
-    });
+    if (btnCopyPost) {
+      btnCopyPost.addEventListener('click', () => {
+        const postText = `Delivered ${peakMultiplierDuringRecording.toFixed(1)}x Work Productivity to my team! 👑⚡ Disciplining workplace inefficiency with Whip Your Coworker. #WhipYourCoworker #ProductivityMaxx #WorkplaceSynergy`;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(postText);
+          showToast('📋 Announcement copied to clipboard!');
+        }
+      });
+    }
 
     // Auto-detect demo mode from URL parameter
     const urlParams = new URLSearchParams(window.location.search);
