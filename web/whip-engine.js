@@ -90,9 +90,9 @@ class WhipEngine {
     this.slashMarks = [];
     this.callouts = []; // Workplace satire WhatsApp chat popouts
     this.onScreenShake = null; // High-impact screen shake callback for container & MAX hits
-    this.memesEnabled = true;
+    this.calloutsEnabled = true;
 
-    // Multilingual Workplace Gaslighting Boss Quotes (EN, ID, ZH, RU)
+    // Multilingual Workplace Gaslighting Boss Quotes (30 per language: EN, ID, ZH, RU)
     this.currentLang = 'en';
     this.langPhrases = {
       en: [
@@ -100,10 +100,10 @@ class WhipEngine {
         'DO IT FOR THE EXPERIENCE!',
         'UNPAID OVERTIME BUILDS CHARACTER!',
         'PASSION OVER SALARY!',
-        'THERE ARE 100 WAITING FOR YOUR JOB!',
+        'THERE ARE 100 APPLICANTS WAITING FOR YOUR JOB!',
         'INVEST IN YOUR FUTURE SELF!',
         'WORK SMART, NOT LESS!',
-        'BE GRATEFUL YOU HAVE A JOB!',
+        'BE GRATEFUL YOU HAVE A JOB IN THIS ECONOMY!',
         'LOYALTY HAS NO LIMITS!',
         'BACK IN MY DAY WE WORKED 18 HOURS!',
         'PROVE YOUR DEDICATION TODAY!',
@@ -111,7 +111,21 @@ class WhipEngine {
         'SYNERGIZE THE DELIVERABLES!',
         'EXPOSURE IS BETTER THAN MONEY!',
         'SLEEP WHEN YOU\'RE RETIRED!',
-        'CHAMPIONS DON\'T NEED SLEEP!'
+        'CHAMPIONS DON\'T NEED SLEEP!',
+        'THIS IS A FAST-PACED ENVIRONMENT!',
+        'WE WEAR MANY HATS HERE!',
+        'LET\'S CIRCLE BACK AND HUSTLE HARDER!',
+        'YOUR EFFORT TODAY IS TOMORROW\'S EQUITY!',
+        'WHY GO HOME WHEN WE HAVE FREE COFFEE?',
+        'I DON\'T BELIEVE IN BURNOUT, ONLY MINDSET!',
+        'TAKE OWNERSHIP OF THIS CRISIS!',
+        'LUNCH BREAK? THAT\'S TIME LOST!',
+        'GO THE EXTRA MILE WITHOUT EXTRA PAY!',
+        'WE CELEBRATE HARD WORK, NOT COMPLAINTS!',
+        'TIGHT DEADLINES BREED CREATIVITY!',
+        'WE VALUE AGILITY AND MAXIMUM OUTPUT!',
+        'YOU\'RE NOT TIRED, YOU\'RE UNINSPIRED!',
+        'KEEP PUSHING, THE QUARTER ENDS TONIGHT!'
       ],
       id: [
         'KITA DI SINI KELUARGA!',
@@ -129,7 +143,21 @@ class WhipEngine {
         'ANGGAP AJA BELAJAR!',
         'KURANG BERSYUKUR KAMU!',
         'SAYA DULU LEBIH PARAH!',
-        'KERJA CERDAS DONG!'
+        'KERJA CERDAS DONG!',
+        'DI SINI GAK ADA JAM PULANG!',
+        'KAMU ANAK MUDA HARUS TAHAN BANTING!',
+        'GAK USAH BANYAK DRAMA, KERJAIN!',
+        'KANTOR INI RUMAH KEDUA KAMU!',
+        'LEMBUR TANPA UANG MAKAN ITU DEDIKASI!',
+        'BURNOUT ITU CUMA SUGESTI!',
+        'TANGGAL MERAH TETAP STANDBY!',
+        'KLO GAK SANGGUP, RESIGN AJA!',
+        'SAYA PERCAYAKAN TUGAS INI KARENA KAMU MAMPU!',
+        'GAJI KECIL KAN ADA KELUARGA! MASAK MINTA LEBIH?',
+        'JANGAN MANJA, GENERASI SEKARANG LEMBEK!',
+        'TARGET BULANAN BELUM TERCAPAI, MAU TIDUR?!',
+        'KITA HARUS HUSTLE SAMPAI SUKSES!',
+        'TIDUR ITU NANTI PAS PENSIUN!'
       ],
       zh: [
         '我们公司是一家人！',
@@ -147,7 +175,21 @@ class WhipEngine {
         '用爱发电，奉献青春！',
         '周末多充充电提效率！',
         '今天不努力，明天转行！',
-        '生前何必久睡，死后自会长眠！'
+        '生前何必久睡，死后自会长眠！',
+        '没有加班费？这叫自主奋斗！',
+        '领导还没走，你怎么敢走？',
+        '抗压能力差就别来大厂！',
+        '我们注重的是格局和奉献！',
+        '下班早说明工作量不饱和！',
+        '年轻人多吃点苦是好事！',
+        '目标没完成，哪来的脸睡觉？',
+        '要把奋斗融入血液里！',
+        '不要问公司给你什么，先问你贡献了什么！',
+        '公司不养闲人，全力以赴！',
+        '项目上线前一律全员通宵！',
+        '内卷才能脱颖而出！',
+        '只有拼命才能证明你的价值！',
+        '今天你不卷，明天你就被淘汰！'
       ],
       ru: [
         'МЫ ЗДЕСЬ ОДНА СЕМЬЯ!',
@@ -165,10 +207,31 @@ class WhipEngine {
         'РАБОТА ДОЛЖНА БЫТЬ СТРАСТЬЮ!',
         'КОМУ СЕЙЧАС ЛЕГКО?!',
         'ВКЛЮЧАЙ ГОЛОВУ И УСКОРЯЙСЯ!',
-        'ПОМЕНЬШЕ НОЙ, ПОБОЛЬШЕ ПАШИ!'
+        'ПОМЕНЬШЕ НОЙ, ПОБОЛЬШЕ ПАШИ!',
+        'БОЛЬНИЧНЫЙ? У НАС ТАК НЕ ПРИНЯТО!',
+        'ДЕДЛАЙН ГОРИТ, А ТЫ СПИШЬ?!',
+        'ВЫГОРАНИЕ — ЭТО ПРИДУМКИ ЛЕНТЯЕВ!',
+        'РАБОТАЙ ТАК, БУДТО ЭТО ТВОЙ БИЗНЕС!',
+        'ОБЕД ЗА 5 МИНУТ И СНОВА В БОЙ!',
+        'БЕРИ ОТВЕТСТВЕННОСТЬ НА СЕБЯ!',
+        'ИНИЦИАТИВА ДОЛЖНА БЫТЬ КРУГЛОСУТОЧНОЙ!',
+        'МЫ НЕ РАБОТАЕМ — МЫ ЖИВЁМ ПРОЕКТОМ!',
+        'КРИЗИС В СТРАНЕ, ДЕРЖИСЬ ЗА МЕСТО!',
+        'НАЧАЛЬНИК НА СВЯЗИ — ТЫ НА РАБОТЕ!',
+        'КТО НЕ ПАШЕТ, ТОТ НЕ ЕСТ!',
+        'ТВОЙ ВКЛАД ОЦЕНЯТ ПОТОМ!',
+        'ГЛАЗА ОТКРЫЛ И БЫСТРО ЗА РАБОТУ!',
+        'СОН ДЛЯ ТЕХ, У КОГО НЕТ АМБИЦИЙ!'
       ]
     };
-    this.memePhrases = this.langPhrases[this.currentLang] || this.langPhrases.en;
+    this.calloutPhrases = this.langPhrases[this.currentLang] || this.langPhrases.en;
+    this.memePhrases = this.calloutPhrases; // backward compatibility
+
+    // Property alias for backward compatibility
+    Object.defineProperty(this, 'memesEnabled', {
+      get() { return this.calloutsEnabled; },
+      set(v) { this.calloutsEnabled = v; }
+    });
 
     this.lightningArcs = [];
     this.screenShake = 0;
@@ -193,7 +256,8 @@ class WhipEngine {
   setLanguage(lang) {
     if (this.langPhrases && this.langPhrases[lang]) {
       this.currentLang = lang;
-      this.memePhrases = this.langPhrases[lang];
+      this.calloutPhrases = this.langPhrases[lang];
+      this.memePhrases = this.calloutPhrases;
     }
   }
 
@@ -1357,9 +1421,9 @@ class WhipEngine {
       }
     }
 
-    // 6. Indonesian Satire Workplace Meme Popout (manipulative gaslighting boss quotes)
-    if (this.memesEnabled && this.memePhrases && this.memePhrases.length > 0) {
-      const phrase = this.memePhrases[Math.floor(Math.random() * this.memePhrases.length)];
+    // 6. Workplace Satire WhatsApp Callout Popout (manipulative gaslighting boss quotes)
+    if (this.calloutsEnabled && this.calloutPhrases && this.calloutPhrases.length > 0) {
+      const phrase = this.calloutPhrases[Math.floor(Math.random() * this.calloutPhrases.length)];
       // Spawn at a random position across the screen so they pop up dynamically everywhere
       const marginX = Math.min(130, this.W * 0.20);
       const marginY = Math.min(110, this.H * 0.16);

@@ -620,10 +620,12 @@ html, body {
   box-shadow: 0 0 8px #f59e0b;
 }
 
+.callout-action-btn .callout-dot,
 .meme-action-btn .meme-dot {
   background: #475569;
 }
 
+.callout-action-btn.active .callout-dot,
 .meme-action-btn.active .meme-dot {
   background: #10b981;
   box-shadow: 0 0 8px #10b981;
@@ -779,11 +781,11 @@ html, body {
   animation: screenShakePunchMax 0.28s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
 
-/* ── Street Fighter Super Art / MAX Productivity Banner (Top-Left) ────────── */
-.sf-announcement {
+/* ── Devil May Cry (DMC) Style Rank Combo Banner (Top-Left) ─────────────────── */
+.dmc-announcement {
   position: fixed;
-  top: 16px;
-  left: 24px;
+  top: 64px;
+  left: 16px;
   pointer-events: none;
   z-index: 150;
   display: flex;
@@ -794,151 +796,165 @@ html, body {
   max-width: 320px;
 }
 
-.sf-announcement.hidden {
+.dmc-announcement.hidden {
   display: none !important;
 }
 
-.sf-announcement.sf-enter,
-.sf-announcement.active {
-  animation: sfBannerImpact 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+.dmc-announcement.active {
+  opacity: 1;
+  animation: dmcBannerImpact 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-.sf-announcement.sf-exit {
-  animation: sfBannerFadeOut 0.4s ease-out forwards;
-}
-
-@keyframes sfBannerImpact {
+@keyframes dmcBannerImpact {
   0% {
     opacity: 0;
-    transform: translate(-35px, 0) scale(0.9);
-    filter: blur(4px);
+    transform: translate(-30px, 0) scale(0.9) skewX(-12deg);
   }
   65% {
     opacity: 1;
-    transform: translate(6px, 0) scale(1.03);
-    filter: blur(0);
+    transform: translate(4px, 0) scale(1.04) skewX(-12deg);
   }
   100% {
     opacity: 1;
-    transform: translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(1) skewX(-12deg);
   }
 }
 
-@keyframes sfBannerFadeOut {
-  0% {
-    opacity: 1;
-    transform: translate(0, 0) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-30px, 0) scale(0.92);
-    filter: blur(4px);
-  }
-}
-
-.sf-banner-box {
+.dmc-banner-box {
   position: relative;
   width: auto;
-  padding: 8px 16px;
+  padding: 6px 16px 6px 12px;
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(2, 6, 23, 0.98) 100%);
   border: 2px solid #f59e0b;
   border-radius: 12px;
-  transform: skewX(-8deg);
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  text-align: left;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transition: all 0.25s ease;
 }
 
-/* Tier Variants */
-.sf-banner-box.tier-1,
-.sf-announcement.tier-1 .sf-banner-box {
+.dmc-rank-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  transform: skewX(12deg);
+}
+
+.dmc-rank-letter {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 34px;
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -1.5px;
+  display: inline-block;
+  transform: scaleY(1.05);
+}
+
+.dmc-text-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transform: skewX(12deg);
+  line-height: 1.15;
+}
+
+.dmc-rank-title {
+  font-family: 'Orbitron', 'Impact', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.dmc-rank-sub {
+  font-family: var(--font-scifi-body);
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+/* ── DMC Tier Variants (B -> A -> S -> SS -> SSS) ─────────────────────────── */
+/* B: BRUTAL! (Steel Blue & Amber) */
+.dmc-rank-b .dmc-banner-box {
+  border-color: #0284c7;
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.dmc-rank-b .dmc-rank-letter {
+  color: #38bdf8;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.8), 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+.dmc-rank-b .dmc-rank-title {
+  color: #7dd3fc;
+}
+
+/* A: ATOMIC! (Electric Amber & Gold) */
+.dmc-rank-a .dmc-banner-box {
   border-color: #f59e0b;
-  box-shadow: 0 6px 22px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 26px rgba(245, 158, 11, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.dmc-rank-a .dmc-rank-letter {
+  color: #fbbf24;
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.9), 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+.dmc-rank-a .dmc-rank-title {
+  color: #fde047;
 }
 
-.sf-banner-box.tier-2,
-.sf-announcement.tier-2 .sf-banner-box {
-  border-color: #f97316;
-  box-shadow: 0 6px 26px rgba(249, 115, 22, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+/* S: SAVAGE! (Crimson Neon) */
+.dmc-rank-s .dmc-banner-box {
+  border-color: #dc2626;
+  box-shadow: 0 8px 28px rgba(239, 68, 68, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.dmc-rank-s .dmc-rank-letter {
+  color: #ef4444;
+  text-shadow: 0 0 14px rgba(239, 68, 68, 0.95), 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+.dmc-rank-s .dmc-rank-title {
+  color: #f87171;
 }
 
-.sf-banner-box.tier-3,
-.sf-announcement.tier-3 .sf-banner-box {
-  border-color: #38bdf8;
-  box-shadow: 0 6px 28px rgba(56, 189, 248, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+/* SS: SICK SKILLS!! (Dual Crimson & Electric Violet) */
+.dmc-rank-ss .dmc-banner-box {
+  border-color: #a855f7;
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
+  box-shadow: 0 8px 32px rgba(168, 85, 247, 0.65), 0 0 14px rgba(236, 72, 153, 0.5);
+}
+.dmc-rank-ss .dmc-rank-letter {
+  color: #f472b6;
+  text-shadow: 0 0 14px #a855f7, 0 0 22px #ec4899;
+}
+.dmc-rank-ss .dmc-rank-title {
+  color: #f472b6;
+  text-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
 }
 
-.sf-banner-box.tier-4,
-.sf-banner-box.tier-max,
-.sf-announcement.tier-4 .sf-banner-box,
-.sf-announcement.tier-max .sf-banner-box {
+/* SSS: SMOKIN' SEXY SYNERGY!!! (God-Tier Gold & Chromatic Rainbow Glow) */
+.dmc-rank-sss .dmc-banner-box {
   border-color: #eab308;
   background: linear-gradient(135deg, rgba(30, 27, 75, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
-  box-shadow: 0 8px 32px rgba(168, 85, 247, 0.65), 0 0 14px rgba(234, 179, 8, 0.5);
-  animation: sfMaxThrob 0.6s infinite alternate ease-in-out;
+  box-shadow: 0 10px 36px rgba(234, 179, 8, 0.7), 0 0 20px rgba(239, 68, 68, 0.6);
+  animation: dmcLegendaryPulse 0.55s infinite alternate ease-in-out;
 }
-
-@keyframes sfMaxThrob {
-  0% { transform: skewX(-8deg) scale(1); }
-  100% { transform: skewX(-8deg) scale(1.02); }
-}
-
-.sf-tier-badge {
-  font-family: var(--font-scifi-title);
-  font-size: 9.5px;
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.12);
-  padding: 2px 8px;
-  border-radius: 999px;
-  margin-bottom: 4px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  transform: skewX(8deg);
-}
-
-.sf-tier-title {
-  font-family: 'Orbitron', 'Permanent Marker', sans-serif;
-  font-size: 18px;
-  font-weight: 900;
-  letter-spacing: 1.2px;
-  line-height: 1.15;
-  color: #ffffff;
-  text-transform: uppercase;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
-  transform: skewX(8deg);
-}
-
-.sf-banner-box.tier-1 .sf-tier-title,
-.sf-announcement.tier-1 .sf-tier-title { color: #fde68a; }
-
-.sf-banner-box.tier-2 .sf-tier-title,
-.sf-announcement.tier-2 .sf-tier-title { color: #fdba74; }
-
-.sf-banner-box.tier-3 .sf-tier-title,
-.sf-announcement.tier-3 .sf-tier-title { color: #7dd3fc; }
-
-.sf-banner-box.tier-4 .sf-tier-title,
-.sf-banner-box.tier-max .sf-tier-title,
-.sf-announcement.tier-4 .sf-tier-title,
-.sf-announcement.tier-max .sf-tier-title {
+.dmc-rank-sss .dmc-rank-letter {
   color: #fef08a;
-  text-shadow: 0 0 12px #eab308, 0 0 20px #a855f7;
+  text-shadow: 0 0 12px #eab308, 0 0 24px #ef4444, 0 0 36px #a855f7;
+}
+.dmc-rank-sss .dmc-rank-title {
+  color: #ffffff;
+  text-shadow: 0 0 12px #eab308, 0 0 20px #ef4444;
 }
 
-.sf-tier-sub {
-  font-family: var(--font-scifi-body);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1px;
-  color: #cbd5e1;
-  margin-top: 2px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
-  transform: skewX(8deg);
+@keyframes dmcLegendaryPulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.04); }
 }
 
 /* ── Sleep Guard Anti-Nap HUD Status Pill (Top-Right) ───────────────────────── */
@@ -1644,6 +1660,34 @@ html, body {
 .mic-status-pill.mic-disabled {
   background: rgba(239, 68, 68, 0.35);
   color: #f87171;
+}
+
+.quick-stop-record-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffff;
+  color: #dc2626;
+  border: 1.5px solid #ffffff;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-family: var(--font-scifi-title);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.quick-stop-record-btn:hover {
+  background: #fee2e2;
+  transform: scale(1.06);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.9);
+}
+
+.quick-stop-record-btn:active {
+  transform: scale(0.94);
 }
 
 /* ── Modals & Cyber Dialogs ────────────────────────────────────────────────── */

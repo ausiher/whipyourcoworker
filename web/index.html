@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Whip Your Coworker™ | Corporate Productivity AR</title>
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=16">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M22 78 C 30 22, 68 18, 82 45 C 92 68, 62 82, 42 66 C 26 54, 52 32, 68 40' fill='none' stroke='%23f59e0b' stroke-width='9' stroke-linecap='round'/><path d='M14 84 L26 72' stroke='%2378350f' stroke-width='14' stroke-linecap='round'/></svg>">
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <div id="app-container">
     <!-- Camera Video Source -->
-    <video id="camera-video" autoplay playsinline muted></video>
+    <video id="camera-video" autoplay playsinline webkit-playsinline muted></video>
 
     <!-- 3D WebGL Tactical Arm & Weapon Layer -->
     <canvas id="three-canvas"></canvas>
@@ -83,18 +83,24 @@
       🎯 Tap coworker or 📱 Swing phone to motivate!
     </div>
 
-    <!-- Recording Timer Indicator -->
+    <!-- Recording Timer Indicator with Quick Stop Button -->
     <div id="record-timer" class="record-timer hidden">
       <div class="record-dot"></div>
       <span id="record-time-text">REC 00:00</span>
       <span class="mic-status-pill mic-active">🎙️ MIC + SFX ON</span>
+      <button id="btn-quick-stop-record" class="quick-stop-record-btn" title="Stop Recording Immediately" aria-label="Stop Recording">⏹ STOP</button>
     </div>
 
-    <!-- ── Street Fighter Clean MAX Banner (Top-Left, Clean Title) ──────────── -->
-    <div id="sf-announcement" class="sf-announcement hidden">
-      <div class="sf-banner-box">
-        <div id="sf-tier-title" class="sf-tier-title">MAX PRODUCTIVITY!</div>
-        <div id="sf-tier-sub" class="sf-tier-sub">4.0x MAXIMUM OVERDRIVE</div>
+    <!-- ── Devil May Cry (DMC) Style Rank Combo System (B to SSS) (Top-Left) ── -->
+    <div id="dmc-announcement" class="dmc-announcement hidden">
+      <div class="dmc-banner-box">
+        <div class="dmc-rank-badge">
+          <span id="dmc-rank-letter" class="dmc-rank-letter">SSS</span>
+        </div>
+        <div class="dmc-text-col">
+          <div id="dmc-rank-title" class="dmc-rank-title">SMOKIN' SEXY SYNERGY!</div>
+          <div id="dmc-rank-sub" class="dmc-rank-sub">4.0x MAXIMUM CADENCE</div>
+        </div>
       </div>
     </div>
 
@@ -149,10 +155,10 @@
           <span class="action-label">FLASH</span>
           <span class="action-status-dot torch-dot"></span>
         </button>
-        <button id="btn-toggle-meme" class="drawer-action-btn meme-action-btn active" title="Toggle Workplace Gaslighting Memes (ON/OFF)" aria-label="Toggle Memes">
+        <button id="btn-toggle-callout" class="drawer-action-btn callout-action-btn active" title="Toggle Workplace Satire Callouts (ON/OFF)" aria-label="Toggle Callouts">
           <span class="action-icon">💬</span>
-          <span class="action-label">MEMES</span>
-          <span class="action-status-dot meme-dot"></span>
+          <span class="action-label">CALLOUTS</span>
+          <span class="action-status-dot callout-dot"></span>
         </button>
         <button id="btn-toggle-sleep" class="drawer-action-btn sleep-action-btn" title="Auto Sleep Detection / Anti-Nap Guard (ON/OFF)" aria-label="Toggle Sleep Guard">
           <span class="action-icon">👁️</span>
@@ -176,10 +182,6 @@
             <button class="lang-option-btn" data-lang="ru">🇷🇺 Русский</button>
           </div>
         </div>
-        <button id="btn-open-settings" class="drawer-action-btn settings-action-btn" title="Open Settings & Mode" aria-label="Settings">
-          <span class="action-icon">⚙️</span>
-          <span class="action-label">SETTINGS</span>
-        </button>
       </div>
 
       <!-- Main Action Drawer Trigger Button -->
@@ -191,96 +193,11 @@
     </div>
   </div>
 
-    <!-- ── Settings Modal ────────────────────────────────────────────────────── -->
-    <div id="settings-modal" class="modal-overlay hidden">
-      <div class="modal-card">
-        <div class="modal-header">
-          <div class="modal-badge-row">
-            <span class="cyber-mini-badge">CYBER</span>
-            <span class="modal-subtitle">TACTICAL AR SUITE</span>
-          </div>
-          <h2 class="modal-title">Settings & Controls</h2>
-          <p class="modal-desc">Configure your camera perspective, audio mix & presentation display.</p>
-        </div>
-
-        <div class="settings-grid">
-          <div id="opt-flip-camera" class="settings-option">
-            <div class="settings-left">
-              <span class="settings-icon">🔄</span>
-              <span class="settings-label">Switch Camera</span>
-            </div>
-            <span id="label-camera-mode" class="settings-toggle">Back (Environment)</span>
-          </div>
-
-          <div id="opt-sound-toggle" class="settings-option">
-            <div class="settings-left">
-              <span class="settings-icon">🔊</span>
-              <span class="settings-label">Sound Effects (SFX)</span>
-            </div>
-            <span id="label-sound-mode" class="settings-toggle">Enabled</span>
-          </div>
-
-          <div id="opt-mic-toggle" class="settings-option">
-            <div class="settings-left">
-              <span class="settings-icon">🎙️</span>
-              <span class="settings-label">Microphone Recording</span>
-            </div>
-            <span id="label-mic-mode" class="settings-toggle">Mixed with SFX</span>
-          </div>
-
-          <div id="opt-fullscreen-toggle" class="settings-option">
-            <div class="settings-left">
-              <span class="settings-icon">⛶</span>
-              <span class="settings-label">Presentation Mode</span>
-            </div>
-            <span class="settings-toggle">Toggle Fullscreen</span>
-          </div>
-
-          <div id="opt-sleep-detect" class="settings-option">
-            <div class="settings-left">
-              <span class="settings-icon">👁️</span>
-              <div class="settings-text-col">
-                <span class="settings-label">Auto Sleep Detection</span>
-                <span class="settings-subtext">Anti-nap: whips if eyes closed > 2s</span>
-              </div>
-            </div>
-            <span id="label-sleep-detect" class="settings-toggle">Disabled</span>
-          </div>
-
-          <div id="opt-language-select" class="settings-option">
-            <div class="settings-left">
-              <span class="settings-icon">🌐</span>
-              <div class="settings-text-col">
-                <span class="settings-label">Language / Bahasa</span>
-                <span class="settings-subtext">EN / ID / 中文 / RU</span>
-              </div>
-            </div>
-            <select id="settings-lang-select" class="settings-lang-select">
-              <option value="en">English (EN)</option>
-              <option value="id">Bahasa Indonesia (ID)</option>
-              <option value="zh">中文 (ZH)</option>
-              <option value="ru">Русский (RU)</option>
-            </select>
-          </div>
-
-          <div id="opt-mock-demo" class="settings-option">
-            <div class="settings-left">
-              <span class="settings-icon">🎬</span>
-              <span class="settings-label">Demo Video Mode</span>
-            </div>
-            <span class="settings-toggle">Simulate Feed</span>
-          </div>
-        </div>
-
-        <button id="btn-close-settings" class="modal-btn primary-cyan">Back to Action</button>
-      </div>
-    </div>
-
     <!-- ── Video Preview & Share Modal (Minimalist Device Aspect Ratio) ──────────── -->
     <div id="preview-modal" class="modal-overlay hidden">
       <div class="modal-card preview-card minimalist">
         <div class="preview-video-container">
-          <video id="preview-video" playsinline autoplay loop></video>
+          <video id="preview-video" playsinline webkit-playsinline autoplay loop></video>
         </div>
 
         <!-- Metric highlights (clean minimalist bar) -->
@@ -338,7 +255,7 @@
   <!-- Three.js 3D Library & GLTF Loader -->
   <script src="libs/three.min.js"></script>
   <script src="libs/GLTFLoader.js"></script>
-  <script src="whip-engine.js?v=14"></script>
+  <script src="whip-engine.js?v=15"></script>
 
   <script>
     const container = document.getElementById('app-container');
@@ -388,27 +305,16 @@
     const actionMainIcon = document.getElementById('action-main-icon');
     const actionMainName = document.getElementById('action-main-name');
     const btnReplayLast = document.getElementById('btn-replay-last');
-    const btnToggleMeme = document.getElementById('btn-toggle-meme');
+    const btnToggleCallout = document.getElementById('btn-toggle-callout');
     const btnToggleSleep = document.getElementById('btn-toggle-sleep');
     const sleepStatusDot = document.getElementById('sleep-status-dot');
     const btnFlipCamera = document.getElementById('btn-flip-camera');
-    const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnRecord = document.getElementById('btn-record');
+    const btnQuickStopRecord = document.getElementById('btn-quick-stop-record');
     const recIcon = document.getElementById('rec-icon');
     const recLabel = document.getElementById('rec-label');
     let mediaRecorder = null;
-
-    // Settings Modal Elements
-    const btnSettings = document.getElementById('btn-settings');
-    const settingsModal = document.getElementById('settings-modal');
-    const btnCloseSettings = document.getElementById('btn-close-settings');
-    const optFlipCamera = document.getElementById('opt-flip-camera');
-    const optSoundToggle = document.getElementById('opt-sound-toggle');
-    const optMicToggle = document.getElementById('opt-mic-toggle');
-    const optFullscreenToggle = document.getElementById('opt-fullscreen-toggle');
-    const optMockDemo = document.getElementById('opt-mock-demo');
     const labelCameraMode = document.getElementById('label-camera-mode');
-    const labelSoundMode = document.getElementById('label-sound-mode');
 
     // Preview Modal Elements
     const previewModal = document.getElementById('preview-modal');
@@ -428,17 +334,16 @@
     const btnCopyPost = document.getElementById('btn-copy-post');
     const btnToggleFlashlight = document.getElementById('btn-toggle-flashlight');
 
-    // Street Fighter Centered Super Art Announcement Elements
-    const sfAnnouncement = document.getElementById('sf-announcement');
-    const sfTierBadge = document.getElementById('sf-tier-badge');
-    const sfTierTitle = document.getElementById('sf-tier-title');
-    const sfTierSub = document.getElementById('sf-tier-sub');
+    // Devil May Cry (DMC) Style Rank Combo Elements
+    const dmcAnnouncement = document.getElementById('dmc-announcement');
+    const dmcRankLetter = document.getElementById('dmc-rank-letter');
+    const dmcRankTitle = document.getElementById('dmc-rank-title');
+    const dmcRankSub = document.getElementById('dmc-rank-sub');
 
     // Auto Sleep Detection Elements
-    const optSleepDetect = document.getElementById('opt-sleep-detect');
-    const labelSleepDetect = document.getElementById('label-sleep-detect');
     const sleepGuardHud = document.getElementById('sleep-guard-hud');
     const sleepGuardText = document.getElementById('sleep-guard-text');
+    const sleepGuardIcon = document.getElementById('sleep-guard-icon');
 
     const cameraModal = document.getElementById('camera-modal');
     const btnEnableCamera = document.getElementById('btn-enable-camera');
@@ -462,67 +367,87 @@
     window.engine = engine;
 
     let peakMultiplierDuringRecording = 1.0;
-    let lastAnnouncedTier = 1;
+    let lastAnnouncedTier = 0;
 
-    // ── Street Fighter Centered Super Art / MAX Announcement ─────────────────
-    function triggerStreetFighterTier(frenzy, combo) {
-      if (!sfAnnouncement) return;
-      let tier = 1;
-      let badgeText = 'SUPER COMBO';
-      let titleText = 'LEVEL UP!';
-      let subText = `${frenzy.toFixed(1)}x CADENCE`;
-      let tierClass = 'tier-1';
+    // ── Devil May Cry (DMC) Style Rank Combo System (B to SSS) ─────────────────
+    function triggerDmcRankTier(frenzy, combo) {
+      if (!dmcAnnouncement) return;
+      let tier = 0;
+      let letter = 'B';
+      let title = 'BRUTAL!';
+      let sub = `${frenzy.toFixed(1)}x CADENCE`;
+      let tierClass = 'dmc-rank-b';
 
-      if (frenzy >= 3.8) {
+      if (frenzy >= 3.8 || combo >= 10) {
+        tier = 5;
+        letter = 'SSS';
+        title = "SMOKIN' SEXY SYNERGY!";
+        sub = '4.0x MAXIMUM GOD-TIER';
+        tierClass = 'dmc-rank-sss';
+      } else if (frenzy >= 3.4 || combo >= 8) {
         tier = 4;
-        badgeText = '★★★ SUPER ART ★★★';
-        titleText = 'MAX PRODUCTIVITY!';
-        subText = '4.0x MAXIMUM OVERDRIVE';
-        tierClass = 'tier-max';
-      } else if (frenzy >= 2.8) {
+        letter = 'SS';
+        title = 'SICK SKILLS!!';
+        sub = `${frenzy.toFixed(1)}x OVERDRIVE`;
+        tierClass = 'dmc-rank-ss';
+      } else if (frenzy >= 2.8 || combo >= 6) {
         tier = 3;
-        badgeText = 'DRAGON FRENZY';
-        titleText = 'OVERDRIVE!';
-        subText = `${frenzy.toFixed(1)}x PEAK CADENCE`;
-        tierClass = 'tier-3';
-      } else if (frenzy >= 1.8) {
+        letter = 'S';
+        title = 'SAVAGE!';
+        sub = `${frenzy.toFixed(1)}x PEAK CADENCE`;
+        tierClass = 'dmc-rank-s';
+      } else if (frenzy >= 2.2 || combo >= 4) {
         tier = 2;
-        badgeText = 'BLAZING CADENCE';
-        titleText = 'POWER BOOST!';
-        subText = `${frenzy.toFixed(1)}x ACCELERATION`;
-        tierClass = 'tier-2';
+        letter = 'A';
+        title = 'ATOMIC!';
+        sub = `${frenzy.toFixed(1)}x CADENCE`;
+        tierClass = 'dmc-rank-a';
+      } else if (frenzy >= 1.5 || combo >= 2) {
+        tier = 1;
+        letter = 'B';
+        title = 'BRUTAL!';
+        sub = `${frenzy.toFixed(1)}x CADENCE`;
+        tierClass = 'dmc-rank-b';
       } else {
-        lastAnnouncedTier = 1;
+        // Idle/resting: let the banner finish its natural display duration via _hideTimer
         return;
       }
 
-      if (tier > lastAnnouncedTier) {
-        lastAnnouncedTier = tier;
-        if (sfTierBadge) sfTierBadge.textContent = badgeText;
-        if (sfTierTitle) sfTierTitle.textContent = titleText;
-        if (sfTierSub) sfTierSub.textContent = subText;
-        sfAnnouncement.className = `sf-announcement ${tierClass} active`;
+      if (tier === lastAnnouncedTier && dmcAnnouncement.classList.contains('active')) {
+        return;
+      }
 
-        if (topBranding) topBranding.classList.add('fade-out');
+      const isTierUpgrade = tier > lastAnnouncedTier;
+      lastAnnouncedTier = tier;
 
-        // Intense screen shake on Street Fighter Level Up
+      if (dmcRankLetter) dmcRankLetter.textContent = letter;
+      if (dmcRankTitle) dmcRankTitle.textContent = title;
+      if (dmcRankSub) dmcRankSub.textContent = sub;
+      dmcAnnouncement.className = `dmc-announcement ${tierClass} active`;
+      dmcAnnouncement.classList.remove('hidden');
+
+      if (topBranding) topBranding.classList.add('fade-out');
+
+      // Rank up surge and screen shake
+      if (isTierUpgrade) {
         container.classList.remove('screen-shaking', 'screen-shaking-max');
         void container.offsetWidth; // force reflow
-        container.classList.add(tier === 4 ? 'screen-shaking-max' : 'screen-shaking');
-        setTimeout(() => container.classList.remove('screen-shaking', 'screen-shaking-max'), tier === 4 ? 300 : 220);
+        container.classList.add(tier >= 4 ? 'screen-shaking-max' : 'screen-shaking');
+        setTimeout(() => container.classList.remove('screen-shaking', 'screen-shaking-max'), tier >= 4 ? 300 : 220);
 
         if (screenFlash) {
           screenFlash.classList.add('flash-active');
           setTimeout(() => screenFlash.classList.remove('flash-active'), 120);
         }
-        if (engine) engine.screenShake = 28 + tier * 8;
-
-        clearTimeout(sfAnnouncement._hideTimer);
-        sfAnnouncement._hideTimer = setTimeout(() => {
-          sfAnnouncement.classList.remove('active');
-          setTimeout(() => sfAnnouncement.classList.add('hidden'), 350);
-        }, 1600);
+        if (engine) engine.screenShake = 22 + tier * 8;
       }
+
+      clearTimeout(dmcAnnouncement._hideTimer);
+      dmcAnnouncement._hideTimer = setTimeout(() => {
+        lastAnnouncedTier = 0;
+        dmcAnnouncement.classList.remove('active');
+        setTimeout(() => dmcAnnouncement.classList.add('hidden'), 350);
+      }, 2000);
     }
 
     // ── Update Productivity HUD ─────────────────────────────────────────────
@@ -532,8 +457,8 @@
         multiplierVal.textContent = info.formattedMultiplier;
       }
 
-      // Check for Street Fighter milestone announcement
-      triggerStreetFighterTier(frenzy, combo);
+      // Check for DMC Style Rank milestone announcement (B to SSS)
+      triggerDmcRankTier(frenzy, combo);
 
       // Update Dynamic Combo Streak Badge
       if (comboStreakBadge && comboStreakText) {
@@ -697,6 +622,13 @@
         e.stopPropagation();
         engine.unlockAudio();
         engine.requestMotionPermission();
+
+        // QUICK STOP: If currently recording, clicking the main button immediately stops recording!
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          stopRecording();
+          return;
+        }
+
         const isHidden = actionDrawer.classList.contains('hidden');
         if (isHidden) {
           actionDrawer.classList.remove('hidden');
@@ -705,6 +637,13 @@
           actionDrawer.classList.add('hidden');
           actionSelector.classList.remove('open');
         }
+      });
+    }
+
+    if (btnQuickStopRecord) {
+      btnQuickStopRecord.addEventListener('click', (e) => {
+        e.stopPropagation();
+        stopRecording();
       });
     }
 
@@ -787,17 +726,18 @@
       } catch (e) {}
     }
 
-    // ── Bottom-Right Meme Popout Toggle ─────────────────────────────────────
-    if (btnToggleMeme) {
-      btnToggleMeme.addEventListener('click', (e) => {
+    // ── Bottom-Right Callouts Toggle ─────────────────────────────────────────
+    if (btnToggleCallout) {
+      btnToggleCallout.addEventListener('click', (e) => {
         e.stopPropagation();
-        engine.memesEnabled = !engine.memesEnabled;
-        if (engine.memesEnabled) {
-          btnToggleMeme.classList.add('active');
-          showToast('💬 Indonesian Workplace Memes: ON');
+        engine.calloutsEnabled = !engine.calloutsEnabled;
+        const t = i18n[currentLang] || i18n.en;
+        if (engine.calloutsEnabled) {
+          btnToggleCallout.classList.add('active');
+          showToast(`💬 ${t.callouts}: ON`);
         } else {
-          btnToggleMeme.classList.remove('active');
-          showToast('💬 Workplace Memes: OFF');
+          btnToggleCallout.classList.remove('active');
+          showToast(`💬 ${t.callouts}: OFF`);
         }
       });
     }
@@ -821,66 +761,7 @@
       });
     }
 
-    // ── Bottom-Right Open Settings ──────────────────────────────────────────
-    if (btnOpenSettings) {
-      btnOpenSettings.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (actionDrawer) {
-          actionDrawer.classList.add('hidden');
-          actionSelector.classList.remove('open');
-        }
-        if (settingsModal) settingsModal.classList.remove('hidden');
-      });
-    }
-
-    // ── Settings Modal Controls ─────────────────────────────────────────────
-    if (btnSettings) {
-      btnSettings.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (settingsModal) settingsModal.classList.remove('hidden');
-      });
-    }
-
-    if (btnCloseSettings) {
-      btnCloseSettings.addEventListener('click', () => {
-        if (settingsModal) settingsModal.classList.add('hidden');
-      });
-    }
-
-    if (optFlipCamera) {
-      optFlipCamera.addEventListener('click', () => {
-        facingMode = (facingMode === 'environment') ? 'user' : 'environment';
-        const t = i18n[currentLang] || i18n.en;
-        if (labelCameraMode) labelCameraMode.textContent = facingMode === 'environment' ? t.cam_back : t.cam_front;
-        startCamera(facingMode);
-      });
-    }
-
-    if (optSoundToggle) {
-      optSoundToggle.addEventListener('click', () => {
-        engine.unlockAudio();
-        engine.isMuted = !engine.isMuted;
-        if (labelSoundMode) labelSoundMode.textContent = engine.isMuted ? 'Muted (Silent)' : 'Enabled';
-      });
-    }
-
-    if (optMicToggle) {
-      optMicToggle.addEventListener('click', () => {
-        showToast('🎙️ Live microphone is mixed into video recordings!');
-      });
-    }
-
-    if (optFullscreenToggle) {
-      optFullscreenToggle.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(() => {});
-        } else {
-          document.exitFullscreen().catch(() => {});
-        }
-      });
-    }
-
-    // ── Auto Sleep Detection (Anti-Nap Guard) using MediaPipe FaceMesh ──────
+    // ── Refined Auto Sleep Detection (Anti-Nap Guard) using MediaPipe FaceMesh ──
     let sleepDetectActive = false;
     let sleepDetectionInterval = null;
     let eyesClosedStartTime = 0;
@@ -888,13 +769,12 @@
     let autoWhipCadenceMs = 1500;
     let autoWhipActive = false;
 
-    // MediaPipe FaceMesh state
+    // MediaPipe FaceMesh state & adaptive baseline
     let faceMesh = null;
     let faceMeshReady = false;
     let faceMeshBusy = false;
     let earHistory = [];
-
-    const sleepGuardIcon = document.getElementById('sleep-guard-icon');
+    let awakeBaselineEar = 0.30; // Adaptive baseline of user's resting open-eye EAR
 
     function initFaceMesh() {
       if (faceMesh) return;
@@ -924,7 +804,7 @@
       return Math.sqrt(dx * dx + dy * dy);
     }
 
-    // Standard 6-landmark Eye Aspect Ratio (Soukupová & Čech formula)
+    // High-precision Eye Aspect Ratio (Soukupová & Čech 6-landmark model)
     const LEFT_EYE_INDICES = [33, 160, 158, 133, 153, 144];
     const RIGHT_EYE_INDICES = [362, 385, 387, 263, 373, 380];
 
@@ -948,8 +828,8 @@
     function onFaceMeshResults(results) {
       if (!sleepDetectActive) return;
 
-      if (window.__SIMULATE_SLEEP__) {
-        handleEyesState(true);
+      if (typeof window.__SIMULATE_SLEEP__ === 'boolean') {
+        handleEyesState(window.__SIMULATE_SLEEP__);
         return;
       }
 
@@ -959,13 +839,20 @@
         const rightEar = computeEyeAspectRatio(landmarks, RIGHT_EYE_INDICES);
         const avgEar = (leftEar + rightEar) * 0.5;
 
-        // Smooth with small window to avoid single-frame blinks
+        // Smooth with small 4-frame window for fast responsive tracking without noise
         earHistory.push(avgEar);
-        if (earHistory.length > 5) earHistory.shift();
+        if (earHistory.length > 4) earHistory.shift();
         const smoothedEar = earHistory.reduce((a, b) => a + b, 0) / earHistory.length;
 
-        // Threshold: typical open eyes EAR is 0.28-0.38; closed eyes drops below 0.20
-        const isClosed = smoothedEar < 0.20;
+        // Adaptive baseline calibration: learn resting open EAR when awake
+        if (smoothedEar > 0.22) {
+          awakeBaselineEar = awakeBaselineEar * 0.92 + smoothedEar * 0.08;
+        }
+
+        // Adaptive closure threshold: ~62% of baseline, bounded between [0.165, 0.20]
+        const closureThreshold = Math.max(0.165, Math.min(0.20, awakeBaselineEar * 0.62));
+        const isClosed = smoothedEar < closureThreshold;
+
         handleEyesState(isClosed);
       } else {
         // No face detected in frame -> show scanning status
@@ -1002,12 +889,23 @@
         const closedDuration = now - eyesClosedStartTime;
         const closedSec = closedDuration / 1000;
 
+        // ACCURATE BLINK FILTER:
+        // Spontaneous physiological blinks last 100ms - 250ms.
+        // If duration < 320ms, do NOT alarm or flip status away from awake!
+        if (closedDuration < 320) {
+          setSleepGuardStatus('awake');
+          return;
+        }
+
+        // True Eye Closure / Nap Confirmed: Continuous closure >= 320ms
         setSleepGuardStatus('closed', closedSec);
 
+        // Once closed duration reaches 2.0s (2000ms), immediately trigger discipline whip!
         if (closedDuration >= 2000 && !autoWhipActive) {
           triggerAutoSleepWhip();
         }
       } else {
+        // Eyes are open: immediately restore awake state & clear alert
         if (eyesClosedStartTime > 0) {
           setSleepGuardStatus('awake');
         }
@@ -1023,10 +921,6 @@
 
     function toggleSleepDetection(enable) {
       sleepDetectActive = (enable !== undefined) ? enable : !sleepDetectActive;
-      if (labelSleepDetect) {
-        labelSleepDetect.textContent = sleepDetectActive ? 'Active (Monitoring)' : 'Disabled';
-        labelSleepDetect.className = `settings-toggle ${sleepDetectActive ? 'active' : ''}`;
-      }
 
       if (sleepDetectActive) {
         if (btnToggleSleep) btnToggleSleep.classList.add('active');
@@ -1134,12 +1028,6 @@
       }
     }
 
-    if (optSleepDetect) {
-      optSleepDetect.addEventListener('click', () => {
-        toggleSleepDetection();
-      });
-    }
-
     function activateDemoMode(showNotification = false) {
       if (cameraModal) cameraModal.classList.add('hidden');
       isMockMode = true;
@@ -1154,12 +1042,6 @@
 
     if (btnMockCamera) {
       btnMockCamera.addEventListener('click', () => activateDemoMode(true));
-    }
-    if (optMockDemo) {
-      optMockDemo.addEventListener('click', () => {
-        if (settingsModal) settingsModal.classList.add('hidden');
-        activateDemoMode(true);
-      });
     }
 
     // ── Camera Streaming (Default to Rear Cam, Auto-fallback to Front Cam) ──
@@ -1245,10 +1127,10 @@
         rec: 'RECORD',
         replay: 'REPLAY',
         flash: 'FLASH',
-        memes: 'MEMES',
+        callouts: 'CALLOUTS',
+        memes: 'CALLOUTS',
         sleep: 'ANTI-NAP',
         flip: 'FLIP CAM',
-        settings: 'SETTINGS',
         controls: 'CONTROLS',
         target_locked: 'TARGET LOCKED',
         tap_hint: '🎯 Tap coworker or 📱 Swing phone to motivate!',
@@ -1266,10 +1148,10 @@
         rec: 'REKAM',
         replay: 'PUTAR ULANG',
         flash: 'LAMPU',
-        memes: 'MEME',
+        callouts: 'SARKASME',
+        memes: 'SARKASME',
         sleep: 'ANTI-KANTUK',
         flip: 'PUTAR KAMERA',
-        settings: 'PENGATURAN',
         controls: 'KONTROL',
         target_locked: 'TARGET TERKUNCI',
         tap_hint: '🎯 Ketuk rekan kerja atau 📱 Goyangkan HP untuk motivasi!',
@@ -1287,10 +1169,10 @@
         rec: '录制',
         replay: '回放',
         flash: '闪光',
+        callouts: '语录',
         memes: '语录',
         sleep: '防打瞌睡',
         flip: '切换镜头',
-        settings: '设置',
         controls: '控制',
         target_locked: '目标锁定',
         tap_hint: '🎯 点击同事或 📱 挥动手机激发效率！',
@@ -1308,10 +1190,10 @@
         rec: 'ЗАПИСЬ',
         replay: 'ПОВТОР',
         flash: 'ВСПЫШКА',
-        memes: 'МЕМЫ',
+        callouts: 'ФРАЗЫ',
+        memes: 'ФРАЗЫ',
         sleep: 'АНТИ-СОН',
         flip: 'КАМЕРА',
-        settings: 'НАСТРОЙКИ',
         controls: 'УПРАВЛЕНИЕ',
         target_locked: 'ЦЕЛЬ ЗАХВАЧЕНА',
         tap_hint: '🎯 Нажмите на коллегу или 📱 взмахните телефоном для мотивации!',
@@ -1347,17 +1229,14 @@
       const flashLabel = document.querySelector('#btn-toggle-flashlight .action-label');
       if (flashLabel) flashLabel.textContent = t.flash;
 
-      const memeLabel = document.querySelector('#btn-toggle-meme .action-label');
-      if (memeLabel) memeLabel.textContent = t.memes;
+      const calloutLabel = document.querySelector('#btn-toggle-callout .action-label');
+      if (calloutLabel) calloutLabel.textContent = t.callouts;
 
       const sleepLabel = document.querySelector('#btn-toggle-sleep .action-label');
       if (sleepLabel) sleepLabel.textContent = t.sleep;
 
       const flipLabel = document.querySelector('#btn-flip-camera .action-label');
       if (flipLabel) flipLabel.textContent = t.flip;
-
-      const settingsLabel = document.querySelector('#btn-open-settings .action-label');
-      if (settingsLabel) settingsLabel.textContent = t.settings;
 
       if (actionMainName && (!mediaRecorder || mediaRecorder.state !== 'recording')) {
         actionMainName.textContent = t.controls;
@@ -1373,9 +1252,6 @@
 
       const langCurrentLabel = document.getElementById('lang-current-label');
       if (langCurrentLabel) langCurrentLabel.textContent = t.lang_name;
-
-      const settingsLangSelect = document.getElementById('settings-lang-select');
-      if (settingsLangSelect) settingsLangSelect.value = lang;
 
       document.querySelectorAll('.lang-option-btn').forEach(btn => {
         if (btn.getAttribute('data-lang') === lang) {
@@ -1648,11 +1524,16 @@
 
       btnRecord.disabled = false;
       btnRecord.classList.add('recording');
-      if (btnActionToggle) btnActionToggle.classList.add('recording');
+      if (btnActionToggle) {
+        btnActionToggle.classList.add('recording');
+        btnActionToggle.title = 'Stop Recording Immediately';
+      }
       if (recIcon) recIcon.textContent = '⏹';
       if (recLabel) recLabel.textContent = 'STOP';
       if (actionMainIcon) actionMainIcon.textContent = '⏹';
-      if (actionMainName) actionMainName.textContent = 'REC';
+      if (actionMainName) actionMainName.textContent = 'STOP REC';
+      if (actionDrawer) actionDrawer.classList.add('hidden');
+      if (actionSelector) actionSelector.classList.remove('open');
       recordTimer.classList.remove('hidden');
 
       const micPill = recordTimer.querySelector('.mic-status-pill');
@@ -1680,11 +1561,15 @@
         mediaRecorder.stop();
       }
       btnRecord.classList.remove('recording');
-      if (btnActionToggle) btnActionToggle.classList.remove('recording');
+      if (btnActionToggle) {
+        btnActionToggle.classList.remove('recording');
+        btnActionToggle.title = 'Open Controls';
+      }
+      const t = i18n[currentLang] || i18n.en;
       if (recIcon) recIcon.textContent = '⏺';
-      if (recLabel) recLabel.textContent = 'RECORD';
+      if (recLabel) recLabel.textContent = t.rec;
       if (actionMainIcon) actionMainIcon.textContent = '⚡';
-      if (actionMainName) actionMainName.textContent = 'CONTROLS';
+      if (actionMainName) actionMainName.textContent = t.controls;
       recordTimer.classList.add('hidden');
       if (recordInterval) clearInterval(recordInterval);
     }
