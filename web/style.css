@@ -629,20 +629,67 @@ html, body {
   box-shadow: 0 0 8px #10b981;
 }
 
-/* ── Street Fighter Centered Super Art / MAX Productivity Banner ─────────────── */
+.sleep-action-btn .sleep-dot {
+  background: #475569;
+}
+
+.sleep-action-btn.active .sleep-dot {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.sleep-action-btn.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.settings-action-btn:hover {
+  border-color: #64748b;
+  background: rgba(51, 65, 85, 0.7);
+}
+
+/* ── High-Impact Screen Shake on MAX Productivity ──────────────────────────── */
+@keyframes screenShakePunch {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  15% { transform: translate(-7px, 5px) rotate(-0.4deg); }
+  30% { transform: translate(6px, -5px) rotate(0.4deg); }
+  45% { transform: translate(-5px, -3px) rotate(-0.2deg); }
+  60% { transform: translate(4px, 3px) rotate(0.2deg); }
+  75% { transform: translate(-2px, 1px) rotate(-0.1deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes screenShakePunchMax {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  15% { transform: translate(-12px, 9px) scale(1.02) rotate(-0.8deg); }
+  30% { transform: translate(11px, -9px) scale(1.02) rotate(0.8deg); }
+  45% { transform: translate(-8px, -6px) scale(1.01) rotate(-0.4deg); }
+  60% { transform: translate(8px, 6px) scale(1.01) rotate(0.4deg); }
+  75% { transform: translate(-4px, 2px) scale(1.005) rotate(-0.2deg); }
+  100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+}
+
+#app-container.screen-shaking {
+  animation: screenShakePunch 0.22s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+#app-container.screen-shaking-max {
+  animation: screenShakePunchMax 0.28s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* ── Street Fighter Super Art / MAX Productivity Banner (Top-Left) ────────── */
 .sf-announcement {
   position: fixed;
-  top: 42%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 16px;
+  left: 24px;
   pointer-events: none;
   z-index: 150;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 90%;
-  max-width: 480px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: auto;
+  max-width: 320px;
 }
 
 .sf-announcement.hidden {
@@ -661,66 +708,66 @@ html, body {
 @keyframes sfBannerImpact {
   0% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(2.2) rotate(-8deg);
-    filter: blur(8px);
+    transform: translate(-35px, 0) scale(0.9);
+    filter: blur(4px);
   }
-  60% {
+  65% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(0.95) rotate(-2deg);
+    transform: translate(6px, 0) scale(1.03);
     filter: blur(0);
   }
   100% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1) rotate(-3deg);
+    transform: translate(0, 0) scale(1);
   }
 }
 
 @keyframes sfBannerFadeOut {
   0% {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1) rotate(-3deg);
+    transform: translate(0, 0) scale(1);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -70%) scale(1.15) rotate(-5deg);
-    filter: blur(6px);
+    transform: translate(-30px, 0) scale(0.92);
+    filter: blur(4px);
   }
 }
 
 .sf-banner-box {
   position: relative;
-  width: 100%;
-  padding: 16px 24px;
+  width: auto;
+  padding: 8px 16px;
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(2, 6, 23, 0.98) 100%);
-  border: 2.5px solid #f59e0b;
-  border-radius: 14px;
-  transform: skewX(-10deg);
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  transform: skewX(-8deg);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  text-align: center;
-  box-shadow: 0 0 45px rgba(245, 158, 11, 0.75), inset 0 0 25px rgba(245, 158, 11, 0.35);
+  text-align: left;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.25s ease;
 }
 
-/* Tier Variants (supporting on parent or box) */
+/* Tier Variants */
 .sf-banner-box.tier-1,
 .sf-announcement.tier-1 .sf-banner-box {
   border-color: #f59e0b;
-  box-shadow: 0 0 40px rgba(245, 158, 11, 0.75), inset 0 0 20px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 6px 22px rgba(245, 158, 11, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .sf-banner-box.tier-2,
 .sf-announcement.tier-2 .sf-banner-box {
   border-color: #f97316;
-  box-shadow: 0 0 50px rgba(249, 115, 22, 0.85), inset 0 0 25px rgba(249, 115, 22, 0.4);
+  box-shadow: 0 6px 26px rgba(249, 115, 22, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .sf-banner-box.tier-3,
 .sf-announcement.tier-3 .sf-banner-box {
   border-color: #38bdf8;
-  box-shadow: 0 0 55px rgba(56, 189, 248, 0.9), inset 0 0 30px rgba(56, 189, 248, 0.45);
+  box-shadow: 0 6px 28px rgba(56, 189, 248, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .sf-banner-box.tier-4,
@@ -729,39 +776,39 @@ html, body {
 .sf-announcement.tier-max .sf-banner-box {
   border-color: #eab308;
   background: linear-gradient(135deg, rgba(30, 27, 75, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%);
-  box-shadow: 0 0 70px rgba(168, 85, 247, 0.95), 0 0 35px rgba(234, 179, 8, 0.8), inset 0 0 35px rgba(234, 179, 8, 0.5);
-  animation: sfMaxPulse 0.8s infinite alternate ease-in-out;
+  box-shadow: 0 8px 32px rgba(168, 85, 247, 0.65), 0 0 14px rgba(234, 179, 8, 0.5);
+  animation: sfMaxThrob 0.6s infinite alternate ease-in-out;
 }
 
-@keyframes sfMaxPulse {
-  0% { transform: skewX(-10deg) scale(1); filter: brightness(1); }
-  100% { transform: skewX(-10deg) scale(1.04); filter: brightness(1.25); }
+@keyframes sfMaxThrob {
+  0% { transform: skewX(-8deg) scale(1); }
+  100% { transform: skewX(-8deg) scale(1.02); }
 }
 
 .sf-tier-badge {
   font-family: var(--font-scifi-title);
-  font-size: 11px;
+  font-size: 9.5px;
   font-weight: 900;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   color: #ffffff;
   background: rgba(255, 255, 255, 0.12);
-  padding: 3px 12px;
+  padding: 2px 8px;
   border-radius: 999px;
-  margin-bottom: 6px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
-  transform: skewX(10deg);
+  margin-bottom: 4px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  transform: skewX(8deg);
 }
 
 .sf-tier-title {
   font-family: 'Orbitron', 'Permanent Marker', sans-serif;
-  font-size: 26px;
+  font-size: 18px;
   font-weight: 900;
-  letter-spacing: 1.5px;
-  line-height: 1.1;
+  letter-spacing: 1.2px;
+  line-height: 1.15;
   color: #ffffff;
   text-transform: uppercase;
-  text-shadow: 0 0 12px currentColor, 0 4px 10px rgba(0, 0, 0, 0.9);
-  transform: skewX(10deg);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  transform: skewX(8deg);
 }
 
 .sf-banner-box.tier-1 .sf-tier-title,
@@ -778,24 +825,24 @@ html, body {
 .sf-announcement.tier-4 .sf-tier-title,
 .sf-announcement.tier-max .sf-tier-title {
   color: #fef08a;
-  text-shadow: 0 0 18px #eab308, 0 0 35px #a855f7;
+  text-shadow: 0 0 12px #eab308, 0 0 20px #a855f7;
 }
 
 .sf-tier-sub {
   font-family: var(--font-scifi-body);
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 1.5px;
-  color: #e2e8f0;
-  margin-top: 4px;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
-  transform: skewX(10deg);
+  letter-spacing: 1px;
+  color: #cbd5e1;
+  margin-top: 2px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  transform: skewX(8deg);
 }
 
 /* ── Sleep Guard Anti-Nap HUD Status Pill ───────────────────────────────────── */
 .sleep-guard-hud {
   position: absolute;
-  top: 76px;
+  top: 86px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(15, 23, 42, 0.92);

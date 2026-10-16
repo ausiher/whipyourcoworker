@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Whip Your Coworker™ | Corporate Productivity AR</title>
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="style.css?v=13">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M22 78 C 30 22, 68 18, 82 45 C 92 68, 62 82, 42 66 C 26 54, 52 32, 68 40' fill='none' stroke='%23f59e0b' stroke-width='9' stroke-linecap='round'/><path d='M14 84 L26 72' stroke='%2378350f' stroke-width='14' stroke-linecap='round'/></svg>">
 </head>
 <body>
@@ -89,9 +89,8 @@
       <span class="mic-status-pill mic-active">🎙️ MIC + SFX ON</span>
     </div>
 
-    <!-- ── Street Fighter Centered Super Art / MAX Banner ───────────────────── -->
+    <!-- ── Street Fighter Super Art / MAX Banner (Top-Left) ────────────────── -->
     <div id="sf-announcement" class="sf-announcement hidden">
-      <div class="sf-fire-backdrop"></div>
       <div class="sf-banner-box">
         <div id="sf-tier-badge" class="sf-tier-badge">SUPER COMBO</div>
         <div id="sf-tier-title" class="sf-tier-title">MAX PRODUCTIVITY!</div>
@@ -154,9 +153,18 @@
           <span class="action-label">MEMES</span>
           <span class="action-status-dot meme-dot"></span>
         </button>
+        <button id="btn-toggle-sleep" class="drawer-action-btn sleep-action-btn" title="Auto Sleep Detection / Anti-Nap Guard (ON/OFF)" aria-label="Toggle Sleep Guard">
+          <span class="action-icon">👁️</span>
+          <span class="action-label">ANTI-NAP</span>
+          <span id="sleep-status-dot" class="action-status-dot sleep-dot"></span>
+        </button>
         <button id="btn-flip-camera" class="drawer-action-btn flip-action-btn" title="Switch Front/Back Camera" aria-label="Switch Camera">
           <span class="action-icon">🔄</span>
           <span class="action-label">FLIP CAM</span>
+        </button>
+        <button id="btn-open-settings" class="drawer-action-btn settings-action-btn" title="Open Settings & Mode" aria-label="Settings">
+          <span class="action-icon">⚙️</span>
+          <span class="action-label">SETTINGS</span>
         </button>
       </div>
 
@@ -300,7 +308,7 @@
   <!-- Three.js 3D Library & GLTF Loader -->
   <script src="libs/three.min.js"></script>
   <script src="libs/GLTFLoader.js"></script>
-  <script src="whip-engine.js?v=12"></script>
+  <script src="whip-engine.js?v=13"></script>
 
   <script>
     const container = document.getElementById('app-container');
@@ -351,7 +359,10 @@
     const actionMainName = document.getElementById('action-main-name');
     const btnReplayLast = document.getElementById('btn-replay-last');
     const btnToggleMeme = document.getElementById('btn-toggle-meme');
+    const btnToggleSleep = document.getElementById('btn-toggle-sleep');
+    const sleepStatusDot = document.getElementById('sleep-status-dot');
     const btnFlipCamera = document.getElementById('btn-flip-camera');
+    const btnOpenSettings = document.getElementById('btn-open-settings');
     const btnRecord = document.getElementById('btn-record');
     const recIcon = document.getElementById('rec-icon');
     const recLabel = document.getElementById('rec-label');
@@ -461,11 +472,19 @@
         if (sfTierSub) sfTierSub.textContent = subText;
         sfAnnouncement.className = `sf-announcement ${tierClass} active`;
 
+        if (topBranding) topBranding.classList.add('fade-out');
+
+        // Intense screen shake on Street Fighter Level Up
+        container.classList.remove('screen-shaking', 'screen-shaking-max');
+        void container.offsetWidth; // force reflow
+        container.classList.add(tier === 4 ? 'screen-shaking-max' : 'screen-shaking');
+        setTimeout(() => container.classList.remove('screen-shaking', 'screen-shaking-max'), tier === 4 ? 300 : 220);
+
         if (screenFlash) {
           screenFlash.classList.add('flash-active');
           setTimeout(() => screenFlash.classList.remove('flash-active'), 120);
         }
-        if (engine) engine.screenShake = 22 + tier * 7;
+        if (engine) engine.screenShake = 28 + tier * 8;
 
         clearTimeout(sfAnnouncement._hideTimer);
         sfAnnouncement._hideTimer = setTimeout(() => {
@@ -566,6 +585,15 @@
       if (crosshair) {
         crosshair.classList.add('active');
         setTimeout(() => crosshair.classList.remove('active'), 240);
+      }
+    };
+
+    engine.onScreenShake = (intensity, isMax) => {
+      if (intensity >= 20 || isMax) {
+        container.classList.remove('screen-shaking', 'screen-shaking-max');
+        void container.offsetWidth; // force reflow
+        container.classList.add(isMax ? 'screen-shaking-max' : 'screen-shaking');
+        setTimeout(() => container.classList.remove('screen-shaking', 'screen-shaking-max'), isMax ? 280 : 200);
       }
     };
 
@@ -743,6 +771,14 @@
       });
     }
 
+    // ── Bottom-Right Toggle Anti-Nap Sleep Guard ────────────────────────────
+    if (btnToggleSleep) {
+      btnToggleSleep.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleSleepDetection();
+      });
+    }
+
     // ── Bottom-Right Flip Camera ────────────────────────────────────────────
     if (btnFlipCamera) {
       btnFlipCamera.addEventListener('click', (e) => {
@@ -750,6 +786,18 @@
         facingMode = (facingMode === 'environment') ? 'user' : 'environment';
         startCamera(facingMode);
         showToast(`🔄 Camera: ${facingMode === 'environment' ? 'Back' : 'Front'}`);
+      });
+    }
+
+    // ── Bottom-Right Open Settings ──────────────────────────────────────────
+    if (btnOpenSettings) {
+      btnOpenSettings.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (actionDrawer) {
+          actionDrawer.classList.add('hidden');
+          actionSelector.classList.remove('open');
+        }
+        if (settingsModal) settingsModal.classList.remove('hidden');
       });
     }
 
@@ -821,6 +869,8 @@
       }
 
       if (sleepDetectActive) {
+        if (btnToggleSleep) btnToggleSleep.classList.add('active');
+        if (sleepStatusDot) sleepStatusDot.classList.add('active');
         if (sleepGuardHud) {
           sleepGuardHud.classList.remove('hidden');
           if (sleepGuardText) sleepGuardText.textContent = '👁️ SLEEP GUARD: SCANNING';
@@ -828,6 +878,8 @@
         showToast('👁️ Auto Sleep Detection: ACTIVATED');
         startSleepMonitoring();
       } else {
+        if (btnToggleSleep) btnToggleSleep.classList.remove('active');
+        if (sleepStatusDot) sleepStatusDot.classList.remove('active');
         if (sleepGuardHud) sleepGuardHud.classList.add('hidden');
         showToast('👁️ Auto Sleep Detection: OFF');
         stopSleepMonitoring();

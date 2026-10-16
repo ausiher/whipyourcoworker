@@ -89,7 +89,7 @@ class WhipEngine {
     this.shockwaves = [];
     this.slashMarks = [];
     this.callouts = []; // Indonesian satire WhatsApp chat popouts
-    this.fireAuraParticles = []; // Street Fighter style flame aura particles
+    this.onScreenShake = null; // High-impact screen shake callback for container & MAX hits
     this.memesEnabled = true;
     this.memePhrases = [
       'KITA DI SINI KELUARGA!',
@@ -1229,7 +1229,11 @@ class WhipEngine {
       } catch {}
     }
 
-    this.screenShake = (this.currentWeapon === 'chain' ? 26 : 16) + this.frenzy * 6;
+    const isMax = this.frenzy >= 3.8;
+    this.screenShake = (isMax ? 36 : 18) + this.frenzy * 7;
+    if (this.onScreenShake) {
+      this.onScreenShake(this.screenShake, isMax);
+    }
     const cfg = this.weaponConfigs[this.currentWeapon];
 
     // 2. Curved Crimson / Electric Slash Streaks radiating outwards
@@ -1320,51 +1324,7 @@ class WhipEngine {
       if (this.screenShake < 0.5) this.screenShake = 0;
     }
 
-    // Street Fighter Centered Fire Aura Particles Evolving Across Tiers
-    if (this.frenzy >= 1.6) {
-      const fireTier = this.frenzy >= 3.8 ? 4 : (this.frenzy >= 2.8 ? 3 : 2);
-      const spawnCount = fireTier === 4 ? 6 : (fireTier === 3 ? 4 : 2);
 
-      for (let f = 0; f < spawnCount; f++) {
-        const spreadX = (Math.random() - 0.5) * (this.W * 0.45);
-        const startX = (this.W * 0.5) + spreadX;
-        const startY = this.H * 0.82 + Math.random() * (this.H * 0.15);
-
-        let colors;
-        if (fireTier === 4) {
-          colors = ['#c084fc', '#a855f7', '#fde047', '#00f5ff', '#ffffff'];
-        } else if (fireTier === 3) {
-          colors = ['#00f5ff', '#38bdf8', '#67e8f9', '#ffffff', '#0284c7'];
-        } else {
-          colors = ['#ef4444', '#ea580c', '#f97316', '#facc15', '#ffffff'];
-        }
-
-        const col = colors[Math.floor(Math.random() * colors.length)];
-        this.fireAuraParticles.push({
-          x: startX,
-          y: startY,
-          vx: (Math.random() - 0.5) * 2.4,
-          vy: -(4.8 + Math.random() * 8.0 * (fireTier * 0.35)),
-          size: 14 + Math.random() * 22 * (fireTier * 0.3),
-          alpha: 0.85,
-          color: col,
-          life: 0.65 + Math.random() * 0.45,
-          age: 0
-        });
-      }
-    }
-
-    for (let i = this.fireAuraParticles.length - 1; i >= 0; i--) {
-      const p = this.fireAuraParticles[i];
-      p.age += dt;
-      p.x += p.vx + Math.sin(p.age * 8.0) * 0.8;
-      p.y += p.vy;
-      p.size *= 0.96;
-      p.alpha = Math.max(0, 0.85 * (1 - p.age / p.life));
-      if (p.age >= p.life || p.size <= 1.5 || p.alpha <= 0) {
-        this.fireAuraParticles.splice(i, 1);
-      }
-    }
 
     // Callout WhatsApp speech bubbles
     for (let i = this.callouts.length - 1; i >= 0; i--) {
@@ -1422,9 +1382,6 @@ class WhipEngine {
       this.ctx.translate(sx, sy);
     }
 
-    // 0. Draw Street Fighter Fire Aura across multiplier tiers
-    this.drawFireAura();
-
     // 1. Draw Active 2D Weapon Physics (Cyber-Spine Whip / Taser)
     this.drawCurrentWeapon();
 
@@ -1472,24 +1429,7 @@ class WhipEngine {
     this.ctx.restore();
   }
 
-  drawFireAura() {
-    if (!this.fireAuraParticles || this.fireAuraParticles.length === 0) return;
-    const ctx = this.ctx;
-    ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-    for (const p of this.fireAuraParticles) {
-      ctx.globalAlpha = p.alpha;
-      const radGrad = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, p.size);
-      radGrad.addColorStop(0, '#ffffff');
-      radGrad.addColorStop(0.35, p.color);
-      radGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = radGrad;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-  }
+
 
   drawCallouts() {
     for (const c of this.callouts) {
@@ -2060,22 +2000,34 @@ class WhipEngine {
     const text = c.text || '';
     const timeStr = c.timeStr || (new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
+    // Scale WhatsApp chat bubble based on screen resolution (phone stays 1.0, computers/laptops scale up naturally)
+    let resScale = 1.0;
+    if (this.W > 480) {
+      resScale = Math.min(1.85, 1.0 + (this.W - 480) / 1200);
+    }
+
+    const fontMsgSize = Math.round(13 * resScale);
+    const fontMetaSize = Math.round(10 * resScale);
+    const padX = Math.round(12 * resScale);
+    const bubbleH = Math.round(34 * resScale);
+    const r = Math.round(8 * resScale);
+    const tailW = Math.round(8 * resScale);
+    const tailH = Math.round(11 * resScale);
+    const checkOffset = Math.round(4 * resScale);
+
     // Authentic WhatsApp typography
-    ctx.font = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    ctx.font = `600 ${fontMsgSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
     const textWidth = ctx.measureText(text).width;
 
-    ctx.font = '500 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.font = `500 ${fontMetaSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
     const timeMetrics = ctx.measureText(timeStr);
-    const metaWidth = timeMetrics.width + 18; // time + checkmarks spacing
+    const metaWidth = timeMetrics.width + Math.round(18 * resScale); // time + checkmarks spacing
 
-    const padX = 12;
-    const bubbleW = Math.max(120, textWidth + metaWidth + padX * 2);
-    const bubbleH = 34;
-    const r = 8;
+    const bubbleW = Math.max(Math.round(120 * resScale), textWidth + metaWidth + padX * 2);
 
     // Boundary clamp: keep WhatsApp bubble within screen margins
-    const clampedX = Math.min(this.W - bubbleW * 0.5 - 18, Math.max(bubbleW * 0.5 + 18, c.x));
-    const clampedY = Math.min(this.H - bubbleH - 120, Math.max(bubbleH * 0.5 + 40, c.y));
+    const clampedX = Math.min(this.W - bubbleW * 0.5 - 18 * resScale, Math.max(bubbleW * 0.5 + 18 * resScale, c.x));
+    const clampedY = Math.min(this.H - bubbleH - 120 * resScale, Math.max(bubbleH * 0.5 + 40 * resScale, c.y));
 
     ctx.translate(clampedX, clampedY);
     ctx.rotate(c.rotation || 0);
@@ -2084,8 +2036,8 @@ class WhipEngine {
 
     // 1. Subtle soft shadow
     ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetY = 3;
+    ctx.shadowBlur = Math.round(8 * resScale);
+    ctx.shadowOffsetY = Math.round(3 * resScale);
 
     // 2. Classic WhatsApp Outgoing Green Bubble (#005c4b)
     ctx.fillStyle = '#005c4b';
@@ -2096,8 +2048,8 @@ class WhipEngine {
     // 3. WhatsApp Corner Notch / Tail on top-right pointing outward
     ctx.beginPath();
     ctx.moveTo(bubbleW * 0.5 - 1, -bubbleH * 0.5);
-    ctx.lineTo(bubbleW * 0.5 + 8, -bubbleH * 0.5);
-    ctx.lineTo(bubbleW * 0.5 - 1, -bubbleH * 0.5 + 11);
+    ctx.lineTo(bubbleW * 0.5 + tailW, -bubbleH * 0.5);
+    ctx.lineTo(bubbleW * 0.5 - 1, -bubbleH * 0.5 + tailH);
     ctx.closePath();
     ctx.fill();
 
@@ -2110,19 +2062,19 @@ class WhipEngine {
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#ffffff';
-    ctx.font = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    ctx.font = `600 ${fontMsgSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
     ctx.fillText(text, -bubbleW * 0.5 + padX, 0);
 
     // 5. Timestamp (light greyish-green)
     const metaX = bubbleW * 0.5 - padX - metaWidth;
-    ctx.font = '500 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.font = `500 ${fontMetaSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
     ctx.fillStyle = '#8696a0';
-    ctx.fillText(timeStr, metaX, 1);
+    ctx.fillText(timeStr, metaX, Math.round(1 * resScale));
 
     // 6. WhatsApp Blue Double Checkmark (✓✓ Read Receipts)
-    ctx.font = 'bold 10px sans-serif';
+    ctx.font = `bold ${fontMetaSize}px sans-serif`;
     ctx.fillStyle = '#53bdeb';
-    ctx.fillText('✓✓', metaX + timeMetrics.width + 4, 1);
+    ctx.fillText('✓✓', metaX + timeMetrics.width + checkOffset, Math.round(1 * resScale));
 
     ctx.restore();
   }
