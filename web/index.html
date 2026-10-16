@@ -4,8 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Whip Your Coworker™ | Corporate Productivity AR</title>
-  <link rel="stylesheet" href="style.css?v=13">
+  <link rel="stylesheet" href="style.css?v=14">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M22 78 C 30 22, 68 18, 82 45 C 92 68, 62 82, 42 66 C 26 54, 52 32, 68 40' fill='none' stroke='%23f59e0b' stroke-width='9' stroke-linecap='round'/><path d='M14 84 L26 72' stroke='%2378350f' stroke-width='14' stroke-linecap='round'/></svg>">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <div id="app-container">
@@ -89,19 +90,19 @@
       <span class="mic-status-pill mic-active">🎙️ MIC + SFX ON</span>
     </div>
 
-    <!-- ── Street Fighter Super Art / MAX Banner (Top-Left) ────────────────── -->
+    <!-- ── Street Fighter Clean MAX Banner (Top-Left, Clean Title) ──────────── -->
     <div id="sf-announcement" class="sf-announcement hidden">
       <div class="sf-banner-box">
-        <div id="sf-tier-badge" class="sf-tier-badge">SUPER COMBO</div>
         <div id="sf-tier-title" class="sf-tier-title">MAX PRODUCTIVITY!</div>
         <div id="sf-tier-sub" class="sf-tier-sub">4.0x MAXIMUM OVERDRIVE</div>
       </div>
     </div>
 
-    <!-- Auto Sleep Detection HUD Status Pill -->
+    <!-- Auto Sleep Detection HUD Status Pill (Top-Right) -->
     <div id="sleep-guard-hud" class="sleep-guard-hud hidden">
+      <span id="sleep-guard-icon" class="sleep-guard-icon">👁️</span>
       <span class="sleep-guard-dot"></span>
-      <span id="sleep-guard-text">👁️ SLEEP GUARD: SCANNING</span>
+      <span id="sleep-guard-text">SLEEP GUARD: AWAKE</span>
     </div>
 
     <!-- ── Minimalist Bottom HUD: Corner Controls ───────────────────────────── -->
@@ -162,6 +163,19 @@
           <span class="action-icon">🔄</span>
           <span class="action-label">FLIP CAM</span>
         </button>
+        <div class="lang-selector-group">
+          <button id="btn-toggle-lang" class="drawer-action-btn lang-action-btn" title="Language / Ganti Bahasa / 语言 / Язык" aria-label="Change Language">
+            <span class="action-icon">🌐</span>
+            <span id="lang-current-label" class="action-label">EN</span>
+            <span class="lang-btn-arrow">▾</span>
+          </button>
+          <div id="lang-dropdown-menu" class="lang-dropdown-menu hidden">
+            <button class="lang-option-btn active" data-lang="en">🇬🇧 English</button>
+            <button class="lang-option-btn" data-lang="id">🇮🇩 Indonesia</button>
+            <button class="lang-option-btn" data-lang="zh">🇨🇳 中文</button>
+            <button class="lang-option-btn" data-lang="ru">🇷🇺 Русский</button>
+          </div>
+        </div>
         <button id="btn-open-settings" class="drawer-action-btn settings-action-btn" title="Open Settings & Mode" aria-label="Settings">
           <span class="action-icon">⚙️</span>
           <span class="action-label">SETTINGS</span>
@@ -231,6 +245,22 @@
               </div>
             </div>
             <span id="label-sleep-detect" class="settings-toggle">Disabled</span>
+          </div>
+
+          <div id="opt-language-select" class="settings-option">
+            <div class="settings-left">
+              <span class="settings-icon">🌐</span>
+              <div class="settings-text-col">
+                <span class="settings-label">Language / Bahasa</span>
+                <span class="settings-subtext">EN / ID / 中文 / RU</span>
+              </div>
+            </div>
+            <select id="settings-lang-select" class="settings-lang-select">
+              <option value="en">English (EN)</option>
+              <option value="id">Bahasa Indonesia (ID)</option>
+              <option value="zh">中文 (ZH)</option>
+              <option value="ru">Русский (RU)</option>
+            </select>
           </div>
 
           <div id="opt-mock-demo" class="settings-option">
@@ -308,7 +338,7 @@
   <!-- Three.js 3D Library & GLTF Loader -->
   <script src="libs/three.min.js"></script>
   <script src="libs/GLTFLoader.js"></script>
-  <script src="whip-engine.js?v=13"></script>
+  <script src="whip-engine.js?v=14"></script>
 
   <script>
     const container = document.getElementById('app-container');
@@ -366,6 +396,7 @@
     const btnRecord = document.getElementById('btn-record');
     const recIcon = document.getElementById('rec-icon');
     const recLabel = document.getElementById('rec-label');
+    let mediaRecorder = null;
 
     // Settings Modal Elements
     const btnSettings = document.getElementById('btn-settings');
@@ -785,7 +816,8 @@
         e.stopPropagation();
         facingMode = (facingMode === 'environment') ? 'user' : 'environment';
         startCamera(facingMode);
-        showToast(`🔄 Camera: ${facingMode === 'environment' ? 'Back' : 'Front'}`);
+        const t = i18n[currentLang] || i18n.en;
+        showToast(`🔄 ${t.flip}: ${facingMode === 'environment' ? t.cam_back : t.cam_front}`);
       });
     }
 
@@ -818,7 +850,8 @@
     if (optFlipCamera) {
       optFlipCamera.addEventListener('click', () => {
         facingMode = (facingMode === 'environment') ? 'user' : 'environment';
-        if (labelCameraMode) labelCameraMode.textContent = facingMode === 'environment' ? 'Back (Environment)' : 'Front (Selfie)';
+        const t = i18n[currentLang] || i18n.en;
+        if (labelCameraMode) labelCameraMode.textContent = facingMode === 'environment' ? t.cam_back : t.cam_front;
         startCamera(facingMode);
       });
     }
@@ -847,7 +880,7 @@
       });
     }
 
-    // ── Auto Sleep Detection (Anti-Nap Guard) Logic ─────────────────────────
+    // ── Auto Sleep Detection (Anti-Nap Guard) using MediaPipe FaceMesh ──────
     let sleepDetectActive = false;
     let sleepDetectionInterval = null;
     let eyesClosedStartTime = 0;
@@ -855,11 +888,138 @@
     let autoWhipCadenceMs = 1500;
     let autoWhipActive = false;
 
-    // Ultra-lean offscreen canvas for low-power sampling (120x90 px)
-    const sleepCanvas = document.createElement('canvas');
-    sleepCanvas.width = 120;
-    sleepCanvas.height = 90;
-    const sleepCtx = sleepCanvas.getContext('2d', { willReadFrequently: true });
+    // MediaPipe FaceMesh state
+    let faceMesh = null;
+    let faceMeshReady = false;
+    let faceMeshBusy = false;
+    let earHistory = [];
+
+    const sleepGuardIcon = document.getElementById('sleep-guard-icon');
+
+    function initFaceMesh() {
+      if (faceMesh) return;
+      if (typeof window.FaceMesh === 'undefined') {
+        return;
+      }
+      try {
+        faceMesh = new window.FaceMesh({
+          locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+        });
+        faceMesh.setOptions({
+          maxNumFaces: 1,
+          refineLandmarks: true,
+          minDetectionConfidence: 0.5,
+          minTrackingConfidence: 0.5
+        });
+        faceMesh.onResults(onFaceMeshResults);
+        faceMeshReady = true;
+      } catch (err) {
+        console.warn('FaceMesh initialization failed:', err);
+      }
+    }
+
+    function distance2D(p1, p2) {
+      const dx = p1.x - p2.x;
+      const dy = p1.y - p2.y;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    // Standard 6-landmark Eye Aspect Ratio (Soukupová & Čech formula)
+    const LEFT_EYE_INDICES = [33, 160, 158, 133, 153, 144];
+    const RIGHT_EYE_INDICES = [362, 385, 387, 263, 373, 380];
+
+    function computeEyeAspectRatio(landmarks, eyeIndices) {
+      const p1 = landmarks[eyeIndices[0]];
+      const p2 = landmarks[eyeIndices[1]];
+      const p3 = landmarks[eyeIndices[2]];
+      const p4 = landmarks[eyeIndices[3]];
+      const p5 = landmarks[eyeIndices[4]];
+      const p6 = landmarks[eyeIndices[5]];
+      if (!p1 || !p2 || !p3 || !p4 || !p5 || !p6) return 0.3;
+
+      const vert1 = distance2D(p2, p6);
+      const vert2 = distance2D(p3, p5);
+      const horiz = distance2D(p1, p4);
+
+      if (horiz < 0.0001) return 0.3;
+      return (vert1 + vert2) / (2.0 * horiz);
+    }
+
+    function onFaceMeshResults(results) {
+      if (!sleepDetectActive) return;
+
+      if (window.__SIMULATE_SLEEP__) {
+        handleEyesState(true);
+        return;
+      }
+
+      if (results && results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+        const landmarks = results.multiFaceLandmarks[0];
+        const leftEar = computeEyeAspectRatio(landmarks, LEFT_EYE_INDICES);
+        const rightEar = computeEyeAspectRatio(landmarks, RIGHT_EYE_INDICES);
+        const avgEar = (leftEar + rightEar) * 0.5;
+
+        // Smooth with small window to avoid single-frame blinks
+        earHistory.push(avgEar);
+        if (earHistory.length > 5) earHistory.shift();
+        const smoothedEar = earHistory.reduce((a, b) => a + b, 0) / earHistory.length;
+
+        // Threshold: typical open eyes EAR is 0.28-0.38; closed eyes drops below 0.20
+        const isClosed = smoothedEar < 0.20;
+        handleEyesState(isClosed);
+      } else {
+        // No face detected in frame -> show scanning status
+        setSleepGuardStatus('scanning');
+      }
+    }
+
+    function setSleepGuardStatus(state, durationSec = 0) {
+      if (!sleepGuardHud || !sleepGuardText) return;
+      const t = i18n[currentLang] || i18n.en;
+
+      if (state === 'closed') {
+        if (sleepGuardIcon) sleepGuardIcon.textContent = '😴';
+        sleepGuardText.textContent = `${t.sleep_closed}: ${durationSec.toFixed(1)}s`;
+        sleepGuardHud.classList.add('alert');
+      } else if (state === 'awake') {
+        if (sleepGuardIcon) sleepGuardIcon.textContent = '👁️';
+        sleepGuardText.textContent = t.sleep_awake;
+        sleepGuardHud.classList.remove('alert');
+      } else if (state === 'scanning') {
+        if (sleepGuardIcon) sleepGuardIcon.textContent = '👁️';
+        sleepGuardText.textContent = t.sleep_scanning;
+        sleepGuardHud.classList.remove('alert');
+      }
+    }
+
+    function handleEyesState(isEyesClosed) {
+      const now = performance.now();
+
+      if (isEyesClosed) {
+        if (eyesClosedStartTime === 0) {
+          eyesClosedStartTime = now;
+        }
+        const closedDuration = now - eyesClosedStartTime;
+        const closedSec = closedDuration / 1000;
+
+        setSleepGuardStatus('closed', closedSec);
+
+        if (closedDuration >= 2000 && !autoWhipActive) {
+          triggerAutoSleepWhip();
+        }
+      } else {
+        if (eyesClosedStartTime > 0) {
+          setSleepGuardStatus('awake');
+        }
+        eyesClosedStartTime = 0;
+        autoWhipActive = false;
+        autoWhipCadenceMs = 1500;
+        if (autoWhipTimer) {
+          clearTimeout(autoWhipTimer);
+          autoWhipTimer = null;
+        }
+      }
+    }
 
     function toggleSleepDetection(enable) {
       sleepDetectActive = (enable !== undefined) ? enable : !sleepDetectActive;
@@ -873,15 +1033,17 @@
         if (sleepStatusDot) sleepStatusDot.classList.add('active');
         if (sleepGuardHud) {
           sleepGuardHud.classList.remove('hidden');
-          if (sleepGuardText) sleepGuardText.textContent = '👁️ SLEEP GUARD: SCANNING';
+          setSleepGuardStatus('scanning');
         }
-        showToast('👁️ Auto Sleep Detection: ACTIVATED');
+        const t = i18n[currentLang] || i18n.en;
+        showToast(`👁️ ${t.sleep}: ON`);
         startSleepMonitoring();
       } else {
         if (btnToggleSleep) btnToggleSleep.classList.remove('active');
         if (sleepStatusDot) sleepStatusDot.classList.remove('active');
         if (sleepGuardHud) sleepGuardHud.classList.add('hidden');
-        showToast('👁️ Auto Sleep Detection: OFF');
+        const t = i18n[currentLang] || i18n.en;
+        showToast(`👁️ ${t.sleep}: OFF`);
         stopSleepMonitoring();
       }
     }
@@ -891,9 +1053,35 @@
       eyesClosedStartTime = 0;
       autoWhipCadenceMs = 1500;
       autoWhipActive = false;
+      initFaceMesh();
 
-      // Low power: 3.3 FPS
-      sleepDetectionInterval = setInterval(checkEyesState, 300);
+      setSleepGuardStatus('scanning');
+
+      // Send video frames to MediaPipe FaceMesh every 140ms (~7 FPS)
+      sleepDetectionInterval = setInterval(async () => {
+        if (!sleepDetectActive) return;
+
+        if (typeof window.__SIMULATE_SLEEP__ === 'boolean') {
+          handleEyesState(window.__SIMULATE_SLEEP__);
+          return;
+        }
+
+        if (!faceMeshReady) {
+          initFaceMesh();
+          return;
+        }
+
+        if (faceMesh && faceMeshReady && !faceMeshBusy && video && video.readyState >= 2) {
+          faceMeshBusy = true;
+          try {
+            await faceMesh.send({ image: video });
+          } catch (e) {
+            // ignore frame skip
+          } finally {
+            faceMeshBusy = false;
+          }
+        }
+      }, 140);
     }
 
     function stopSleepMonitoring() {
@@ -909,81 +1097,6 @@
       eyesClosedStartTime = 0;
     }
 
-    function checkEyesState() {
-      if (!sleepDetectActive) return;
-      if (!window.__SIMULATE_SLEEP__ && (!video || video.readyState < 2)) return;
-
-      let isEyesClosed = false;
-
-      if (window.__SIMULATE_SLEEP__) {
-        isEyesClosed = true;
-      } else {
-        const sw = sleepCanvas.width;
-        const sh = sleepCanvas.height;
-        sleepCtx.drawImage(video, 0, 0, sw, sh);
-
-        const startX = Math.floor(sw * 0.28);
-        const startY = Math.floor(sh * 0.22);
-        const regionW = Math.floor(sw * 0.44);
-        const regionH = Math.floor(sh * 0.28);
-
-        const imgData = sleepCtx.getImageData(startX, startY, regionW, regionH);
-        const d = imgData.data;
-
-        let edgeContrast = 0;
-        let totalLuma = 0;
-        let count = 0;
-
-        for (let y = 1; y < regionH - 1; y += 2) {
-          for (let x = 1; x < regionW - 1; x += 2) {
-            const idx = (y * regionW + x) * 4;
-            const luma = 0.299 * d[idx] + 0.587 * d[idx + 1] + 0.114 * d[idx + 2];
-            const rightLuma = 0.299 * d[idx + 4] + 0.587 * d[idx + 5] + 0.114 * d[idx + 6];
-            const downLuma = 0.299 * d[idx + regionW * 4] + 0.587 * d[idx + regionW * 4 + 1] + 0.114 * d[idx + regionW * 4 + 2];
-
-            edgeContrast += Math.abs(luma - rightLuma) + Math.abs(luma - downLuma);
-            totalLuma += luma;
-            count++;
-          }
-        }
-
-        const avgContrast = count > 0 ? (edgeContrast / count) : 0;
-        const avgLuma = count > 0 ? (totalLuma / count) : 0;
-
-        isEyesClosed = (avgContrast < 8.2 && avgLuma > 18);
-      }
-      const now = performance.now();
-
-      if (isEyesClosed) {
-        if (eyesClosedStartTime === 0) {
-          eyesClosedStartTime = now;
-        }
-        const closedDuration = now - eyesClosedStartTime;
-        const closedSec = (closedDuration / 1000).toFixed(1);
-
-        if (sleepGuardText) {
-          sleepGuardText.textContent = `💤 EYES CLOSED: ${closedSec}s`;
-          if (sleepGuardHud) sleepGuardHud.classList.add('alert');
-        }
-
-        if (closedDuration >= 2000 && !autoWhipActive) {
-          triggerAutoSleepWhip();
-        }
-      } else {
-        if (eyesClosedStartTime > 0 && sleepGuardText) {
-          sleepGuardText.textContent = '👁️ SLEEP GUARD: AWAKE';
-          if (sleepGuardHud) sleepGuardHud.classList.remove('alert');
-        }
-        eyesClosedStartTime = 0;
-        autoWhipActive = false;
-        autoWhipCadenceMs = 1500;
-        if (autoWhipTimer) {
-          clearTimeout(autoWhipTimer);
-          autoWhipTimer = null;
-        }
-      }
-    }
-
     function triggerAutoSleepWhip() {
       autoWhipActive = true;
 
@@ -991,9 +1104,12 @@
       const targetY = window.innerHeight * 0.38;
       engine.strikeAt(targetX, targetY);
 
+      const t = i18n[currentLang] || i18n.en;
+      const shout = t.sleep_wake_shout || 'WAKE UP! GET BACK TO WORK!';
+
       if (engine && engine.callouts) {
         engine.callouts.push({
-          text: 'HEI BANGUN! KERJA JANGAN TIDUR!',
+          text: shout,
           x: targetX + (Math.random() * 80 - 40),
           y: targetY - 60,
           rotation: (Math.random() - 0.5) * 0.08,
@@ -1046,7 +1162,7 @@
       });
     }
 
-    // ── Camera Streaming ────────────────────────────────────────────────────
+    // ── Camera Streaming (Default to Rear Cam, Auto-fallback to Front Cam) ──
     let currentStream = null;
     let facingMode = 'environment';
     let isMockMode = false;
@@ -1057,10 +1173,12 @@
         currentStream = null;
       }
 
+      facingMode = mode || 'environment';
+
       try {
         const constraints = {
           video: {
-            facingMode: mode,
+            facingMode: { ideal: facingMode },
             width: { ideal: 1920 },
             height: { ideal: 1080 }
           },
@@ -1073,24 +1191,255 @@
         await video.play();
         checkTorchCapability();
 
-        if (mode === 'user') {
+        if (facingMode === 'user') {
           video.classList.add('mirrored');
         } else {
           video.classList.remove('mirrored');
         }
 
+        if (labelCameraMode) {
+          const t = i18n[currentLang] || i18n.en;
+          labelCameraMode.textContent = facingMode === 'environment' ? t.cam_back : t.cam_front;
+        }
+
         cameraModal.classList.add('hidden');
         isMockMode = false;
+        return stream;
       } catch (err) {
-        console.warn('Camera stream error:', err);
-        if (mode === 'environment') {
+        console.warn('Camera stream error with facingMode:', facingMode, err);
+        // Fallback: If rear camera failed or is unavailable, automatically flip to front camera
+        if (facingMode === 'environment') {
+          facingMode = 'user';
           try {
-            return await startCamera('user');
-          } catch (e2) {}
+            const fallbackConstraints = {
+              video: {
+                facingMode: 'user',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+              },
+              audio: false
+            };
+            const fallbackStream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
+            currentStream = fallbackStream;
+            video.srcObject = fallbackStream;
+            await video.play();
+            video.classList.add('mirrored');
+            if (labelCameraMode) {
+              const t = i18n[currentLang] || i18n.en;
+              labelCameraMode.textContent = t.cam_front;
+            }
+            cameraModal.classList.add('hidden');
+            isMockMode = false;
+            return fallbackStream;
+          } catch (e2) {
+            console.warn('Front camera fallback also failed:', e2);
+          }
         }
         activateDemoMode(false);
       }
     }
+
+    // ── Multilingual Localization (EN, ID, ZH, RU) ──────────────────────────
+    const i18n = {
+      en: {
+        rec: 'RECORD',
+        replay: 'REPLAY',
+        flash: 'FLASH',
+        memes: 'MEMES',
+        sleep: 'ANTI-NAP',
+        flip: 'FLIP CAM',
+        settings: 'SETTINGS',
+        controls: 'CONTROLS',
+        target_locked: 'TARGET LOCKED',
+        tap_hint: '🎯 Tap coworker or 📱 Swing phone to motivate!',
+        productivity: 'PRODUCTIVITY',
+        sleep_scanning: 'SLEEP GUARD: SCANNING',
+        sleep_awake: 'SLEEP GUARD: AWAKE',
+        sleep_closed: 'EYES CLOSED',
+        sleep_wake_shout: 'WAKE UP! GET BACK TO WORK!',
+        cam_back: 'Back (Environment)',
+        cam_front: 'Front (Selfie)',
+        lang_name: 'EN',
+        toast_lang: '🌐 Language: English'
+      },
+      id: {
+        rec: 'REKAM',
+        replay: 'PUTAR ULANG',
+        flash: 'LAMPU',
+        memes: 'MEME',
+        sleep: 'ANTI-KANTUK',
+        flip: 'PUTAR KAMERA',
+        settings: 'PENGATURAN',
+        controls: 'KONTROL',
+        target_locked: 'TARGET TERKUNCI',
+        tap_hint: '🎯 Ketuk rekan kerja atau 📱 Goyangkan HP untuk motivasi!',
+        productivity: 'PRODUKTIVITAS',
+        sleep_scanning: 'ANTI-KANTUK: PINDAI...',
+        sleep_awake: 'ANTI-KANTUK: TERJAGA',
+        sleep_closed: 'MATA TERTUTUP',
+        sleep_wake_shout: 'HEI BANGUN! KERJA JANGAN TIDUR!',
+        cam_back: 'Belakang (Environment)',
+        cam_front: 'Depan (Selfie)',
+        lang_name: 'ID',
+        toast_lang: '🌐 Bahasa: Indonesia'
+      },
+      zh: {
+        rec: '录制',
+        replay: '回放',
+        flash: '闪光',
+        memes: '语录',
+        sleep: '防打瞌睡',
+        flip: '切换镜头',
+        settings: '设置',
+        controls: '控制',
+        target_locked: '目标锁定',
+        tap_hint: '🎯 点击同事或 📱 挥动手机激发效率！',
+        productivity: '生产力',
+        sleep_scanning: '防瞌睡: 扫描中...',
+        sleep_awake: '防瞌睡: 清醒',
+        sleep_closed: '闭眼',
+        sleep_wake_shout: '快醒醒！起来干活，别睡了！',
+        cam_back: '后置镜头 (环境)',
+        cam_front: '前置镜头 (自拍)',
+        lang_name: '中文',
+        toast_lang: '🌐 语言已切换为：中文'
+      },
+      ru: {
+        rec: 'ЗАПИСЬ',
+        replay: 'ПОВТОР',
+        flash: 'ВСПЫШКА',
+        memes: 'МЕМЫ',
+        sleep: 'АНТИ-СОН',
+        flip: 'КАМЕРА',
+        settings: 'НАСТРОЙКИ',
+        controls: 'УПРАВЛЕНИЕ',
+        target_locked: 'ЦЕЛЬ ЗАХВАЧЕНА',
+        tap_hint: '🎯 Нажмите на коллегу или 📱 взмахните телефоном для мотивации!',
+        productivity: 'ПРОДУКТИВНОСТЬ',
+        sleep_scanning: 'АНТИ-СОН: СКАНИРОВАНИЕ...',
+        sleep_awake: 'АНТИ-СОН: БОДРСТВУЕТ',
+        sleep_closed: 'ГЛАЗА ЗАКРЫТЫ',
+        sleep_wake_shout: 'ПРОСЫПАЙСЯ! РАБОТАТЬ НАДО, А НЕ СПАТЬ!',
+        cam_back: 'Задняя (Окружение)',
+        cam_front: 'Фронтальная (Селфи)',
+        lang_name: 'РУ',
+        toast_lang: '🌐 Язык переключен: Русский'
+      }
+    };
+
+    let currentLang = localStorage.getItem('openwhip_lang') || 'en';
+    if (!i18n[currentLang]) currentLang = 'en';
+
+    function setLanguage(lang) {
+      if (!i18n[lang]) return;
+      currentLang = lang;
+      localStorage.setItem('openwhip_lang', lang);
+      engine.setLanguage(lang);
+
+      const t = i18n[lang];
+
+      if (recLabel && (!mediaRecorder || mediaRecorder.state !== 'recording')) {
+        recLabel.textContent = t.rec;
+      }
+      const replayLabel = document.querySelector('#btn-replay-last .action-label');
+      if (replayLabel) replayLabel.textContent = t.replay;
+
+      const flashLabel = document.querySelector('#btn-toggle-flashlight .action-label');
+      if (flashLabel) flashLabel.textContent = t.flash;
+
+      const memeLabel = document.querySelector('#btn-toggle-meme .action-label');
+      if (memeLabel) memeLabel.textContent = t.memes;
+
+      const sleepLabel = document.querySelector('#btn-toggle-sleep .action-label');
+      if (sleepLabel) sleepLabel.textContent = t.sleep;
+
+      const flipLabel = document.querySelector('#btn-flip-camera .action-label');
+      if (flipLabel) flipLabel.textContent = t.flip;
+
+      const settingsLabel = document.querySelector('#btn-open-settings .action-label');
+      if (settingsLabel) settingsLabel.textContent = t.settings;
+
+      if (actionMainName && (!mediaRecorder || mediaRecorder.state !== 'recording')) {
+        actionMainName.textContent = t.controls;
+      }
+
+      const reticleLabel = document.querySelector('.reticle-label');
+      if (reticleLabel) reticleLabel.textContent = t.target_locked;
+
+      if (tapHint) tapHint.textContent = t.tap_hint;
+
+      const topMultLabel = document.querySelector('.top-mult-label');
+      if (topMultLabel) topMultLabel.textContent = t.productivity;
+
+      const langCurrentLabel = document.getElementById('lang-current-label');
+      if (langCurrentLabel) langCurrentLabel.textContent = t.lang_name;
+
+      const settingsLangSelect = document.getElementById('settings-lang-select');
+      if (settingsLangSelect) settingsLangSelect.value = lang;
+
+      document.querySelectorAll('.lang-option-btn').forEach(btn => {
+        if (btn.getAttribute('data-lang') === lang) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      if (labelCameraMode) {
+        labelCameraMode.textContent = facingMode === 'environment' ? t.cam_back : t.cam_front;
+      }
+
+      if (sleepDetectActive) {
+        setSleepGuardStatus(eyesClosedStartTime > 0 ? 'closed' : 'awake');
+      }
+
+      showToast(t.toast_lang);
+    }
+
+    const btnToggleLang = document.getElementById('btn-toggle-lang');
+    const langDropdownMenu = document.getElementById('lang-dropdown-menu');
+    const langSelectorGroup = document.querySelector('.lang-selector-group');
+
+    if (btnToggleLang) {
+      btnToggleLang.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = langDropdownMenu.classList.contains('hidden');
+        if (isHidden) {
+          langDropdownMenu.classList.remove('hidden');
+          if (langSelectorGroup) langSelectorGroup.classList.add('open');
+        } else {
+          langDropdownMenu.classList.add('hidden');
+          if (langSelectorGroup) langSelectorGroup.classList.remove('open');
+        }
+      });
+    }
+
+    document.querySelectorAll('.lang-option-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const lang = btn.getAttribute('data-lang');
+        setLanguage(lang);
+        if (langDropdownMenu) langDropdownMenu.classList.add('hidden');
+        if (langSelectorGroup) langSelectorGroup.classList.remove('open');
+      });
+    });
+
+    const settingsLangSelect = document.getElementById('settings-lang-select');
+    if (settingsLangSelect) {
+      settingsLangSelect.addEventListener('change', (e) => {
+        setLanguage(e.target.value);
+      });
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.lang-selector-group')) {
+        if (langDropdownMenu) langDropdownMenu.classList.add('hidden');
+        if (langSelectorGroup) langSelectorGroup.classList.remove('open');
+      }
+    });
+
+    // Initialize Language on boot
+    setLanguage(currentLang);
 
     function showCameraModal() {
       cameraModal.classList.remove('hidden');
@@ -1138,8 +1487,7 @@
     }
 
     // ── Video Recording Engine (Live Mic + Weapon SFX Mixed) ─────────────────
-    let mediaRecorder = null;
-    let recordedChunks = [];
+    recordedChunks = [];
     let recordInterval = null;
     let recordStartTime = 0;
     let recordedBlob = null;

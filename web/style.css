@@ -214,8 +214,8 @@ html, body {
 /* ── Top-Right: Clean Productivity Multiplier (Visible on strike, auto-hides after 5s) ── */
 .top-multiplier-container {
   position: absolute;
-  top: 14px;
-  right: 18px;
+  top: 52px;
+  right: 16px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -648,6 +648,108 @@ html, body {
   background: rgba(51, 65, 85, 0.7);
 }
 
+/* ── Language Dropdown Selector in Action Drawer & Settings ─────────────────── */
+.lang-selector-group {
+  position: relative;
+  width: 100%;
+}
+
+.lang-action-btn {
+  width: 100%;
+}
+
+.lang-btn-arrow {
+  font-size: 8px;
+  color: #94a3b8;
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.lang-selector-group.open .lang-btn-arrow {
+  transform: rotate(180deg);
+}
+
+.lang-dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  width: 170px;
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid #334155;
+  border-radius: 12px;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 16px 36px rgba(2, 6, 23, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  z-index: 50;
+  transform-origin: bottom right;
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.lang-dropdown-menu.hidden {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px) scale(0.94);
+}
+
+.lang-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #cbd5e1;
+  font-family: var(--font-scifi-title);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.lang-option-btn:hover {
+  background: rgba(51, 65, 85, 0.7);
+  color: #f8fafc;
+  border-color: #64748b;
+  transform: translateX(-2px);
+}
+
+.lang-option-btn.active {
+  background: rgba(37, 99, 235, 0.35);
+  border-color: #3b82f6;
+  color: #60a5fa;
+  font-weight: 800;
+}
+
+.settings-lang-select {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1.5px solid #475569;
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: #f8fafc;
+  font-family: var(--font-scifi-title);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.settings-lang-select:focus {
+  border-color: #38bdf8;
+}
+
+.settings-lang-select option {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
 /* ── High-Impact Screen Shake on MAX Productivity ──────────────────────────── */
 @keyframes screenShakePunch {
   0% { transform: translate(0, 0) rotate(0deg); }
@@ -839,23 +941,24 @@ html, body {
   transform: skewX(8deg);
 }
 
-/* ── Sleep Guard Anti-Nap HUD Status Pill ───────────────────────────────────── */
+/* ── Sleep Guard Anti-Nap HUD Status Pill (Top-Right) ───────────────────────── */
 .sleep-guard-hud {
   position: absolute;
-  top: 86px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 14px;
+  right: 16px;
+  left: auto;
+  transform: none;
   background: rgba(15, 23, 42, 0.92);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border: 1.5px solid #334155;
   border-radius: 999px;
-  padding: 5px 14px;
+  padding: 5px 12px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   font-family: var(--font-scifi-title);
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.8px;
   color: #94a3b8;
@@ -863,6 +966,11 @@ html, body {
   box-shadow: 0 4px 16px rgba(2, 6, 23, 0.7);
   pointer-events: none;
   transition: all 0.25s ease;
+}
+
+.sleep-guard-icon {
+  font-size: 13px;
+  line-height: 1;
 }
 
 .sleep-guard-hud.hidden {
@@ -878,8 +986,8 @@ html, body {
 }
 
 @keyframes pulseGuardAlert {
-  0% { transform: translateX(-50%) scale(1); }
-  100% { transform: translateX(-50%) scale(1.05); }
+  0% { transform: scale(1); }
+  100% { transform: scale(1.05); }
 }
 
 .sleep-guard-dot {

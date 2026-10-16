@@ -88,27 +88,88 @@ class WhipEngine {
     this.particles = [];
     this.shockwaves = [];
     this.slashMarks = [];
-    this.callouts = []; // Indonesian satire WhatsApp chat popouts
+    this.callouts = []; // Workplace satire WhatsApp chat popouts
     this.onScreenShake = null; // High-impact screen shake callback for container & MAX hits
     this.memesEnabled = true;
-    this.memePhrases = [
-      'KITA DI SINI KELUARGA!',
-      'DEMI PENGALAMAN KAMU!',
-      'KERJA IKHLAS ITU BERKAH!',
-      'LOYALITAS TANPA BATAS!',
-      'JANGAN HITUNG-HITUNGAN!',
-      'MASIH UNTUNG DIGAJI!',
-      'DI LUAR BANYAK YG NGANTRI!',
-      'MENTAL KAMU TEMPE!',
-      'OVERTIME DEMI MASA DEPAN!',
-      'BUKTIKAN DEDIKASI KAMU!',
-      'PASSION NOMOR SATU!',
-      'INVESTASI LEHER KE ATAS!',
-      'ANGGAP AJA BELAJAR!',
-      'KURANG BERSYUKUR KAMU!',
-      'SAYA DULU LEBIH PARAH!',
-      'KERJA CERDAS DONG!'
-    ];
+
+    // Multilingual Workplace Gaslighting Boss Quotes (EN, ID, ZH, RU)
+    this.currentLang = 'en';
+    this.langPhrases = {
+      en: [
+        'WE ARE A FAMILY HERE!',
+        'DO IT FOR THE EXPERIENCE!',
+        'UNPAID OVERTIME BUILDS CHARACTER!',
+        'PASSION OVER SALARY!',
+        'THERE ARE 100 WAITING FOR YOUR JOB!',
+        'INVEST IN YOUR FUTURE SELF!',
+        'WORK SMART, NOT LESS!',
+        'BE GRATEFUL YOU HAVE A JOB!',
+        'LOYALTY HAS NO LIMITS!',
+        'BACK IN MY DAY WE WORKED 18 HOURS!',
+        'PROVE YOUR DEDICATION TODAY!',
+        'WEEKENDS ARE FOR THE WEAK!',
+        'SYNERGIZE THE DELIVERABLES!',
+        'EXPOSURE IS BETTER THAN MONEY!',
+        'SLEEP WHEN YOU\'RE RETIRED!',
+        'CHAMPIONS DON\'T NEED SLEEP!'
+      ],
+      id: [
+        'KITA DI SINI KELUARGA!',
+        'DEMI PENGALAMAN KAMU!',
+        'KERJA IKHLAS ITU BERKAH!',
+        'LOYALITAS TANPA BATAS!',
+        'JANGAN HITUNG-HITUNGAN!',
+        'MASIH UNTUNG DIGAJI!',
+        'DI LUAR BANYAK YG NGANTRI!',
+        'MENTAL KAMU TEMPE!',
+        'OVERTIME DEMI MASA DEPAN!',
+        'BUKTIKAN DEDIKASI KAMU!',
+        'PASSION NOMOR SATU!',
+        'INVESTASI LEHER KE ATAS!',
+        'ANGGAP AJA BELAJAR!',
+        'KURANG BERSYUKUR KAMU!',
+        'SAYA DULU LEBIH PARAH!',
+        'KERJA CERDAS DONG!'
+      ],
+      zh: [
+        '我们公司是一家人！',
+        '这是给你的锻炼机会！',
+        '福报！996是修来的！',
+        '你不干有的是人干！',
+        '不要计较眼前得失！',
+        '公司好了你才会好！',
+        '有工资领就要懂得感恩！',
+        '年轻人要眼里有光！',
+        '狼性文化，拒绝摆烂！',
+        '我当年比你辛苦多了！',
+        '把公司当成自己的家！',
+        '加班是为了你的前途！',
+        '用爱发电，奉献青春！',
+        '周末多充充电提效率！',
+        '今天不努力，明天转行！',
+        '生前何必久睡，死后自会长眠！'
+      ],
+      ru: [
+        'МЫ ЗДЕСЬ ОДНА СЕМЬЯ!',
+        'РАБОТАЙ РАДИ ОПЫТА!',
+        'НЕ СЧИТАЙ СВЕРХУРОЧНЫЕ!',
+        'ЗА ЗАБОРОМ ОЧЕРЕДЬ СТОИТ!',
+        'СКАЖИ СПАСИБО, ЧТО ПЛАТЯТ!',
+        'В НАШЕ ВРЕМЯ МЫ НЕ СПАЛИ!',
+        'РАБОТАЙ НА РЕЗУЛЬТАТ!',
+        'ИНВЕСТИРУЙ В СВОЁ БУДУЩЕЕ!',
+        'ГДЕ ТВОЯ ЛОЯЛЬНОСТЬ?!',
+        'ВЫХОДНЫЕ — ДЛЯ СЛАБАКОВ!',
+        'ДОКАЖИ СВОЮ ПРЕДАННОСТЬ!',
+        'ОТОСПИШЬСЯ НА ПЕНСИИ!',
+        'РАБОТА ДОЛЖНА БЫТЬ СТРАСТЬЮ!',
+        'КОМУ СЕЙЧАС ЛЕГКО?!',
+        'ВКЛЮЧАЙ ГОЛОВУ И УСКОРЯЙСЯ!',
+        'ПОМЕНЬШЕ НОЙ, ПОБОЛЬШЕ ПАШИ!'
+      ]
+    };
+    this.memePhrases = this.langPhrases[this.currentLang] || this.langPhrases.en;
+
     this.lightningArcs = [];
     this.screenShake = 0;
 
@@ -127,6 +188,13 @@ class WhipEngine {
     // Start Main Render Loop
     this.loop = this.loop.bind(this);
     requestAnimationFrame(this.loop);
+  }
+
+  setLanguage(lang) {
+    if (this.langPhrases && this.langPhrases[lang]) {
+      this.currentLang = lang;
+      this.memePhrases = this.langPhrases[lang];
+    }
   }
 
   // ── Mobile Device Sensors ─────────────────────────────────────────────────
