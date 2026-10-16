@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Whip Your Coworker™ | Corporate Productivity AR</title>
-  <link rel="stylesheet" href="style.css?v=9">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
+  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M22 78 C 30 22, 68 18, 82 45 C 92 68, 62 82, 42 66 C 26 54, 52 32, 68 40' fill='none' stroke='%23f59e0b' stroke-width='9' stroke-linecap='round'/><path d='M14 84 L26 72' stroke='%2378350f' stroke-width='14' stroke-linecap='round'/></svg>">
 </head>
 <body>
   <div id="app-container">
@@ -20,15 +20,12 @@
 
     <!-- ── Top HUD Bar: Dynamic Logo & LIVE Badge ────────────────────────────── -->
     <header class="top-hud-bar">
-      <!-- Top-Left: Stylized Brush Calligraphy "👑 WHIP YOUR COWORKER" -->
+      <!-- Top-Left: Stylized Brush Calligraphy "WHIP YOUR COWORKER" -->
       <div class="top-branding">
-        <div class="brand-crown-row">
-          <svg class="brand-crown-svg" viewBox="0 0 32 24" width="30" height="22">
-            <path d="M3 21L6 6L12 13L16 4L20 13L26 6L29 21H3Z" fill="#F59E0B" stroke="#FDE047" stroke-width="1.8" stroke-linejoin="round"/>
-            <circle cx="6" cy="6" r="2.2" fill="#FEF08A"/>
-            <circle cx="16" cy="4" r="2.2" fill="#FEF08A"/>
-            <circle cx="26" cy="6" r="2.2" fill="#FEF08A"/>
-            <circle cx="16" cy="15" r="1.8" fill="#FDE047"/>
+        <div class="brand-whip-row">
+          <svg class="brand-whip-svg" viewBox="0 0 32 24" width="30" height="22">
+            <path d="M4 20 C 8 4, 20 2, 26 10 C 30 16, 20 21, 14 17 C 9 14, 18 8, 22 10" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M2 22 L6 18" stroke="#78350f" stroke-width="4.5" stroke-linecap="round"/>
           </svg>
         </div>
         <div class="brand-text-block">
@@ -55,7 +52,10 @@
       <div class="top-mult-label">PRODUCTIVITY</div>
       <div class="top-mult-row">
         <span id="meter-multiplier-val" class="top-mult-val">x1.0</span>
-        <span class="top-mult-crown">👑</span>
+        <svg class="top-mult-whip-svg" viewBox="0 0 24 20" width="18" height="15">
+          <path d="M3 17 C 6 3, 16 2, 21 8 C 24 13, 16 17, 11 14 C 7 11, 14 7, 18 8" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M1 19 L4 16" stroke="#b45309" stroke-width="3.5" stroke-linecap="round"/>
+        </svg>
       </div>
       <!-- Dynamic Combo Streak Badge -->
       <div id="combo-streak-badge" class="combo-streak-badge hidden">
@@ -89,21 +89,31 @@
       <span class="mic-status-pill mic-active">🎙️ MIC + SFX ON</span>
     </div>
 
+    <!-- ── Street Fighter Centered Super Art / MAX Banner ───────────────────── -->
+    <div id="sf-announcement" class="sf-announcement hidden">
+      <div class="sf-fire-backdrop"></div>
+      <div class="sf-banner-box">
+        <div id="sf-tier-badge" class="sf-tier-badge">SUPER COMBO</div>
+        <div id="sf-tier-title" class="sf-tier-title">MAX PRODUCTIVITY!</div>
+        <div id="sf-tier-sub" class="sf-tier-sub">4.0x MAXIMUM OVERDRIVE</div>
+      </div>
+    </div>
+
+    <!-- Auto Sleep Detection HUD Status Pill -->
+    <div id="sleep-guard-hud" class="sleep-guard-hud hidden">
+      <span class="sleep-guard-dot"></span>
+      <span id="sleep-guard-text">👁️ SLEEP GUARD: SCANNING</span>
+    </div>
+
     <!-- ── Minimalist Bottom HUD: Corner Controls ───────────────────────────── -->
     <!-- Bottom-Left: Expandable Weapon Selector -->
     <div id="weapon-selector" class="weapon-selector-minimal">
-      <!-- Vertical Pop-up Drawer (Pentung removed, 3 weapons: Whip, Chain, Taser) -->
+      <!-- Vertical Pop-up Drawer (2 weapons: Whip, Taser) -->
       <div id="weapon-drawer" class="weapon-drawer-vertical hidden">
         <div class="drawer-item active" data-weapon="whip">
           <div class="drawer-thumb" style="background-image: url('assets/whip.jpg')"></div>
           <div class="drawer-info">
             <span class="drawer-title">WHIP</span>
-          </div>
-        </div>
-        <div class="drawer-item" data-weapon="chain">
-          <div class="drawer-thumb" style="background-image: url('assets/chain.jpg')"></div>
-          <div class="drawer-info">
-            <span class="drawer-title">CHAIN</span>
           </div>
         </div>
         <div class="drawer-item" data-weapon="taser">
@@ -134,7 +144,7 @@
           <span class="action-icon">🔁</span>
           <span class="action-label">REPLAY</span>
         </button>
-        <button id="btn-toggle-flashlight" class="drawer-action-btn torch-action-btn" title="Flashlight Strobe on Whip (ON/OFF)" aria-label="Toggle Flashlight Strobe">
+        <button id="btn-toggle-flashlight" class="drawer-action-btn torch-action-btn active" title="Flashlight Strobe on Whip (ON/OFF)" aria-label="Toggle Flashlight Strobe">
           <span class="action-icon">🔦</span>
           <span class="action-label">FLASH</span>
           <span class="action-status-dot torch-dot"></span>
@@ -202,6 +212,17 @@
               <span class="settings-label">Presentation Mode</span>
             </div>
             <span class="settings-toggle">Toggle Fullscreen</span>
+          </div>
+
+          <div id="opt-sleep-detect" class="settings-option">
+            <div class="settings-left">
+              <span class="settings-icon">👁️</span>
+              <div class="settings-text-col">
+                <span class="settings-label">Auto Sleep Detection</span>
+                <span class="settings-subtext">Anti-nap: whips if eyes closed > 2s</span>
+              </div>
+            </div>
+            <span id="label-sleep-detect" class="settings-toggle">Disabled</span>
           </div>
 
           <div id="opt-mock-demo" class="settings-option">
@@ -279,7 +300,7 @@
   <!-- Three.js 3D Library & GLTF Loader -->
   <script src="libs/three.min.js"></script>
   <script src="libs/GLTFLoader.js"></script>
-  <script src="whip-engine.js?v=11"></script>
+  <script src="whip-engine.js?v=12"></script>
 
   <script>
     const container = document.getElementById('app-container');
@@ -365,6 +386,18 @@
     const btnCopyPost = document.getElementById('btn-copy-post');
     const btnToggleFlashlight = document.getElementById('btn-toggle-flashlight');
 
+    // Street Fighter Centered Super Art Announcement Elements
+    const sfAnnouncement = document.getElementById('sf-announcement');
+    const sfTierBadge = document.getElementById('sf-tier-badge');
+    const sfTierTitle = document.getElementById('sf-tier-title');
+    const sfTierSub = document.getElementById('sf-tier-sub');
+
+    // Auto Sleep Detection Elements
+    const optSleepDetect = document.getElementById('opt-sleep-detect');
+    const labelSleepDetect = document.getElementById('label-sleep-detect');
+    const sleepGuardHud = document.getElementById('sleep-guard-hud');
+    const sleepGuardText = document.getElementById('sleep-guard-text');
+
     const cameraModal = document.getElementById('camera-modal');
     const btnEnableCamera = document.getElementById('btn-enable-camera');
     const btnMockCamera = document.getElementById('btn-mock-camera');
@@ -387,6 +420,60 @@
     window.engine = engine;
 
     let peakMultiplierDuringRecording = 1.0;
+    let lastAnnouncedTier = 1;
+
+    // ── Street Fighter Centered Super Art / MAX Announcement ─────────────────
+    function triggerStreetFighterTier(frenzy, combo) {
+      if (!sfAnnouncement) return;
+      let tier = 1;
+      let badgeText = 'SUPER COMBO';
+      let titleText = 'LEVEL UP!';
+      let subText = `${frenzy.toFixed(1)}x CADENCE`;
+      let tierClass = 'tier-1';
+
+      if (frenzy >= 3.8) {
+        tier = 4;
+        badgeText = '★★★ SUPER ART ★★★';
+        titleText = 'MAX PRODUCTIVITY!';
+        subText = '4.0x MAXIMUM OVERDRIVE';
+        tierClass = 'tier-max';
+      } else if (frenzy >= 2.8) {
+        tier = 3;
+        badgeText = 'DRAGON FRENZY';
+        titleText = 'OVERDRIVE!';
+        subText = `${frenzy.toFixed(1)}x PEAK CADENCE`;
+        tierClass = 'tier-3';
+      } else if (frenzy >= 1.8) {
+        tier = 2;
+        badgeText = 'BLAZING CADENCE';
+        titleText = 'POWER BOOST!';
+        subText = `${frenzy.toFixed(1)}x ACCELERATION`;
+        tierClass = 'tier-2';
+      } else {
+        lastAnnouncedTier = 1;
+        return;
+      }
+
+      if (tier > lastAnnouncedTier) {
+        lastAnnouncedTier = tier;
+        if (sfTierBadge) sfTierBadge.textContent = badgeText;
+        if (sfTierTitle) sfTierTitle.textContent = titleText;
+        if (sfTierSub) sfTierSub.textContent = subText;
+        sfAnnouncement.className = `sf-announcement ${tierClass} active`;
+
+        if (screenFlash) {
+          screenFlash.classList.add('flash-active');
+          setTimeout(() => screenFlash.classList.remove('flash-active'), 120);
+        }
+        if (engine) engine.screenShake = 22 + tier * 7;
+
+        clearTimeout(sfAnnouncement._hideTimer);
+        sfAnnouncement._hideTimer = setTimeout(() => {
+          sfAnnouncement.classList.remove('active');
+          setTimeout(() => sfAnnouncement.classList.add('hidden'), 350);
+        }, 1600);
+      }
+    }
 
     // ── Update Productivity HUD ─────────────────────────────────────────────
     function updateProductivityHUD(frenzy, combo) {
@@ -394,6 +481,9 @@
       if (multiplierVal) {
         multiplierVal.textContent = info.formattedMultiplier;
       }
+
+      // Check for Street Fighter milestone announcement
+      triggerStreetFighterTier(frenzy, combo);
 
       // Update Dynamic Combo Streak Badge
       if (comboStreakBadge && comboStreakText) {
@@ -522,7 +612,6 @@
       });
       const thumbMap = {
         whip: 'assets/whip.jpg',
-        chain: 'assets/chain.jpg',
         taser: 'assets/taser.jpg'
       };
       const thumbUrl = thumbMap[weaponId] || 'assets/whip.jpg';
@@ -540,7 +629,6 @@
 
         weaponDrawer.classList.add('hidden');
         weaponSelector.classList.remove('open');
-        showToast(`⚡ Equipped: ${weaponId.toUpperCase()}`);
       });
     });
 
@@ -595,7 +683,7 @@
     });
 
     // ── Bottom-Right Flashlight (Torch) Strobe Toggle ────────────────────────
-    let torchEnabled = false;
+    let torchEnabled = true;
     let hasTorch = false;
 
     function checkTorchCapability() {
@@ -711,6 +799,179 @@
       });
     }
 
+    // ── Auto Sleep Detection (Anti-Nap Guard) Logic ─────────────────────────
+    let sleepDetectActive = false;
+    let sleepDetectionInterval = null;
+    let eyesClosedStartTime = 0;
+    let autoWhipTimer = null;
+    let autoWhipCadenceMs = 1500;
+    let autoWhipActive = false;
+
+    // Ultra-lean offscreen canvas for low-power sampling (120x90 px)
+    const sleepCanvas = document.createElement('canvas');
+    sleepCanvas.width = 120;
+    sleepCanvas.height = 90;
+    const sleepCtx = sleepCanvas.getContext('2d', { willReadFrequently: true });
+
+    function toggleSleepDetection(enable) {
+      sleepDetectActive = (enable !== undefined) ? enable : !sleepDetectActive;
+      if (labelSleepDetect) {
+        labelSleepDetect.textContent = sleepDetectActive ? 'Active (Monitoring)' : 'Disabled';
+        labelSleepDetect.className = `settings-toggle ${sleepDetectActive ? 'active' : ''}`;
+      }
+
+      if (sleepDetectActive) {
+        if (sleepGuardHud) {
+          sleepGuardHud.classList.remove('hidden');
+          if (sleepGuardText) sleepGuardText.textContent = '👁️ SLEEP GUARD: SCANNING';
+        }
+        showToast('👁️ Auto Sleep Detection: ACTIVATED');
+        startSleepMonitoring();
+      } else {
+        if (sleepGuardHud) sleepGuardHud.classList.add('hidden');
+        showToast('👁️ Auto Sleep Detection: OFF');
+        stopSleepMonitoring();
+      }
+    }
+
+    function startSleepMonitoring() {
+      stopSleepMonitoring();
+      eyesClosedStartTime = 0;
+      autoWhipCadenceMs = 1500;
+      autoWhipActive = false;
+
+      // Low power: 3.3 FPS
+      sleepDetectionInterval = setInterval(checkEyesState, 300);
+    }
+
+    function stopSleepMonitoring() {
+      if (sleepDetectionInterval) {
+        clearInterval(sleepDetectionInterval);
+        sleepDetectionInterval = null;
+      }
+      if (autoWhipTimer) {
+        clearTimeout(autoWhipTimer);
+        autoWhipTimer = null;
+      }
+      autoWhipActive = false;
+      eyesClosedStartTime = 0;
+    }
+
+    function checkEyesState() {
+      if (!sleepDetectActive) return;
+      if (!window.__SIMULATE_SLEEP__ && (!video || video.readyState < 2)) return;
+
+      let isEyesClosed = false;
+
+      if (window.__SIMULATE_SLEEP__) {
+        isEyesClosed = true;
+      } else {
+        const sw = sleepCanvas.width;
+        const sh = sleepCanvas.height;
+        sleepCtx.drawImage(video, 0, 0, sw, sh);
+
+        const startX = Math.floor(sw * 0.28);
+        const startY = Math.floor(sh * 0.22);
+        const regionW = Math.floor(sw * 0.44);
+        const regionH = Math.floor(sh * 0.28);
+
+        const imgData = sleepCtx.getImageData(startX, startY, regionW, regionH);
+        const d = imgData.data;
+
+        let edgeContrast = 0;
+        let totalLuma = 0;
+        let count = 0;
+
+        for (let y = 1; y < regionH - 1; y += 2) {
+          for (let x = 1; x < regionW - 1; x += 2) {
+            const idx = (y * regionW + x) * 4;
+            const luma = 0.299 * d[idx] + 0.587 * d[idx + 1] + 0.114 * d[idx + 2];
+            const rightLuma = 0.299 * d[idx + 4] + 0.587 * d[idx + 5] + 0.114 * d[idx + 6];
+            const downLuma = 0.299 * d[idx + regionW * 4] + 0.587 * d[idx + regionW * 4 + 1] + 0.114 * d[idx + regionW * 4 + 2];
+
+            edgeContrast += Math.abs(luma - rightLuma) + Math.abs(luma - downLuma);
+            totalLuma += luma;
+            count++;
+          }
+        }
+
+        const avgContrast = count > 0 ? (edgeContrast / count) : 0;
+        const avgLuma = count > 0 ? (totalLuma / count) : 0;
+
+        isEyesClosed = (avgContrast < 8.2 && avgLuma > 18);
+      }
+      const now = performance.now();
+
+      if (isEyesClosed) {
+        if (eyesClosedStartTime === 0) {
+          eyesClosedStartTime = now;
+        }
+        const closedDuration = now - eyesClosedStartTime;
+        const closedSec = (closedDuration / 1000).toFixed(1);
+
+        if (sleepGuardText) {
+          sleepGuardText.textContent = `💤 EYES CLOSED: ${closedSec}s`;
+          if (sleepGuardHud) sleepGuardHud.classList.add('alert');
+        }
+
+        if (closedDuration >= 2000 && !autoWhipActive) {
+          triggerAutoSleepWhip();
+        }
+      } else {
+        if (eyesClosedStartTime > 0 && sleepGuardText) {
+          sleepGuardText.textContent = '👁️ SLEEP GUARD: AWAKE';
+          if (sleepGuardHud) sleepGuardHud.classList.remove('alert');
+        }
+        eyesClosedStartTime = 0;
+        autoWhipActive = false;
+        autoWhipCadenceMs = 1500;
+        if (autoWhipTimer) {
+          clearTimeout(autoWhipTimer);
+          autoWhipTimer = null;
+        }
+      }
+    }
+
+    function triggerAutoSleepWhip() {
+      autoWhipActive = true;
+
+      const targetX = window.innerWidth * 0.5;
+      const targetY = window.innerHeight * 0.38;
+      engine.strikeAt(targetX, targetY);
+
+      if (engine && engine.callouts) {
+        engine.callouts.push({
+          text: 'HEI BANGUN! KERJA JANGAN TIDUR!',
+          x: targetX + (Math.random() * 80 - 40),
+          y: targetY - 60,
+          rotation: (Math.random() - 0.5) * 0.08,
+          scale: 0.2,
+          targetScale: 1.0,
+          alpha: 1.0,
+          age: 0,
+          life: 2.2,
+          timeStr: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+      }
+
+      // Accelerate strike frequency if eyes remain closed
+      autoWhipCadenceMs = Math.max(350, Math.floor(autoWhipCadenceMs * 0.75));
+
+      if (sleepDetectActive && autoWhipActive) {
+        autoWhipTimer = setTimeout(() => {
+          if (autoWhipActive && sleepDetectActive) {
+            triggerAutoSleepWhip();
+          }
+        }, autoWhipCadenceMs);
+      }
+    }
+
+    if (optSleepDetect) {
+      optSleepDetect.addEventListener('click', () => {
+        toggleSleepDetection();
+      });
+    }
+
     function activateDemoMode(showNotification = false) {
       if (cameraModal) cameraModal.classList.add('hidden');
       isMockMode = true;
@@ -810,24 +1071,7 @@
       ctx.shadowColor = glowCol;
       ctx.shadowBlur = 12;
       ctx.fillText(info.formattedMultiplier, 0, 36);
-
-      ctx.font = '22px sans-serif';
-      ctx.fillText('👑', ctx.measureText(info.formattedMultiplier).width + 6, 34);
       ctx.restore();
-
-      // Left & Right Ambient Glow Channels on Recorded Video
-      const glowW = Math.min(24, 8 + (eng.frenzy - 1.0) * 5);
-      const glowGradL = ctx.createLinearGradient(0, 0, glowW, 0);
-      glowGradL.addColorStop(0, glowCol);
-      glowGradL.addColorStop(1, 'transparent');
-      ctx.fillStyle = glowGradL;
-      ctx.fillRect(0, 0, glowW, H);
-
-      const glowGradR = ctx.createLinearGradient(W, 0, W - glowW, 0);
-      glowGradR.addColorStop(0, glowCol);
-      glowGradR.addColorStop(1, 'transparent');
-      ctx.fillStyle = glowGradR;
-      ctx.fillRect(W - glowW, 0, glowW, H);
 
       // Bottom Right Watermark Stamp
       const stampText = `OpenWhip™ AR • ${info.weaponName} • SMALL HITS. BIGGER RESULTS.`;

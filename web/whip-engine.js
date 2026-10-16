@@ -38,16 +38,6 @@ class WhipEngine {
         sparkColors: ['#d97706', '#b45309', '#92400e', '#fef3c7', '#78350f'],
         phrases: []
       },
-      chain: {
-        id: 'chain',
-        name: 'CHAIN',
-        sub: 'Heavy Flail',
-        themeColor: '#94a3b8',
-        coreColor: '#334155',
-        glowColor: 'rgba(148, 163, 184, 0.6)',
-        sparkColors: ['#94a3b8', '#cbd5e1', '#ffffff', '#475569', '#64748b'],
-        phrases: []
-      },
       taser: {
         id: 'taser',
         name: 'TASER',
@@ -74,7 +64,7 @@ class WhipEngine {
     this.initThreeJS(threeCanvas);
     this.resize();
 
-    // ── Whip & Chain Physics Points ─────────────────────────────────────────
+    // ── Whip & Physics Points ───────────────────────────────────────────────
     this.segments = 18; // Articulated vertebrae count (matches reference spacing)
     this.segmentLength = 22;
     this.pts = [];
@@ -98,7 +88,8 @@ class WhipEngine {
     this.particles = [];
     this.shockwaves = [];
     this.slashMarks = [];
-    this.callouts = []; // Indonesian satire comic meme popouts
+    this.callouts = []; // Indonesian satire WhatsApp chat popouts
+    this.fireAuraParticles = []; // Street Fighter style flame aura particles
     this.memesEnabled = true;
     this.memePhrases = [
       'KITA DI SINI KELUARGA!',
@@ -879,10 +870,10 @@ class WhipEngine {
     let progress = Math.min(1.0, (this.frenzy - 1.0) / 3.0);
 
     if (this.frenzy >= 3.8) {
-      tierName = 'MAX 👑 (4.0x)';
+      tierName = 'MAX ⚡ (4.0x)';
       tierColor = '#00f5ff';
     } else if (this.frenzy >= 2.8) {
-      tierName = 'PEAK 👑 (3.0x)';
+      tierName = 'PEAK ⚡ (3.0x)';
       tierColor = '#39ff14';
     } else if (this.frenzy >= 1.8) {
       tierName = 'GOOD (2.0x)';
@@ -1033,7 +1024,7 @@ class WhipEngine {
     // If player pauses or stops tapping, intensity immediately begins draining in real time
     const timeSinceLastTap = performance.now() - this.lastTapTime;
     if (timeSinceLastTap > 320 && !this.lockFrenzy) {
-      // Drain rate accelerates at higher tiers to force intense tapping to retain MAX 👑
+      // Drain rate accelerates at higher tiers to force intense tapping to retain MAX ⚡
       const decaySpeed = 0.52 + (this.frenzy - 1.0) * 0.42;
       const oldFrenzy = this.frenzy;
       this.frenzy = Math.max(1.0, this.frenzy - decaySpeed * dt);
@@ -1303,16 +1294,18 @@ class WhipEngine {
       const randX = marginX + Math.random() * (this.W - marginX * 2);
       const randY = marginY + Math.random() * (this.H * 0.50);
 
+      const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       this.callouts.push({
         text: phrase,
         x: randX,
         y: randY,
-        rotation: (Math.random() - 0.5) * 0.18,
+        rotation: (Math.random() - 0.5) * 0.08,
         scale: 0.15,
         targetScale: 1.0,
         alpha: 1.0,
         age: 0,
-        life: 1.45,
+        life: 1.85,
+        timeStr: timeNow
       });
     }
 
@@ -1327,13 +1320,59 @@ class WhipEngine {
       if (this.screenShake < 0.5) this.screenShake = 0;
     }
 
-    // Callout comic speech bubbles
+    // Street Fighter Centered Fire Aura Particles Evolving Across Tiers
+    if (this.frenzy >= 1.6) {
+      const fireTier = this.frenzy >= 3.8 ? 4 : (this.frenzy >= 2.8 ? 3 : 2);
+      const spawnCount = fireTier === 4 ? 6 : (fireTier === 3 ? 4 : 2);
+
+      for (let f = 0; f < spawnCount; f++) {
+        const spreadX = (Math.random() - 0.5) * (this.W * 0.45);
+        const startX = (this.W * 0.5) + spreadX;
+        const startY = this.H * 0.82 + Math.random() * (this.H * 0.15);
+
+        let colors;
+        if (fireTier === 4) {
+          colors = ['#c084fc', '#a855f7', '#fde047', '#00f5ff', '#ffffff'];
+        } else if (fireTier === 3) {
+          colors = ['#00f5ff', '#38bdf8', '#67e8f9', '#ffffff', '#0284c7'];
+        } else {
+          colors = ['#ef4444', '#ea580c', '#f97316', '#facc15', '#ffffff'];
+        }
+
+        const col = colors[Math.floor(Math.random() * colors.length)];
+        this.fireAuraParticles.push({
+          x: startX,
+          y: startY,
+          vx: (Math.random() - 0.5) * 2.4,
+          vy: -(4.8 + Math.random() * 8.0 * (fireTier * 0.35)),
+          size: 14 + Math.random() * 22 * (fireTier * 0.3),
+          alpha: 0.85,
+          color: col,
+          life: 0.65 + Math.random() * 0.45,
+          age: 0
+        });
+      }
+    }
+
+    for (let i = this.fireAuraParticles.length - 1; i >= 0; i--) {
+      const p = this.fireAuraParticles[i];
+      p.age += dt;
+      p.x += p.vx + Math.sin(p.age * 8.0) * 0.8;
+      p.y += p.vy;
+      p.size *= 0.96;
+      p.alpha = Math.max(0, 0.85 * (1 - p.age / p.life));
+      if (p.age >= p.life || p.size <= 1.5 || p.alpha <= 0) {
+        this.fireAuraParticles.splice(i, 1);
+      }
+    }
+
+    // Callout WhatsApp speech bubbles
     for (let i = this.callouts.length - 1; i >= 0; i--) {
       const c = this.callouts[i];
       c.age += dt;
-      if (c.scale < c.targetScale) c.scale += (c.targetScale - c.scale) * 0.35;
-      if (c.age > c.life * 0.6) {
-        c.alpha -= dt * 2.8;
+      if (c.scale < c.targetScale) c.scale += (c.targetScale - c.scale) * 0.38;
+      if (c.age > c.life * 0.65) {
+        c.alpha -= dt * 2.4;
       }
       if (c.alpha <= 0 || c.age >= c.life) this.callouts.splice(i, 1);
     }
@@ -1383,7 +1422,10 @@ class WhipEngine {
       this.ctx.translate(sx, sy);
     }
 
-    // 1. Draw Active 2D Weapon Physics (Cyber-Spine Whip / Chain / Taser)
+    // 0. Draw Street Fighter Fire Aura across multiplier tiers
+    this.drawFireAura();
+
+    // 1. Draw Active 2D Weapon Physics (Cyber-Spine Whip / Taser)
     this.drawCurrentWeapon();
 
     // 2. Render Three.js 3D Tactical Arm onto Canvas
@@ -1424,10 +1466,29 @@ class WhipEngine {
       this.ctx.restore();
     }
 
-    // 7. Draw Indonesian Satire Comic Callouts
+    // 7. Draw Indonesian Satire WhatsApp Chat Bubbles
     this.drawCallouts();
 
     this.ctx.restore();
+  }
+
+  drawFireAura() {
+    if (!this.fireAuraParticles || this.fireAuraParticles.length === 0) return;
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    for (const p of this.fireAuraParticles) {
+      ctx.globalAlpha = p.alpha;
+      const radGrad = ctx.createRadialGradient(p.x, p.y, 1, p.x, p.y, p.size);
+      radGrad.addColorStop(0, '#ffffff');
+      radGrad.addColorStop(0.35, p.color);
+      radGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = radGrad;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   drawCallouts() {
@@ -1996,87 +2057,72 @@ class WhipEngine {
     const ctx = this.ctx;
     ctx.save();
 
-    const isFocusNow = (c.text === 'FOCUS NOW!' || c.text.startsWith('FOCUS NOW'));
-    const lines = isFocusNow ? ['FOCUS', 'NOW!'] : (c.text.includes('\n') ? c.text.split('\n') : [c.text]);
+    const text = c.text || '';
+    const timeStr = c.timeStr || (new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
-    // Smaller, sharper comic font
-    ctx.font = '900 17px "Permanent Marker", "Bangers", Impact, sans-serif';
-    let maxLineWidth = 0;
-    lines.forEach(l => {
-      const w = ctx.measureText(l).width;
-      if (w > maxLineWidth) maxLineWidth = w;
-    });
+    // Authentic WhatsApp typography
+    ctx.font = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    const textWidth = ctx.measureText(text).width;
 
-    const isMultiLine = lines.length > 1;
-    const bubbleW = isMultiLine ? Math.max(105, maxLineWidth + 26) : Math.max(115, maxLineWidth + 26);
-    const bubbleH = isMultiLine ? 48 : 36;
-    const r = 10;
+    ctx.font = '500 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    const timeMetrics = ctx.measureText(timeStr);
+    const metaWidth = timeMetrics.width + 18; // time + checkmarks spacing
 
-    // Boundary clamp: keep bubble within screen margins
-    const clampedX = Math.min(this.W - bubbleW * 0.5 - 14, Math.max(bubbleW * 0.5 + 14, c.x));
+    const padX = 12;
+    const bubbleW = Math.max(120, textWidth + metaWidth + padX * 2);
+    const bubbleH = 34;
+    const r = 8;
+
+    // Boundary clamp: keep WhatsApp bubble within screen margins
+    const clampedX = Math.min(this.W - bubbleW * 0.5 - 18, Math.max(bubbleW * 0.5 + 18, c.x));
     const clampedY = Math.min(this.H - bubbleH - 120, Math.max(bubbleH * 0.5 + 40, c.y));
 
     ctx.translate(clampedX, clampedY);
-    ctx.rotate(c.rotation || -0.10);
+    ctx.rotate(c.rotation || 0);
     ctx.scale(c.scale, c.scale);
     ctx.globalAlpha = Math.max(0, c.alpha);
 
-    // Dark sleek comic balloon
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+    // 1. Subtle soft shadow
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 3;
+
+    // 2. Classic WhatsApp Outgoing Green Bubble (#005c4b)
+    ctx.fillStyle = '#005c4b';
     ctx.beginPath();
     ctx.roundRect(-bubbleW * 0.5, -bubbleH * 0.5, bubbleW, bubbleH, r);
     ctx.fill();
 
-    // Pointed Tail
+    // 3. WhatsApp Corner Notch / Tail on top-right pointing outward
     ctx.beginPath();
-    ctx.moveTo(-10, bubbleH * 0.5);
-    ctx.lineTo(-20, bubbleH * 0.5 + 14);
-    ctx.lineTo(-2, bubbleH * 0.5);
+    ctx.moveTo(bubbleW * 0.5 - 1, -bubbleH * 0.5);
+    ctx.lineTo(bubbleW * 0.5 + 8, -bubbleH * 0.5);
+    ctx.lineTo(bubbleW * 0.5 - 1, -bubbleH * 0.5 + 11);
     ctx.closePath();
     ctx.fill();
 
-    // Executive blue border
-    ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = 2.0;
-    ctx.shadowColor = 'rgba(59, 130, 246, 0.5)';
-    ctx.shadowBlur = 8;
-    ctx.beginPath();
-    ctx.roundRect(-bubbleW * 0.5, -bubbleH * 0.5, bubbleW, bubbleH, r);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(-10, bubbleH * 0.5);
-    ctx.lineTo(-20, bubbleH * 0.5 + 14);
-    ctx.lineTo(-2, bubbleH * 0.5);
-    ctx.stroke();
-
-    // Radiating red action marks
-    ctx.strokeStyle = '#ef4444';
-    ctx.lineWidth = 2.0;
-    ctx.shadowColor = '#ef4444';
-    ctx.shadowBlur = 6;
-    ctx.beginPath();
-    ctx.moveTo(bubbleW * 0.5 + 3, -bubbleH * 0.35);
-    ctx.lineTo(bubbleW * 0.5 + 12, -bubbleH * 0.48);
-    ctx.moveTo(bubbleW * 0.5 + 4, 2);
-    ctx.lineTo(bubbleW * 0.5 + 14, 4);
-    ctx.stroke();
-
-    // Dynamic Comic Text
+    // Reset shadow for crisp text
+    ctx.shadowColor = 'transparent';
     ctx.shadowBlur = 0;
-    ctx.textAlign = 'center';
+    ctx.shadowOffsetY = 0;
+
+    // 4. White message text (left aligned)
+    ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#ffffff';
+    ctx.font = '600 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    ctx.fillText(text, -bubbleW * 0.5 + padX, 0);
 
-    if (isMultiLine) {
-      ctx.font = '900 16px "Permanent Marker", "Bangers", Impact, sans-serif';
-      ctx.fillText(lines[0], 0, -10);
-      ctx.font = '900 17px "Permanent Marker", "Bangers", Impact, sans-serif';
-      ctx.fillText(lines[1], 0, 11);
-    } else {
-      ctx.font = '900 17px "Permanent Marker", "Bangers", Impact, sans-serif';
-      ctx.fillText(lines[0], 0, -1);
-    }
+    // 5. Timestamp (light greyish-green)
+    const metaX = bubbleW * 0.5 - padX - metaWidth;
+    ctx.font = '500 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    ctx.fillStyle = '#8696a0';
+    ctx.fillText(timeStr, metaX, 1);
+
+    // 6. WhatsApp Blue Double Checkmark (✓✓ Read Receipts)
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillStyle = '#53bdeb';
+    ctx.fillText('✓✓', metaX + timeMetrics.width + 4, 1);
 
     ctx.restore();
   }
