@@ -58,6 +58,48 @@ class WhipEngine {
     this.micSource = null;
     this.micGain = null;
     this.isMicActive = false;
+
+    // ── Wake-Up Shouting Voice Lines (Anti-Sleep Guard) ─────────────────────
+    this.voiceFiles = {
+      id: [
+        'sounds/voice/id_wake_1.mp3',
+        'sounds/voice/id_wake_2.mp3',
+        'sounds/voice/id_wake_3.mp3',
+        'sounds/voice/id_wake_4.mp3',
+        'sounds/voice/id_wake_5.mp3',
+        'sounds/voice/id_wake_6.mp3'
+      ],
+      en: [
+        'sounds/voice/en_wake_1.mp3',
+        'sounds/voice/en_wake_2.mp3',
+        'sounds/voice/en_wake_3.mp3',
+        'sounds/voice/en_wake_4.mp3',
+        'sounds/voice/en_wake_5.mp3',
+        'sounds/voice/en_wake_6.mp3'
+      ]
+    };
+    this.voicePhrases = {
+      id: [
+        'AYO BANGUN!',
+        'KERJA! JANGAN ISTIRAHAT!',
+        'HEI BANGUN! JANGAN MALAS!',
+        'CEPAT BANGUN! KERJA!',
+        'KERJA! JANGAN TIDUR!',
+        'BANGUN! TARGET BELUM SELESAI!'
+      ],
+      en: [
+        'WAKE UP! GET BACK TO WORK!',
+        'WORK! NO SLEEPING!',
+        'HEY! WAKE UP NOW!',
+        'GET UP! HUSTLE HARDER!',
+        "WAKE UP! DEADLINES DON'T WAIT!",
+        'NO SLEEPING ON COMPANY TIME!'
+      ]
+    };
+    this.voiceBuffers = { id: [], en: [] };
+    this.voiceAudioPool = { id: [], en: [] };
+    this.lastVoicePlayTime = 0;
+    this.voiceIndices = { id: 0, en: 0 };
     this.initAudio();
 
     // ── Three.js 3D Viewport & Scene ──────────────────────────────────────────
@@ -380,6 +422,18 @@ class WhipEngine {
       this.audioPool.push(a);
     });
 
+    if (this.voiceFiles) {
+      ['id', 'en'].forEach(lang => {
+        this.voiceAudioPool[lang] = [];
+        this.voiceFiles[lang].forEach(src => {
+          const a = new Audio(src);
+          a.volume = 1.0;
+          a.preload = 'auto';
+          this.voiceAudioPool[lang].push(a);
+        });
+      });
+    }
+
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (AudioCtx) {
       try {
@@ -444,6 +498,85 @@ class WhipEngine {
         }
       }
     }
+
+    if (this.voiceFiles) {
+      for (const lang of ['id', 'en']) {
+        this.voiceBuffers[lang] = [];
+        for (const src of this.voiceFiles[lang]) {
+          try {
+            const resp = await fetch(src);
+            if (resp.ok) {
+              const arrayBuffer = await resp.arrayBuffer();
+              const decoded = await this.audioCtx.decodeAudioData(arrayBuffer);
+              this.voiceBuffers[lang].push(decoded);
+            }
+          } catch (e) {
+            // Fallback to HTML Audio pool
+          }
+        }
+      }
+    }
+  }
+
+  // ── High-Emotion Shouting Wake-Up Voice (Keep-Awake Guard) ───────────────
+  playWakeUpVoice(lang) {
+    this.unlockAudio();
+    const l = (lang === 'en') ? 'en' : 'id';
+    const now = performance.now();
+
+    const phrases = this.voicePhrases[l];
+    const list = this.voiceFiles[l];
+    if (!list || list.length === 0) return 'BANGUN!';
+
+    // Throttle voice: don't overlap voice lines if whips strike rapidly while eyes stay closed
+    if (now - this.lastVoicePlayTime < 1600) {
+      const prevIdx = (this.voiceIndices[l] - 1 + list.length) % list.length;
+      return phrases[prevIdx];
+    }
+    this.lastVoicePlayTime = now;
+
+    const curIndex = this.voiceIndices[l] % list.length;
+    this.voiceIndices[l] = (curIndex + 1) % list.length;
+    const spokenText = phrases[curIndex];
+
+    // Priority 1: Web Audio Buffer routed to user speakers AND video recorder
+    if (this.audioCtx && this.voiceBuffers[l] && this.voiceBuffers[l][curIndex]) {
+      try {
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        const buf = this.voiceBuffers[l][curIndex];
+        const src = this.audioCtx.createBufferSource();
+        src.buffer = buf;
+        const g = this.audioCtx.createGain();
+        g.gain.setValueAtTime(1.35, this.audioCtx.currentTime); // Authoritative shouting volume
+        src.connect(g);
+        if (this.sfxGain) {
+          g.connect(this.sfxGain);
+        } else {
+          g.connect(this.audioCtx.destination);
+          if (this.audioDest) g.connect(this.audioDest);
+        }
+        src.start(0);
+        return spokenText;
+      } catch (err) {
+        console.warn('Web Audio voice play note:', err);
+      }
+    }
+
+    // Priority 2: HTMLAudioElement fallback
+    try {
+      const audioEl = this.voiceAudioPool[l] && this.voiceAudioPool[l][curIndex];
+      if (audioEl) {
+        audioEl.currentTime = 0;
+        audioEl.volume = 1.0;
+        audioEl.play().catch(() => {});
+      } else {
+        const a = new Audio(list[curIndex]);
+        a.volume = 1.0;
+        a.play().catch(() => {});
+      }
+    } catch (e) {}
+
+    return spokenText;
   }
 
   async unlockAudio() {

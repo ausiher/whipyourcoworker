@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Whip Your Coworker™ | Corporate Productivity AR</title>
-  <link rel="stylesheet" href="style.css?v=17">
+  <link rel="stylesheet" href="style.css?v=18">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M22 78 C 30 22, 68 18, 82 45 C 92 68, 62 82, 42 66 C 26 54, 52 32, 68 40' fill='none' stroke='%23f59e0b' stroke-width='9' stroke-linecap='round'/><path d='M14 84 L26 72' stroke='%2378350f' stroke-width='14' stroke-linecap='round'/></svg>">
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 </head>
@@ -248,7 +248,7 @@
   <!-- Three.js 3D Library & GLTF Loader -->
   <script src="libs/three.min.js"></script>
   <script src="libs/GLTFLoader.js"></script>
-  <script src="whip-engine.js?v=16"></script>
+  <script src="whip-engine.js?v=17"></script>
 
   <script>
     const container = document.getElementById('app-container');
@@ -973,8 +973,8 @@
       const targetY = window.innerHeight * 0.38;
       engine.strikeAt(targetX, targetY);
 
-      const t = i18n[currentLang] || i18n.en;
-      const shout = t.sleep_wake_shout || 'WAKE UP! GET BACK TO WORK!';
+      // Play high-emotion shouting wake-up voice line and get matching text
+      const shout = engine.playWakeUpVoice(currentLang);
 
       if (engine && engine.callouts) {
         engine.callouts.push({
@@ -1326,15 +1326,6 @@
       ctx.shadowBlur = 12;
       ctx.fillText(info.formattedMultiplier, 0, 36);
       ctx.restore();
-
-      // Bottom Right Watermark Stamp
-      const stampText = `OpenWhip™ AR • ${info.weaponName} • SMALL HITS. BIGGER RESULTS.`;
-      ctx.font = '800 11px "Orbitron", sans-serif';
-      ctx.textAlign = 'right';
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
-      ctx.fillText(stampText, W - 19, H - 21);
-      ctx.fillStyle = 'rgba(0, 245, 255, 0.9)';
-      ctx.fillText(stampText, W - 20, H - 22);
 
       ctx.restore();
     }
