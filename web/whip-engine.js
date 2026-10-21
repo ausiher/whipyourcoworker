@@ -580,8 +580,8 @@ class WhipEngine {
         const src = this.audioCtx.createBufferSource();
         src.buffer = buf;
 
-        // Dynamic pitch variance (+/- 4%) gives every overlapping scream distinct urgent character
-        src.playbackRate.setValueAtTime(0.97 + Math.random() * 0.08, this.audioCtx.currentTime);
+        // Natural pitch: keep playbackRate at 1.0 to preserve authentic baritone voice format and avoid chipmunk artifacts
+        src.playbackRate.setValueAtTime(1.0, this.audioCtx.currentTime);
 
         const g = this.audioCtx.createGain();
         g.gain.setValueAtTime(1.4, this.audioCtx.currentTime); // Authoritative loud shouting volume
