@@ -67,7 +67,9 @@ class WhipEngine {
         'sounds/voice/id_wake_3.mp3',
         'sounds/voice/id_wake_4.mp3',
         'sounds/voice/id_wake_5.mp3',
-        'sounds/voice/id_wake_6.mp3'
+        'sounds/voice/id_wake_6.mp3',
+        'sounds/voice/id_wake_7.mp3',
+        'sounds/voice/id_wake_8.mp3'
       ],
       en: [
         'sounds/voice/en_wake_1.mp3',
@@ -75,29 +77,36 @@ class WhipEngine {
         'sounds/voice/en_wake_3.mp3',
         'sounds/voice/en_wake_4.mp3',
         'sounds/voice/en_wake_5.mp3',
-        'sounds/voice/en_wake_6.mp3'
+        'sounds/voice/en_wake_6.mp3',
+        'sounds/voice/en_wake_7.mp3',
+        'sounds/voice/en_wake_8.mp3'
       ]
     };
     this.voicePhrases = {
       id: [
-        'AYO BANGUN!',
-        'KERJA! JANGAN ISTIRAHAT!',
-        'HEI BANGUN! JANGAN MALAS!',
-        'CEPAT BANGUN! KERJA!',
-        'KERJA! JANGAN TIDUR!',
-        'BANGUN! TARGET BELUM SELESAI!'
+        'AYO BANGUN! JANGAN TIDUR WOI!',
+        'KERJA! TARGET BELUM SELESAI!',
+        'HEI! CEPAT BANGUN! KERJA!',
+        'JANGAN TIDUR DI JAM KANTOR!',
+        'BANGUN WOI! DEADLINE TINGGAL SEBENTAR!',
+        'KERJA! JANGAN BERANI-BERANI ISTIRAHAT!',
+        'CEPAT BANGUN! KLIEN SUDAH NUNGGU!',
+        'HEI BANGUN! GAK ADA WAKTU BUAT MALAS!'
       ],
       en: [
         'WAKE UP! GET BACK TO WORK!',
-        'WORK! NO SLEEPING!',
-        'HEY! WAKE UP NOW!',
+        'WORK! NO SLEEPING ON COMPANY TIME!',
+        'HEY! WAKE UP RIGHT NOW!',
         'GET UP! HUSTLE HARDER!',
-        "WAKE UP! DEADLINES DON'T WAIT!",
-        'NO SLEEPING ON COMPANY TIME!'
+        "DEADLINES DON'T WAIT! WAKE UP!",
+        'NO SLEEPING! BACK TO THE GRIND!',
+        'SNAP OUT OF IT! WORK FASTER!',
+        'EYES OPEN! WE HAVE TARGETS TO HIT!'
       ]
     };
     this.voiceBuffers = { id: [], en: [] };
     this.voiceAudioPool = { id: [], en: [] };
+    this.activeVoiceNodes = []; // Simultaneous overlapping shout channels in sleep chaos mode
     this.lastVoicePlayTime = 0;
     this.voiceIndices = { id: 0, en: 0 };
     this.initAudio();
@@ -134,72 +143,96 @@ class WhipEngine {
     this.onScreenShake = null; // High-impact screen shake callback for container & MAX hits
     this.calloutsEnabled = true;
 
-    // Multilingual Workplace Gaslighting Boss Quotes (30 per language: EN, ID, ZH, RU)
+    // Multilingual Workplace Gaslighting Boss Quotes (40 per language: 20 Sarcasm + 20 Positive Bullshit)
     this.currentLang = 'id';
     this.langPhrases = {
       en: [
+        // ── 20 Sarcastic / Hustle Gaslighting Phrases ──
         'WE ARE A FAMILY HERE!',
         'DO IT FOR THE EXPERIENCE!',
         'UNPAID OVERTIME BUILDS CHARACTER!',
         'PASSION OVER SALARY!',
-        'THERE ARE 100 APPLICANTS WAITING FOR YOUR JOB!',
-        'INVEST IN YOUR FUTURE SELF!',
+        '100 APPLICANTS ARE WAITING FOR YOUR SEAT!',
+        'INVEST IN YOUR RESILIENCE!',
         'WORK SMART, NOT LESS!',
         'BE GRATEFUL YOU HAVE A JOB IN THIS ECONOMY!',
-        'LOYALTY HAS NO LIMITS!',
+        'LOYALTY HAS NO CLOCK-OUT TIME!',
         'BACK IN MY DAY WE WORKED 18 HOURS!',
-        'PROVE YOUR DEDICATION TODAY!',
         'WEEKENDS ARE FOR THE WEAK!',
-        'SYNERGIZE THE DELIVERABLES!',
         'EXPOSURE IS BETTER THAN MONEY!',
         'SLEEP WHEN YOU\'RE RETIRED!',
-        'CHAMPIONS DON\'T NEED SLEEP!',
-        'THIS IS A FAST-PACED ENVIRONMENT!',
+        'BURNOUT IS JUST A WEAK MINDSET!',
         'WE WEAR MANY HATS HERE!',
-        'LET\'S CIRCLE BACK AND HUSTLE HARDER!',
-        'YOUR EFFORT TODAY IS TOMORROW\'S EQUITY!',
-        'WHY GO HOME WHEN WE HAVE FREE COFFEE?',
-        'I DON\'T BELIEVE IN BURNOUT, ONLY MINDSET!',
+        'LUNCH BREAK? THAT\'S LOST BILLABLE TIME!',
         'TAKE OWNERSHIP OF THIS CRISIS!',
-        'LUNCH BREAK? THAT\'S TIME LOST!',
-        'GO THE EXTRA MILE WITHOUT EXTRA PAY!',
-        'WE CELEBRATE HARD WORK, NOT COMPLAINTS!',
-        'TIGHT DEADLINES BREED CREATIVITY!',
-        'WE VALUE AGILITY AND MAXIMUM OUTPUT!',
-        'YOU\'RE NOT TIRED, YOU\'RE UNINSPIRED!',
-        'KEEP PUSHING, THE QUARTER ENDS TONIGHT!'
+        'IF YOU CAN\'T HUSTLE, SOMEONE ELSE WILL!',
+        'DEADLINES DON\'T SLEEP AND NEITHER DO YOU!',
+        'YOU\'RE NOT TIRED, YOU\'RE UNCOMMITTED!',
+        // ── 20 Positive Bullshit / Toxic Gaslighting Praise Phrases ──
+        'THE COMPANY IS SO LUCKY TO HAVE YOU!',
+        'WHAT WOULD WE EVER DO WITHOUT YOU!',
+        'YOU ARE THE TRUE BACKBONE OF THIS TEAM!',
+        'YOU\'RE THE ONLY ONE I CAN REALLY TRUST!',
+        'YOUR TIRELESS DEDICATION INSPIRES US ALL!',
+        'YOU HAVE UNSTOPPABLE FUTURE LEADER POTENTIAL!',
+        'YOU ARE OUR MOST VALUED PILLAR!',
+        'NOBODY PUTS IN CRUCIAL WORK QUITE LIKE YOU!',
+        'WE APPRECIATE YOUR SACRIFICE MORE THAN WORDS!',
+        'YOU ALWAYS RISE TO THE OCCASION!',
+        'YOUR PASSION RADIATES THROUGH THE ENTIRE OFFICE!',
+        'YOU ARE A ROCKSTAR ROCKING THIS DEADLINE!',
+        'THE FUTURE OF THIS FIRM RESTS IN YOUR HANDS!',
+        'YOU CRUSH EVERY SINGLE CHALLENGE THROWN AT YOU!',
+        'YOU EMBODY OUR CORE CORPORATE VALUES!',
+        'WE TRULY COULD NOT HIT TARGETS WITHOUT YOU!',
+        'YOUR WORK ETHIC IS SECOND TO NONE!',
+        'I PERSONALLY HANDPICKED YOU FOR THIS MISSION!',
+        'YOU ARE DESTINED FOR GREAT CORPORATE HEIGHTS!',
+        'THANK YOU FOR ALWAYS GOING ABOVE AND BEYOND!'
       ],
       id: [
+        // ── 20 Sarcastic / Guilt-Trip Gaslighting Phrases ──
         'KITA DI SINI KELUARGA!',
         'DEMI PENGALAMAN KAMU!',
         'KERJA IKHLAS ITU BERKAH!',
         'LOYALITAS TANPA BATAS!',
-        'JANGAN HITUNG-HITUNGAN!',
-        'MASIH UNTUNG DIGAJI!',
-        'DI LUAR BANYAK YG NGANTRI!',
-        'MENTAL KAMU TEMPE!',
+        'JANGAN HITUNG-HITUNGAN WAKTU!',
+        'MASIH UNTUNG BISA DIGAJI!',
+        'DI LUAR SANA BANYAK YG NGANTRI!',
+        'MENTAL KAMU JANGAN TEMPE!',
         'OVERTIME DEMI MASA DEPAN!',
         'BUKTIKAN DEDIKASI KAMU!',
-        'PASSION NOMOR SATU!',
-        'INVESTASI LEHER KE ATAS!',
-        'ANGGAP AJA BELAJAR!',
-        'KURANG BERSYUKUR KAMU!',
-        'SAYA DULU LEBIH PARAH!',
-        'KERJA CERDAS DONG!',
+        'ANGGAP AJA INI BELAJAR!',
+        'KURANG BERSYUKUR BANGET KAMU!',
+        'SAYA DULU KERJA LEBIH PARAH!',
+        'KERJA CERDAS DONG, JANGAN LAMBAN!',
         'DI SINI GAK ADA JAM PULANG!',
-        'KAMU ANAK MUDA HARUS TAHAN BANTING!',
-        'GAK USAH BANYAK DRAMA, KERJAIN!',
-        'KANTOR INI RUMAH KEDUA KAMU!',
-        'LEMBUR TANPA UANG MAKAN ITU DEDIKASI!',
         'BURNOUT ITU CUMA SUGESTI!',
         'TANGGAL MERAH TETAP STANDBY!',
-        'KLO GAK SANGGUP, RESIGN AJA!',
-        'SAYA PERCAYAKAN TUGAS INI KARENA KAMU MAMPU!',
-        'GAJI KECIL KAN ADA KELUARGA! MASAK MINTA LEBIH?',
-        'JANGAN MANJA, GENERASI SEKARANG LEMBEK!',
-        'TARGET BULANAN BELUM TERCAPAI, MAU TIDUR?!',
-        'KITA HARUS HUSTLE SAMPAI SUKSES!',
-        'TIDUR ITU NANTI PAS PENSIUN!'
+        'KALAU GAK SANGGUP, RESIGN AJA!',
+        'TARGET BELUM KELAR, MAU TIDUR?!',
+        'TIDUR NYENYAK NANTI PAS PENSIUN!',
+        // ── 20 Positive Bullshit / Toxic Gaslighting Praise Phrases ──
+        'PERUSAHAAN BERUNTUNG BANGET PUNYA KAMU!',
+        'APA JADINYA KAMI TANPA DIRIMU!',
+        'KAMU ITU TULANG PUNGGUNG DIVISI INI!',
+        'HANYA KAMU YG BISA SAYA ANDALKAN!',
+        'ENERGI POSITIFMU MENULAR KE SEMUA ORANG!',
+        'POTENSI KAMU UNTUK JADI LEADER LUAR BIASA!',
+        'KONTRIBUSIMU BENAR-BENAR MENGINSPIRASI KAMI!',
+        'KAMU ITU ASET PALING BERHARGA DI SINI!',
+        'SAYA BANGGA BANGET LIHAT KERJA KERAS KAMU!',
+        'DEDIKASIMU MELEBIHI EKSPEKTASI MANAJEMEN!',
+        'HANYA KAMU YG PUNYA WORK ETHIC SEHEBAT INI!',
+        'KAMU ITU BINTANG BERSINAR DI TIM KITA!',
+        'KAMI SANGAT MENGHARGAI PENGORBANAN WAKTUMU!',
+        'KERJAAN SULIT GINI CUMA KAMU YG BISA TUNTASKAN!',
+        'MASA DEPAN KANTOR INI ADA DI TANGANMU!',
+        'SAYA TAU KAMU GAK AKAN MENGECEWAKAN SAYA!',
+        'KREATIFITAS DAN LOYALITASMU TAK TERTANDINGI!',
+        'SEMANGATMU BIKIN SATU KANTOR KAGUM!',
+        'TERIMA KASIH SELALU SIAP PASANG BADAN!',
+        'KAMU CONTOH KARYAWAN TELADAN MASA DEPAN!'
       ],
       zh: [
         '我们公司是一家人！',
@@ -518,7 +551,7 @@ class WhipEngine {
     }
   }
 
-  // ── High-Emotion Shouting Wake-Up Voice (Keep-Awake Guard) ───────────────
+  // ── High-Emotion Shouting Wake-Up Voice (Keep-Awake Guard with Chaotic Overlap) ──
   playWakeUpVoice(lang) {
     this.unlockAudio();
     const l = (lang === 'en') ? 'en' : 'id';
@@ -528,8 +561,8 @@ class WhipEngine {
     const list = this.voiceFiles[l];
     if (!list || list.length === 0) return 'BANGUN!';
 
-    // Throttle voice: don't overlap voice lines if whips strike rapidly while eyes stay closed
-    if (now - this.lastVoicePlayTime < 1600) {
+    // Micro-throttle: prevent sub-frame double execution while allowing rapid chaotic voice overlaps
+    if (now - this.lastVoicePlayTime < 90) {
       const prevIdx = (this.voiceIndices[l] - 1 + list.length) % list.length;
       return phrases[prevIdx];
     }
@@ -546,8 +579,12 @@ class WhipEngine {
         const buf = this.voiceBuffers[l][curIndex];
         const src = this.audioCtx.createBufferSource();
         src.buffer = buf;
+
+        // Dynamic pitch variance (+/- 4%) gives every overlapping scream distinct urgent character
+        src.playbackRate.setValueAtTime(0.97 + Math.random() * 0.08, this.audioCtx.currentTime);
+
         const g = this.audioCtx.createGain();
-        g.gain.setValueAtTime(1.35, this.audioCtx.currentTime); // Authoritative shouting volume
+        g.gain.setValueAtTime(1.4, this.audioCtx.currentTime); // Authoritative loud shouting volume
         src.connect(g);
         if (this.sfxGain) {
           g.connect(this.sfxGain);
@@ -555,6 +592,28 @@ class WhipEngine {
           g.connect(this.audioCtx.destination);
           if (this.audioDest) g.connect(this.audioDest);
         }
+
+        // Overlapping Audio Chaos: Cap active voices at 6 to prevent audio clipping / buffer overflow
+        if (!this.activeVoiceNodes) this.activeVoiceNodes = [];
+        this.activeVoiceNodes = this.activeVoiceNodes.filter(n => n.active);
+        if (this.activeVoiceNodes.length >= 6) {
+          const oldest = this.activeVoiceNodes.shift();
+          if (oldest && oldest.gainNode) {
+            try {
+              oldest.gainNode.gain.setValueAtTime(oldest.gainNode.gain.value, this.audioCtx.currentTime);
+              oldest.gainNode.gain.linearRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.04);
+              setTimeout(() => { try { oldest.source.stop(); } catch(e){} }, 50);
+            } catch(e) {}
+          }
+        }
+
+        const nodeRecord = { source: src, gainNode: g, active: true };
+        this.activeVoiceNodes.push(nodeRecord);
+
+        src.onended = () => {
+          nodeRecord.active = false;
+        };
+
         src.start(0);
         return spokenText;
       } catch (err) {
@@ -564,19 +623,35 @@ class WhipEngine {
 
     // Priority 2: HTMLAudioElement fallback
     try {
-      const audioEl = this.voiceAudioPool[l] && this.voiceAudioPool[l][curIndex];
-      if (audioEl) {
-        audioEl.currentTime = 0;
-        audioEl.volume = 1.0;
-        audioEl.play().catch(() => {});
-      } else {
-        const a = new Audio(list[curIndex]);
-        a.volume = 1.0;
-        a.play().catch(() => {});
-      }
+      const a = new Audio(list[curIndex]);
+      a.volume = 1.0;
+      a.play().catch(() => {});
     } catch (e) {}
 
     return spokenText;
+  }
+
+  // ── Stop Active Wake-Up Voices (Fade out immediately when coworker awakens) ─
+  stopWakeUpVoices() {
+    if (!this.activeVoiceNodes || this.activeVoiceNodes.length === 0) return;
+    const now = this.audioCtx ? this.audioCtx.currentTime : 0;
+    this.activeVoiceNodes.forEach(node => {
+      if (node && node.active) {
+        node.active = false;
+        try {
+          if (this.audioCtx && node.gainNode) {
+            node.gainNode.gain.setValueAtTime(node.gainNode.gain.value, now);
+            node.gainNode.gain.linearRampToValueAtTime(0.001, now + 0.12);
+            setTimeout(() => {
+              try { node.source.stop(); } catch(e) {}
+            }, 130);
+          } else if (node.source) {
+            node.source.stop();
+          }
+        } catch(e) {}
+      }
+    });
+    this.activeVoiceNodes = [];
   }
 
   async unlockAudio() {

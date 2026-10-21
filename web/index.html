@@ -248,7 +248,7 @@
   <!-- Three.js 3D Library & GLTF Loader -->
   <script src="libs/three.min.js"></script>
   <script src="libs/GLTFLoader.js"></script>
-  <script src="whip-engine.js?v=17"></script>
+  <script src="whip-engine.js?v=18"></script>
 
   <script>
     const container = document.getElementById('app-container');
@@ -891,6 +891,10 @@
           clearTimeout(autoWhipTimer);
           autoWhipTimer = null;
         }
+        // Immediately silence and fade out active shouting instances upon waking
+        if (engine && typeof engine.stopWakeUpVoices === 'function') {
+          engine.stopWakeUpVoices();
+        }
       }
     }
 
@@ -964,6 +968,9 @@
       }
       autoWhipActive = false;
       eyesClosedStartTime = 0;
+      if (engine && typeof engine.stopWakeUpVoices === 'function') {
+        engine.stopWakeUpVoices();
+      }
     }
 
     function triggerAutoSleepWhip() {
